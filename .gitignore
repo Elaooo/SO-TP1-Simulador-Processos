@@ -1,0 +1,23 @@
+# Arquivos compilados
+*.o
+*.out
+*.exe
+
+# Executáveis
+bin/
+
+# Arquivos temporários
+*.log
+*.tmp
+
+# Editor
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store
+
+# Relatórios gerados (opcional)
+docs/*.aux
+docs/*.log
+docs/*.toc
