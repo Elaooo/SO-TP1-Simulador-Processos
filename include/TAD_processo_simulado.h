@@ -4,10 +4,11 @@
 #ifndef TAD_PROCESSO_SIMULADO_H
 #define TAD_PROCESSO_SIMULADO_H
 
-
-#define PRONTO 1
-#define BLOQUEADO 0
-#define EXECUCAO 2
+enum estado {
+  PRONTO = 1,
+  BLOQUEADO = 0,
+  EXECUCAO = 2
+};
 
 typedef struct{
 
@@ -21,18 +22,16 @@ typedef struct{
 typedef struct{
     
     int pid; //process id
-    int *variaveis; //dar malloc ao iniciar, com o valor de N n
+    int *variaveis;
     int pcCounter;
-    char estado;
+    enum estado estado;
     int quantum;
     int prioridade;
     instrucao *listaInstrucoes;
  
 }processo;
 
-void inicializarProcesso(processo* proc, int id, int n, int* variaveisIniciais, char estado, int prioridade, instrucao* listaInstrucoes);
-
-void salvaEstado(processo* proc, int pcAtual, int* variaveisAtuais, int quantum);
-
+void inicializarProcesso(processo* proc, int id, int nVar, int nInstrucao, int* variaveisIniciais, enum estado estadoInicial, int prioridade, instrucao* listaInstrucoes);
+void salvaEstado(processo* proc, int pcAtual, int* variaveisAtuais, int quantumAtual, int nVar);
 
 #endif

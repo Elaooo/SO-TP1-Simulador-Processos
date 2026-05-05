@@ -2,24 +2,36 @@
 #include <string.h>
 #include "../include/TAD_processo_simulado.h"
 
-void salvaEstado(processo* proc, int pcAtual, int* variaveisAtuais, int quantum) {
+void salvaEstado(processo* proc, int pcAtual, int* variaveisAtuais, int quantumAtual, int nVar) {
 
-    *(proc->pcCounter) = pcAtual;
-    proc->quantum=quantum;
-    
+    proc->pcCounter = pcAtual;
+    proc->quantum=quantumAtual;
+
+    for (int i = 0; i < nVar; i++) {
+        proc->variaveis[i] = variaveisAtuais[i];
+    }
 }
 
-void inicializarProcesso(processo* proc, int id, int n, int* variaveisIniciais, char estado, int prioridade, instrucao* listaInstrucoes){
+void inicializarProcesso(processo* proc, int id, int nVar, int nInstrucao, int* variaveisIniciais, enum estado estadoInicial, int prioridade, instrucao* listaInstrucoes){
 
     proc->pid=id;
-    for (int i=0;i<n;i++){
-        proc->variaveis[i]=variaveisIniciais[i];
-    }
     proc->pcCounter=0;
-
-    proc->estado=estado;
+    proc->estado=estadoInicial;
     proc->quantum=0;
     proc->prioridade=prioridade;
-    
+    proc->listaInstrucoes=listaInstrucoes;
 
+    proc->variaveis = (int*) malloc(sizeof(int) * nVar);
+    if (proc->variaveis != NULL) {
+        for (int i = 0; i < nVar; i++) {
+            proc->variaveis[i] = variaveisIniciais[i];
+        }
+    }
+
+    proc->listaInstrucoes = (instrucao*) malloc(sizeof(instrucao) * nInstrucao);
+    if (proc->listaInstrucoes != NULL) {
+        for (int i = 0; i < nInstrucao; i++) {
+            proc->listaInstrucoes[i] = listaInstrucoes[i];
+        }
+    }
 }
