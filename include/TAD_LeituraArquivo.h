@@ -1,4 +1,4 @@
-#ifndef
+#ifndef TAD_LEITURAARQUIVO_H
 #define TAD_LEITURAARQUIVO_H
 
 #include <stdio.h>
