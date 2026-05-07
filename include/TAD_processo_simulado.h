@@ -4,6 +4,7 @@
 #ifndef TAD_PROCESSO_SIMULADO_H
 #define TAD_PROCESSO_SIMULADO_H
 
+
 enum estado {
   PRONTO = 1,
   BLOQUEADO = 0,
@@ -33,5 +34,7 @@ typedef struct{
 
 void inicializarProcesso(processo* proc, int id, int nVar, int nInstrucao, int* variaveisIniciais, enum estado estadoInicial, int prioridade, instrucao* listaInstrucoes);
 void salvaEstado(processo* proc, int pcAtual, int* variaveisAtuais, int quantumAtual, int nVar);
+void inicializarProcessoInit(processo* proc, int id, instrucao* listaInstrucoes, int nInstrucao);
+void imprimirInstrucoes(instrucao *lista, int tamanho);
 
 #endif

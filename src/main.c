@@ -6,7 +6,9 @@
 
 int main(){
 
-    leituraArquivoProcesso();
+    char caminho[256] = "file_a.txt";
+    leituraProcessoInit();
+    leituraArquivoProcesso(caminho);
    
     return 0;
 }

@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-int leituraArquivoProcesso();
+int contarLinhasArquivo(char *caminho);
+int leituraProcessoInit();
+int leituraArquivoProcesso(char *caminho);
 
 #endif
