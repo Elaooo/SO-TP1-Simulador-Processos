@@ -18,6 +18,7 @@ void inicializarProcesso(processo* proc, int id, int nVar, int nInstrucao, int* 
     proc->pcCounter=0;
     proc->estado=estadoInicial;
     proc->quantum=0;
+    proc->quantum_usado_CPUatual=0;
     proc->prioridade=prioridade;
     proc->listaInstrucoes=listaInstrucoes;
 
