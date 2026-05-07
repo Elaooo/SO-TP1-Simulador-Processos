@@ -1,5 +1,5 @@
-#ifndef TABELA_H
-#define TABELA_H
+#ifndef FILA_H
+#define FILA_H
 
 typedef int TipoChave;
 #define MaxTam 10
