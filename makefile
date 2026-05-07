@@ -39,6 +39,8 @@ SRCS = \
 	$(SRC_DIR)/TAD_LeituraArquivo.c \
 	$(SRC_DIR)/TAD_processo_simulado.c\
 	$(SRC_DIR)/TAD_CPU.c\
+	$(SRC_DIR)/fila.c\
+	$(SRC_DIR)/tempo.c\
 
 	
 # ==============================
