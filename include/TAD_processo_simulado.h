@@ -27,6 +27,7 @@ typedef struct{
     int pcCounter;
     enum estado estado;
     int quantum;
+    int quantum_usado_CPUatual;
     int prioridade;
     instrucao *listaInstrucoes;
  
