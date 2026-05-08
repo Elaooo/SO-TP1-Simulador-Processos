@@ -41,6 +41,8 @@ SRCS = \
 	$(SRC_DIR)/TAD_CPU.c\
 	$(SRC_DIR)/fila.c\
 	$(SRC_DIR)/tempo.c\
+	$(SRC_DIR)/TAD_GerenciadorProcesso.c\
+	$(SRC_DIR)/tabela_processos.c\
 
 	
 # ==============================

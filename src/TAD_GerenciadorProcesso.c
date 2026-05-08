@@ -1,54 +1,22 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include "../include/TAD_processo_simulado.h"
-
-int contarLinhasArquivo(char *caminho) {
-    FILE *arquivo = fopen(caminho, "r");
-    if (!arquivo) {
-        printf("Erro ao abrir arquivo\n");
-        return -1;
-    }
-
-    char linha[200];
-    int contador = 0;
-
-    while (fgets(linha, sizeof(linha), arquivo)) {
-        contador++;
-    }
-
-    fclose(arquivo);
-    return contador;
-}
+#include <string.h>
+#include <../include/TAD_GerenciadorProcesso.h>
 
 
-int leituraArquivoProcesso(char *caminho){
-    char temp[256];
-
-    snprintf(temp, sizeof(temp), "data/%s", caminho);
-    strcpy(caminho, temp);
+int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
     //variaveis leitura
+    char caminho[256] = "data/init.txt";
     char linha[256];
     char comando;
     int x;
     int n;
     int iterador = 0;
-
-
-    //depois trocar esse NULL pois variaveis que não são ponteiro não devem apontar pra null
-    //zera todo o processo atual
-    int pid = NULL;
-    int *variaveis = NULL;
-    int pcCounter = 0;
-    //enum estado estado = PRONTO;
-    int quantum = NULL;
-    int prioridade = NULL;
-    instrucao *listaInstrucoes = NULL;
     
     FILE *arquivo = fopen(caminho, "r");
     if(!arquivo){
         
-        printf("Falha ao abrir arquivo, não existe %s em data\n", caminho);
+        printf("Falha ao abrir arquivo, necessita arquivo init.txt em /data/\n");
         return 0;
     }
     
@@ -57,7 +25,7 @@ int leituraArquivoProcesso(char *caminho){
     int pidInicial = 0;
     processo processo;
     
-    listaInstrucoes = malloc(qntdInstruções * sizeof(instrucao));
+    instrucao *listaInstrucoes = malloc(qntdInstruções * sizeof(instrucao));;
 
     if (!listaInstrucoes) {
         printf("Erro de alocacao\n");
@@ -140,15 +108,33 @@ int leituraArquivoProcesso(char *caminho){
     }
     iterador++;
 }
-    printf("Instruçoes guardadas\n");
-    inicializarProcessoInit(&processo, pidInicial,listaInstrucoes,qntdInstruções);
+    // printf("Instruçoes guardadas\n");
+    // inicializarProcessoInit(&processo, pidInicial,listaInstrucoes,qntdInstruções);
     
-    imprimirInstrucoes(processo.listaInstrucoes,qntdInstruções);
+    // imprimirInstrucoes(processo.listaInstrucoes,qntdInstruções);
+
+    inserirProcessoTabela(tabelaProcessos, &processo);
     free(listaInstrucoes);
+
 
     fclose(arquivo);
 
     return 1;
 }
 
-//lembrar em casos que podem dar erro: reutilização de variaveis, contagem de instruções antes de atribuir tamanho a listaInstrucoesIncial
+int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos){
+
+    inicializarTabelaProcessos(&gerenciadorProcessos->tabelaProcessos);
+    inicializarCPU(&gerenciadorProcessos->cpu);
+    InicializaTempo(&gerenciadorProcessos->tempo);
+    FazFilaVazia(&gerenciadorProcessos->estadoPronto);
+    FazFilaVazia(&gerenciadorProcessos->estadoEmExecucao);
+    FazFilaVazia(&gerenciadorProcessos->estadoBloquado);
+
+    if(gerenciadorProcessos == NULL){
+        return 0;
+    }else{
+        return 1;
+    }
+
+}
