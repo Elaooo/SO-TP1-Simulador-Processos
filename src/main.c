@@ -4,10 +4,11 @@
 #include "../include/TAD_processo_simulado.h"
 #include "../include/TAD_LeituraArquivo.h"
 #include "../include/TAD_CPU.h"
+#include "../src/ProcessoControle.c"
 
-int main(){
+int main(int argc, char *argv[]){
 
-    
+    inicializaProcessoControle(argc, argv);
 
     
 
