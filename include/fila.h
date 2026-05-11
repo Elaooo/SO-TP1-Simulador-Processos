@@ -2,7 +2,6 @@
 #define FILA_H
 
 typedef int TipoChave;
-#define MaxTam 10
 
 typedef struct {
     TipoChave Chave;
@@ -17,6 +16,7 @@ typedef struct Celula {
 typedef struct TFila {
     Celula* pFrente;
     Celula* pTras;
+    int tam;
 } TFila;
 
 void FazFilaVazia(TFila * pFila);
