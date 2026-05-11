@@ -4,33 +4,40 @@
 #include <../include/TAD_GerenciadorProcesso.h>
 // Em TAD_GerenciadorProcesso.c
 
-void rodarGerenciador(GerenciadorProcesso *gp) {
+void rodarGerenciador(GerenciadorProcesso *gp, int fd_leitura) {
     char comando;
-    printf("Gerenciador iniciado. Aguardando comandos (U, I, M)");
+    int bytesLidos;
+    
+    printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
 
-    while (scanf(" %c", &comando) == 1) {
+
+    while ((bytesLidos = read(fd_leitura, &comando, sizeof(char))) > 0) {
         
         if (comando == 'U') {
-            // escalonamenti
+            //escalonamento
             if (gp->cpu.processo_atual == NULL && !FilaEhVazia(&gp->estadoPronto)) {
                 TItem item;
                 FilaDesenfileira(&gp->estadoPronto, &item);
                 
                 processo* p = buscarProcessoTabela(&gp->tabelaProcessos, item.Chave);
-                
-                AtualizarRegistradorCPU(&gp->cpu, p, 2); 
+                if (p != NULL) {
+                    AtualizarRegistradorCPU(&gp->cpu, p, 2);
+                    gp->indiceEstadoExecucao = p->pid;    
+                }
             }
 
             // execução
             if (gp->cpu.processo_atual != NULL) {
-                //função que lê a instrução no PC atual e faz a operação
+                // alguma função que lê a instrução no PC atual e faz a operação
+         
+                
                 gp->cpu.registradorPC++;
                 IncrementarQuantum_usado(&gp->cpu);
             }
 
             IncrementaTempo(&gp->tempo);
 
-            // verfica troca de contexto
+            // troca de contexto
             if (gp->cpu.processo_atual != NULL) {
                 if (gp->cpu.quantum_usado >= gp->cpu.quantum_total) {
 
@@ -41,19 +48,20 @@ void rodarGerenciador(GerenciadorProcesso *gp) {
                     FilaEnfileira(&gp->estadoPronto, &novoItem);
                     
                     gp->cpu.processo_atual = NULL; 
+                    gp->indiceEstadoExecucao = -1; // CPU fica livre
                 }
             }
 
         } else if (comando == 'I') {
             printf("\n--- ESTADO DO SISTEMA NO TEMPO %d ---\n", gp->tempo.valor);
-            // implementar a impressão
+            // fazer função de print
 
         } else if (comando == 'M') {
-        
-            printf("\nEncerrando simulação. Tempo final: %d\n", gp->tempo.valor);
+            printf("\n[Gerenciador] A encerrar simulação. Tempo final: %d\n", gp->tempo.valor);
             break; 
+            
         } else {
-            printf("Comando ignorado: %c\n", comando);
+            printf("[Gerenciador] Comando ignorado: %c\n", comando);
         }
     }
 }

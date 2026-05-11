@@ -21,6 +21,7 @@ typedef struct{
 
 int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos);
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
+void rodarGerenciador(GerenciadorProcesso *gp, int fd_leitura);
 
 
 
