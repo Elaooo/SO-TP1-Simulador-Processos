@@ -15,12 +15,14 @@ void salvaEstado(processo* proc, int pcAtual, int* variaveisAtuais, int quantumA
 void inicializarProcesso(processo* proc, int id, int nVar, int nInstrucao, int* variaveisIniciais, enum estado estadoInicial, int prioridade, instrucao* listaInstrucoes){
 
     proc->pid=id;
+    proc->nVariaveis=nVar;
     proc->pcCounter=0;
     proc->estado=estadoInicial;
     proc->quantum=0;
     proc->quantum_usado_CPUatual=0;
     proc->prioridade=prioridade;
     proc->listaInstrucoes=listaInstrucoes;
+    proc->tempoBloqueado=0;
 
     proc->variaveis = (int*) malloc(sizeof(int) * nVar);
     if (proc->variaveis != NULL) {

@@ -23,6 +23,7 @@ typedef struct{
 typedef struct{
     
     int pid; //process id
+    int nVariaveis;
     int *variaveis;
     int pcCounter;
     enum estado estado;
@@ -30,6 +31,7 @@ typedef struct{
     int quantum_usado_CPUatual;
     int prioridade;
     instrucao *listaInstrucoes;
+    int tempoBloqueado;
  
 }processo;
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "TAD_processo_simulado.h"
+#include "TAD_LeituraArquivo.h"
 #ifndef TAD_CPU_H
 #define TAD_CPU_H
 
@@ -12,6 +13,9 @@ typedef struct{
     //Ponteiro para o processo simulado atualmente na CPU.
     processo *processo_atual;
 
+    instrucao *listaInstrucao;
+    int *variaveis;
+    
     //Índice da próxima instrução a ser executada do processso simulado.
     int registradorPC;
 
@@ -30,5 +34,7 @@ void AtualizarRegistradorCPU(cpu_s*cpu,processo*proc, int quantum);
 void IncrementarQuantum_usado(cpu_s *cpu);
 // Salva o contexto do processo atual da CPU.
 void SalvarContextoCPU(cpu_s *cpu);
+
+void executaInstrucoes(cpu_s CPU);
 
 #endif

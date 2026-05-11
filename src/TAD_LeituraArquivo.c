@@ -111,6 +111,13 @@ int leituraArquivoProcesso(char *caminho){
             listaInstrucoes[iterador].n = n;
             break;
 
+        case 'B':
+            sscanf(linha, " %c %d", &comando, &n);
+            printf("Comando N\n");
+            printf("N: %d\n\n", n);
+            listaInstrucoes[iterador].tipo = comando;
+            listaInstrucoes[iterador].n = n;
+
         case 'R':
             sscanf(linha, " %c %s", &comando, caminho);
             printf("Comando R\n");
