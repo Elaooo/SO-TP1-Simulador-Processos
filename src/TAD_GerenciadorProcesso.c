@@ -4,7 +4,7 @@
 #include <../include/TAD_GerenciadorProcesso.h>
 // Em TAD_GerenciadorProcesso.c
 
-void rodarGerenciador(GerenciadorProcesso *gp, int fd_leitura) {
+void rodarGerenciador(int fd_leitura) {
     char comando;
     int bytesLidos;
     

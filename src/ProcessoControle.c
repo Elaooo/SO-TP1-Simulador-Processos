@@ -26,7 +26,7 @@ int inicializaProcessoControle(int argc, char *argv[]){
     if (pid == 0) {
         //Processo filho: gerenciador de processos
         close(fd[1]); // filho não escreve no pipe
-        inicializaGerenciadorProcessos(fd[0]);
+        rodarGerenciador(fd[0]);
     } else {
         //Processo pai: processo controle
         close(fd[0]); // pai não lê do pipe
