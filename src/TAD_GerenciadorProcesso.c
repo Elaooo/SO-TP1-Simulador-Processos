@@ -2,7 +2,61 @@
 #include <stdlib.h>
 #include <string.h>
 #include <../include/TAD_GerenciadorProcesso.h>
+// Em TAD_GerenciadorProcesso.c
 
+void rodarGerenciador(GerenciadorProcesso *gp) {
+    char comando;
+    printf("Gerenciador iniciado. Aguardando comandos (U, I, M)");
+
+    while (scanf(" %c", &comando) == 1) {
+        
+        if (comando == 'U') {
+            // escalonamenti
+            if (gp->cpu.processo_atual == NULL && !FilaEhVazia(&gp->estadoPronto)) {
+                TItem item;
+                FilaDesenfileira(&gp->estadoPronto, &item);
+                
+                processo* p = buscarProcessoTabela(&gp->tabelaProcessos, item.Chave);
+                
+                AtualizarRegistradorCPU(&gp->cpu, p, 2); 
+            }
+
+            // execução
+            if (gp->cpu.processo_atual != NULL) {
+                //função que lê a instrução no PC atual e faz a operação
+                gp->cpu.registradorPC++;
+                IncrementarQuantum_usado(&gp->cpu);
+            }
+
+            IncrementaTempo(&gp->tempo);
+
+            // verfica troca de contexto
+            if (gp->cpu.processo_atual != NULL) {
+                if (gp->cpu.quantum_usado >= gp->cpu.quantum_total) {
+
+                    SalvarContextoCPU(&gp->cpu);
+                    
+                    TItem novoItem;
+                    novoItem.Chave = gp->cpu.processo_atual->pid;
+                    FilaEnfileira(&gp->estadoPronto, &novoItem);
+                    
+                    gp->cpu.processo_atual = NULL; 
+                }
+            }
+
+        } else if (comando == 'I') {
+            printf("\n--- ESTADO DO SISTEMA NO TEMPO %d ---\n", gp->tempo.valor);
+            // implementar a impressão
+
+        } else if (comando == 'M') {
+        
+            printf("\nEncerrando simulação. Tempo final: %d\n", gp->tempo.valor);
+            break; 
+        } else {
+            printf("Comando ignorado: %c\n", comando);
+        }
+    }
+}
 
 int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
     //variaveis leitura
