@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <ctype.h>
+#include <../include/TAD_GerenciadorProcesso.h>
 
 int inicializaProcessoControle(int argc, char *argv[]);
 
