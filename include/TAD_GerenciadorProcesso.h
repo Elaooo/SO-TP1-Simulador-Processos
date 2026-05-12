@@ -16,7 +16,7 @@
 
 typedef struct{
 
-    TFila estadoPronto[4];
+    TFila estadoPronto[4];//No FIFO usamos somente o estadoPronto[0]
     TFila estadoBloquado;
     TFila estadoEmExecucao;
     Tempo tempo;
@@ -24,7 +24,7 @@ typedef struct{
     TabelaDeProcessos tabelaProcessos;
 
 }GerenciadorProcesso;
-
+int escalonadorFIFO(GerenciadorProcesso* gerenciador);
 int escalonadorMLFQ(GerenciadorProcesso* gerenciador);
 int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos);
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);

@@ -34,7 +34,7 @@ int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
             //Atualiza o quantum do processo para o novo nível
             procAtual->quantum = quantumPorPrioridade[procAtual->prioridade];
             procAtual->quantum_usado_CPUatual = 0;
-            procAtual->estado = PRONTO;
+
 
             //Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
 
@@ -52,14 +52,14 @@ int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
 
         } else {
             //Não esgotou o quantum: foi bloqueado. Aumenta prioridade
-            if (procAtual->prioridade > 0) {
+            if (procAtual->prioridade > 0 && procAtual->estado = BLOQUEADO) {
                 procAtual->prioridade--;
                 printf("[Gerenciador] Processo %d teve prioridade aumentada para %d (bloqueado antes de usar todo o quantum)\n",
                 procAtual->pid, procAtual->prioridade);
             }
             procAtual->quantum = quantumPorPrioridade[procAtual->prioridade];
             procAtual->quantum_usado_CPUatual = 0;
-            procAtual->estado = BLOQUEADO;
+
 
             //Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
             gerenciador->cpu.processo_atual = NULL;
@@ -112,7 +112,63 @@ int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
 
     return proximoProcesso->pid;
 }
+//retorna o pid do processo que vai entrar na cpu
+//FIFO nao utiliza de quantum, quantum usado e nem de prioridade
 
+int escalonadorFIFO(GerenciadorProcesso* gerenciador){
+
+    //PASSO 1 — Tratar o processo que estava na CPU
+    //se tiver processo na cpu
+    if (gerenciador->cpu.processo_atual != NULL) {
+
+        processo* procAtual = gerenciador->cpu.processo_atual;
+        TItem item;
+
+        if(procAtual->estado == BLOQUEADO){
+            //insere na fila de bloqueados
+            item.Chave = procAtual->pid;
+            FilaEnfileira(&gerenciador->estadoBloquado, &item);
+            printf("[FIFO] Processo %d inserido na fila Bloqueado\n", procAtual->pid);
+
+        }
+        if(procAtual->estado == TERMINADO){
+            //insere na fila de bloqueados
+            printf("[FIFO] Processo %d Terminou\n", procAtual->pid);
+        }
+        if(procAtual->estado == PRONTO){
+            //insere na fila de prontos, caso necessario
+            item.Chave = procAtual->pid;
+            FilaEnfileira(&gerenciador->estadoPronto[0], &item);
+            printf("[FIFO] Processo %d inserido na fila de prontos\n", procAtual->pid);
+        }
+        //Reinicia a cpu para o processo novo(retira o que colocamos na fila no passo acima)
+        gerenciador->cpu.processo_atual = NULL;
+        gerenciador->cpu.registradorPC = 0;
+    }
+    //PASSO 2 — Selecionar o próximo processo
+    processo* proximoProcesso = NULL;
+    if (!FilaEhVazia(&gerenciador->estadoPronto[0])) {
+        TItem itemRetirado;
+        if (FilaDesenfileira(&gerenciador->estadoPronto[0], &itemRetirado)) {
+            proximoProcesso = buscarProcessoTabela(&gerenciador->tabelaProcessos, itemRetirado.Chave);
+        }
+    }
+
+    //PASSO 3 — Resultado
+    if (proximoProcesso == NULL) {
+        //Nenhum processo pronto: CPU ociosa
+        printf("[FIFO] CPU ociosa — nenhum processo pronto.\n");
+        return -1;
+    }
+
+
+    printf("[FIFO] Processo %d escalonado .\n",
+           proximoProcesso->pid);
+
+    return proximoProcesso->pid;
+
+
+}
 void rodarGerenciador(int fd_leitura) {
     char comando;
     int bytesLidos;
