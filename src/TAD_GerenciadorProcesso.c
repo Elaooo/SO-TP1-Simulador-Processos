@@ -11,9 +11,13 @@ static int quantumPorPrioridade[NUM_PRIORIDADES] = {
     QUANTUM_PRIORIDADE_3
 };
 
+//retorna o pid do processo que vai entrar va cpu
+//troca de contexto responsavel por retirar o que esta na cpu(uma vez que ele que é responsavel por colocar o processo que esta la na fila)
+//e passar o que vai entrar
 int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
 
     //PASSO 1 — Tratar o processo que estava na CPU
+    //caso tenha
     if (gerenciador->cpu.processo_atual != NULL) {
 
         processo* procAtual = gerenciador->cpu.processo_atual;
@@ -33,8 +37,11 @@ int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
             procAtual->estado = PRONTO;
 
             //Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
-            //MAS VOU DEIXAR CASO QUEIRA USAR AQUI
-            //gerenciador->cpu.processo_atual = NULL;
+
+            gerenciador->cpu.processo_atual = NULL;
+            gerenciador->cpu.registradorPC = 0;
+            gerenciador->cpu.quantum_total = 0;
+            gerenciador->cpu.quantum_usado = 0;
 
             //Reinsere na fila de prontos do novo nível de prioridade
             TItem item;
@@ -53,11 +60,14 @@ int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
             procAtual->quantum = quantumPorPrioridade[procAtual->prioridade];
             procAtual->quantum_usado_CPUatual = 0;
             procAtual->estado = BLOQUEADO;
-            //Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
-            //O MESMO VALE AQUI, É BOM QUE SERVE PARA VISUALIZAR A LÓGICA
-            //gerenciador->cpu.processo_atual = NULL;
 
-            /* Insere na fila de bloqueados */
+            //Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
+            gerenciador->cpu.processo_atual = NULL;
+            gerenciador->cpu.registradorPC = 0;
+            gerenciador->cpu.quantum_total = 0;
+            gerenciador->cpu.quantum_usado = 0;
+
+            //Insere na fila de bloqueados
             TItem item;
             item.Chave = procAtual->pid;
             FilaEnfileira(&gerenciador->estadoBloquado, &item);
@@ -88,7 +98,7 @@ int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
 
     //PASSO 3 — Resultado
     if (proximoProcesso == NULL) {
-        /* Nenhum processo pronto: CPU ociosa */
+        //Nenhum processo pronto: CPU ociosa
         printf("[Escalonador] CPU ociosa — nenhum processo pronto.\n");
         return -1;
     }
