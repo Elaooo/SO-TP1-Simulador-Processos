@@ -7,10 +7,16 @@
 #include <../include/tempo.h>
 #include <../include/TAD_CPU.h>
 #include <../include/TAD_TabelaProcessos.h>
+//para o escalonador
+#define QUANTUM_PRIORIDADE_0 1
+#define QUANTUM_PRIORIDADE_1 2
+#define QUANTUM_PRIORIDADE_2 4
+#define QUANTUM_PRIORIDADE_3 8
+#define NUM_PRIORIDADES 4
 
 typedef struct{
-    
-    TFila estadoPronto;
+
+    TFila estadoPronto[4];
     TFila estadoBloquado;
     TFila estadoEmExecucao;
     Tempo tempo;
@@ -19,6 +25,7 @@ typedef struct{
 
 }GerenciadorProcesso;
 
+int escalonadorMLFQ(GerenciadorProcesso* gerenciador);
 int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos);
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
 void rodarGerenciador(int fd_leitura);

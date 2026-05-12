@@ -3,6 +3,105 @@
 #include <string.h>
 #include <../include/TAD_GerenciadorProcesso.h>
 // Em TAD_GerenciadorProcesso.c
+//do escalonador
+static int quantumPorPrioridade[NUM_PRIORIDADES] = {
+    QUANTUM_PRIORIDADE_0,
+    QUANTUM_PRIORIDADE_1,
+    QUANTUM_PRIORIDADE_2,
+    QUANTUM_PRIORIDADE_3
+};
+
+int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
+
+    //PASSO 1 — Tratar o processo que estava na CPU
+    if (gerenciador->cpu.processo_atual != NULL) {
+
+        processo* procAtual = gerenciador->cpu.processo_atual;
+        int quantumUsado    = gerenciador->cpu.quantum_usado;
+        int quantumTotal    = gerenciador->cpu.quantum_total;
+
+        if (quantumUsado >= quantumTotal) {
+            //Esgotou o quantum: diminui prioridade (aumenta o índice)
+            if (procAtual->prioridade < NUM_PRIORIDADES - 1) {
+                procAtual->prioridade++;
+                printf("[Gerenciador] Processo %d teve prioridade diminuida para %d (quantum estourado)\n",
+                procAtual->pid, procAtual->prioridade);
+            }
+            //Atualiza o quantum do processo para o novo nível
+            procAtual->quantum = quantumPorPrioridade[procAtual->prioridade];
+            procAtual->quantum_usado_CPUatual = 0;
+            procAtual->estado = PRONTO;
+
+            //Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
+            //MAS VOU DEIXAR CASO QUEIRA USAR AQUI
+            //gerenciador->cpu.processo_atual = NULL;
+
+            //Reinsere na fila de prontos do novo nível de prioridade
+            TItem item;
+            item.Chave = procAtual->pid;
+            FilaEnfileira(&gerenciador->estadoPronto[procAtual->prioridade], &item);
+            printf("[Gerenciador] Processo %d reinserido na fila de prontos (Prioridade: %d)\n",
+            procAtual->pid, procAtual->prioridade);
+
+        } else {
+            //Não esgotou o quantum: foi bloqueado. Aumenta prioridade
+            if (procAtual->prioridade > 0) {
+                procAtual->prioridade--;
+                printf("[Gerenciador] Processo %d teve prioridade aumentada para %d (bloqueado antes de usar todo o quantum)\n",
+                procAtual->pid, procAtual->prioridade);
+            }
+            procAtual->quantum = quantumPorPrioridade[procAtual->prioridade];
+            procAtual->quantum_usado_CPUatual = 0;
+            procAtual->estado = BLOQUEADO;
+            //Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
+            //O MESMO VALE AQUI, É BOM QUE SERVE PARA VISUALIZAR A LÓGICA
+            //gerenciador->cpu.processo_atual = NULL;
+
+            /* Insere na fila de bloqueados */
+            TItem item;
+            item.Chave = procAtual->pid;
+            FilaEnfileira(&gerenciador->estadoBloquado, &item);
+        }
+    }
+
+    //PASSO 2 — Selecionar o próximo processo
+    processo* proximoProcesso = NULL;
+
+    for (int prioridade = 0; prioridade < NUM_PRIORIDADES; prioridade++) {
+
+        if (!FilaEhVazia(&gerenciador->estadoPronto[prioridade])) {
+
+            TItem itemRetirado;
+            if (FilaDesenfileira(&gerenciador->estadoPronto[prioridade], &itemRetirado)) {
+
+                proximoProcesso = buscarProcessoTabela(
+                    &gerenciador->tabelaProcessos,
+                    itemRetirado.Chave
+                );
+
+                if (proximoProcesso != NULL) {
+                    break;//Achou — para a busca
+                }
+            }
+        }
+    }
+
+    //PASSO 3 — Resultado
+    if (proximoProcesso == NULL) {
+        /* Nenhum processo pronto: CPU ociosa */
+        printf("[Escalonador] CPU ociosa — nenhum processo pronto.\n");
+        return -1;
+    }
+
+
+    printf("[Escalonador] Processo %d escalonado (prioridade=%d, quantum=%d, PC=%d)\n",
+           proximoProcesso->pid,
+           proximoProcesso->prioridade,
+           quantumPorPrioridade[proximoProcesso->prioridade],
+           proximoProcesso->pcCounter);
+
+    return proximoProcesso->pid;
+}
 
 void rodarGerenciador(int fd_leitura) {
     char comando;

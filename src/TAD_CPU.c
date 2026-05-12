@@ -30,7 +30,7 @@ void AtualizarRegistradorCPU(cpu_s*cpu,processo* proc, int quantum){
 }
 void SalvarContextoCPU(cpu_s *cpu){
     if(cpu->processo_atual == NULL){
-        fprintf(stderr,"Erro:Tentativa de salvar contexto com processo nulo\n");
+        printf("Erro:Tentativa de salvar contexto com processo nulo\n");
         return;
     }
     cpu->processo_atual->pcCounter = cpu->registradorPC; // Salva o PC do processo atual
