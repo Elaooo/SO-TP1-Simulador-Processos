@@ -106,7 +106,8 @@ int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
 void rodarGerenciador(int fd_leitura) {
     char comando;
     int bytesLidos;
-    
+    gerenciadorProcessos gp;
+    inicializaGerenciadorProcessos(gp);
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
 
 
@@ -114,14 +115,13 @@ void rodarGerenciador(int fd_leitura) {
         
         if (comando == 'U') {
             //escalonamento
-            if (gp->cpu.processo_atual == NULL && !FilaEhVazia(&gp->estadoPronto)) {
-                TItem item;
-                FilaDesenfileira(&gp->estadoPronto, &item);
-                
-                processo* p = buscarProcessoTabela(&gp->tabelaProcessos, item.Chave);
-                if (p != NULL) {
-                    AtualizarRegistradorCPU(&gp->cpu, p, 2);
-                    gp->indiceEstadoExecucao = p->pid;    
+            
+            if (gp.cpu.processo_atual == NULL) {
+                int pidEscalonado = escalonadorMLFQ(&gp);
+                if (pidEscalonado != -1) {
+                    gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
+                    gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                    printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                 }
             }
 
