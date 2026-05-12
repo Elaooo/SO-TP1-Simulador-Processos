@@ -2,13 +2,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../include/TAD_CPU.h"
+#include "../include/TAD_LeituraArquivo.h"
 
 void inicializarCPU(cpu_s *cpu){
     cpu->processo_atual = NULL; // Inicializa o ponteiro para o processo atual como NULL
     cpu->registradorPC = 0; // Inicializa o PC
     cpu->quantum_total = 0; // Inicializa o quantum total alocado
     cpu->quantum_usado = 0; // Inicializa o tempo executado neste quantum
-    cpu->variaveis = (int*) malloc(sizeof(int) * (cpu->processo_atual->nVariaveis));
+    cpu->variaveis = (int*) malloc(sizeof(int) * (0)); // a cpu deve ter uma memoria de variaveis propria
 }
 
 void IncrementarQuantum_usado(cpu_s *cpu){
@@ -53,17 +54,18 @@ void SalvarContextoCPU(cpu_s *cpu){
 }
 
 void executaInstrucoes(cpu_s* cpu){
-
     
     instrucao instrucaoAtual = cpu->listaInstrucao[cpu->registradorPC];
     char comando = instrucaoAtual.tipo;
     
     switch (comando) {
 
+        // case 'D': //tem que ter o caso D para quando init ler
+        //     cpu->variaveis = (int*) malloc(sizeof(int) * (instrucaoAtual.n));
+        //     break;
         case 'V':
             cpu->variaveis[instrucaoAtual.x]=instrucaoAtual.n;
             break;
-
         case 'A':
             cpu->variaveis[instrucaoAtual.x] = cpu->variaveis[instrucaoAtual.x] + instrucaoAtual.n;
             break;
@@ -75,23 +77,14 @@ void executaInstrucoes(cpu_s* cpu){
             // e consequentemente na tabela de processos, e a cpu sera liberada 
             break;
         case 'R':
-            leituraArquivoProcesso(instrucaoAtual.caminhoArquivo);
+            leituraArquivoProcesso(instrucaoAtual.caminhoArquivo, cpu);
 
             break;
 
         case 'F':
-            sscanf(linha, " %c %d", &comando, &x);
-            printf("Comando F\n");
-            printf("X: %d\n\n", x);
-            listaInstrucoes[iterador].tipo = comando;
-            listaInstrucoes[iterador].x = x;
+
             break;
         case 'T':
-            sscanf(linha, " %c", &comando);
-            printf("Comando %c\n", comando);
-            listaInstrucoes[iterador].tipo = comando;
-            printf("\n");
-            printf("-----encerra execucao-----");
             break;
 
         default:
@@ -100,4 +93,5 @@ void executaInstrucoes(cpu_s* cpu){
     }
 }
 
+// LEITURA DO FILE_A.TXT pela CPU
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <../include/TAD_GerenciadorProcesso.h>
+#include "../include/TAD_LeituraArquivo.h"
 
 
 int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
@@ -35,81 +36,81 @@ int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
     //aqui comeca leitura
     while (fgets(linha, sizeof(linha), arquivo)) {
 
-    comando = ' ';
-    n = 0;
-    x = 0;
+        comando = ' ';
+        n = 0;
+        x = 0;
 
-    if (sscanf(linha, " %c", &comando) != 1) 
-        continue;
+        if (sscanf(linha, " %c", &comando) != 1) 
+            continue;
 
-    switch (comando) {
+        switch (comando) {
 
-        case 'N':
-            sscanf(linha, " %c %d", &comando, &n);
-            printf("Comando N\n");
-            printf("N: %d\n\n", n);
-            listaInstrucoes[iterador].tipo = comando;
-            listaInstrucoes[iterador].n = n;
-            break;
+            case 'N':
+                sscanf(linha, " %c %d", &comando, &n);
+                printf("Comando N\n");
+                printf("N: %d\n\n", n);
+                listaInstrucoes[iterador].tipo = comando;
+                listaInstrucoes[iterador].n = n;
+                break;
 
-        case 'D':
-            sscanf(linha, " %c %d", &comando, &x);
-            printf("Comando D\n");
-            printf("X: %d\n\n", x);
-            listaInstrucoes[iterador].tipo = comando;
-            listaInstrucoes[iterador].x = x;
-            break;
+            case 'D':
+                sscanf(linha, " %c %d", &comando, &x);
+                printf("Comando D\n");
+                printf("X: %d\n\n", x);
+                listaInstrucoes[iterador].tipo = comando;
+                listaInstrucoes[iterador].x = x;
+                break;
 
-        case 'V':
-            sscanf(linha, " %c %d %d", &comando, &x, &n);
-            printf("Comando V\n");
-            printf("X: %d | N: %d\n\n", x, n);
-            listaInstrucoes[iterador].tipo = comando;
-            listaInstrucoes[iterador].x = x;
-            listaInstrucoes[iterador].n = n;
-            break;
+            case 'V':
+                sscanf(linha, " %c %d %d", &comando, &x, &n);
+                printf("Comando V\n");
+                printf("X: %d | N: %d\n\n", x, n);
+                listaInstrucoes[iterador].tipo = comando;
+                listaInstrucoes[iterador].x = x;
+                listaInstrucoes[iterador].n = n;
+                break;
 
-        case 'A':
-        case 'S':
-            sscanf(linha, " %c %d %d", &comando, &x, &n);
-            printf("Comando %c\n", comando);
-            printf("X: %d | N: %d\n\n", x, n);
-            listaInstrucoes[iterador].tipo = comando;
-            listaInstrucoes[iterador].x = x;
-            listaInstrucoes[iterador].n = n;
-            break;
+            case 'A':
+            case 'S':
+                sscanf(linha, " %c %d %d", &comando, &x, &n);
+                printf("Comando %c\n", comando);
+                printf("X: %d | N: %d\n\n", x, n);
+                listaInstrucoes[iterador].tipo = comando;
+                listaInstrucoes[iterador].x = x;
+                listaInstrucoes[iterador].n = n;
+                break;
 
-        case 'R':
-            sscanf(linha, " %c %s", &comando, caminho);
-            printf("Comando R\n");
-            printf("Arquivo: %s\n\n", caminho);
-            listaInstrucoes[iterador].tipo = comando;
-            strcpy(listaInstrucoes[iterador].caminhoArquivo,caminho);
-            break;
+            case 'R':
+                sscanf(linha, " %c %s", &comando, caminho);
+                printf("Comando R\n");
+                printf("Arquivo: %s\n\n", caminho);
+                listaInstrucoes[iterador].tipo = comando;
+                strcpy(listaInstrucoes[iterador].caminhoArquivo,caminho);
+                break;
 
-        case 'F':
-            sscanf(linha, " %c %d", &comando, &x);
-            printf("Comando F\n");
-            printf("X: %d\n\n", x);
-            listaInstrucoes[iterador].tipo = comando;
-            listaInstrucoes[iterador].x = x;
-            break;
-        case 'T':
-            sscanf(linha, " %c", &comando);
-            printf("Comando %c\n", comando);
-            listaInstrucoes[iterador].tipo = comando;
-            printf("\n");
-            printf("-----encerra execucao-----");
-            break;
+            case 'F':
+                sscanf(linha, " %c %d", &comando, &x);
+                printf("Comando F\n");
+                printf("X: %d\n\n", x);
+                listaInstrucoes[iterador].tipo = comando;
+                listaInstrucoes[iterador].x = x;
+                break;
+            case 'T':
+                sscanf(linha, " %c", &comando);
+                printf("Comando %c\n", comando);
+                listaInstrucoes[iterador].tipo = comando;
+                printf("\n");
+                printf("-----encerra execucao-----");
+                break;
 
-        default:
-            printf("Comando desconhecido: %c\n\n", comando);
-            break;
-    }
+            default:
+                printf("Comando desconhecido: %c\n\n", comando);
+                break;
+        }
     iterador++;
 }
     // printf("Instruçoes guardadas\n");
-    // inicializarProcessoInit(&processo, pidInicial,listaInstrucoes,qntdInstruções);
+    inicializarProcessoInit(&processo, pidInicial,listaInstrucoes,qntdInstruções);
     
     // imprimirInstrucoes(processo.listaInstrucoes,qntdInstruções);
 

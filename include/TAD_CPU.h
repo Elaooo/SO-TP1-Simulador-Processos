@@ -35,6 +35,6 @@ void IncrementarQuantum_usado(cpu_s *cpu);
 // Salva o contexto do processo atual da CPU.
 void SalvarContextoCPU(cpu_s *cpu);
 
-void executaInstrucoes(cpu_s CPU);
+void executaInstrucoes(cpu_s *cpu);
 
 #endif
