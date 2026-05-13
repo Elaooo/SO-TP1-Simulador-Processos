@@ -8,8 +8,8 @@
 
 //representa nossa CPU
 typedef struct{
-//seria bom eu ter um ponteiro para as instruçoes dentro do processo?
-//e sobre esse vetor de memoria? seria onde esta os processos?
+
+    int emUso;
     //Ponteiro para o processo simulado atualmente na CPU.
     processo *processo_atual;
 
@@ -34,7 +34,7 @@ void AtualizarRegistradorCPU(cpu_s*cpu,processo*proc, int quantum);
 void IncrementarQuantum_usado(cpu_s *cpu);
 // Salva o contexto do processo atual da CPU.
 void SalvarContextoCPU(cpu_s *cpu);
-
+void imprimirCPU(cpu_s *cpu);
 void executaInstrucoes(cpu_s *cpu);
 
 #endif

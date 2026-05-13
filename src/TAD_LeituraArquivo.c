@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "../include/TAD_processo_simulado.h"
 #include "../include/TAD_CPU.h"
-
+#include "../include/globais.h"
 
 int contarLinhasArquivo(char *caminho) {
     FILE *arquivo = fopen(caminho, "r");
@@ -26,7 +26,7 @@ int contarLinhasArquivo(char *caminho) {
 int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
     char temp[256];
 
-    snprintf(temp, sizeof(temp), "data/%s", caminho);
+    snprintf(temp, sizeof(temp), "data/%s.txt", caminho);
     strcpy(caminho, temp);
     //variaveis leitura
     char linha[256];
@@ -44,8 +44,8 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
     }
     
     //variaveis processo
-    int qntdInstruções = contarLinhasArquivo(caminho);
-    instrucao *listaInstrucoes = malloc(qntdInstruções * sizeof(instrucao));
+    int qntdInstrucoes = contarLinhasArquivo(caminho);
+    instrucao *listaInstrucoes = malloc(qntdInstrucoes * sizeof(instrucao));
 
     if (!listaInstrucoes) {
         printf("Erro de alocacao\n");
@@ -66,24 +66,24 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
 
         case 'N':
             sscanf(linha, " %c %d", &comando, &n);
-            printf("Comando N\n");
-            printf("N: %d\n\n", n);
+            //printf("Comando N\n");
+            //printf("N: %d\n\n", n);
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].n = n;
             break;
 
         case 'D':
             sscanf(linha, " %c %d", &comando, &x);
-            printf("Comando D\n");
-            printf("X: %d\n\n", x);
+            //printf("Comando D\n");
+            //printf("X: %d\n\n", x);
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].x = x;
             break;
 
             case 'V':
             sscanf(linha, " %c %d %d", &comando, &x, &n);
-            printf("Comando V\n");
-            printf("X: %d | N: %d\n\n", x, n);
+            //printf("Comando V\n");
+            //printf("X: %d | N: %d\n\n", x, n);
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].x = x;
             listaInstrucoes[iterador].n = n;
@@ -92,8 +92,8 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
             case 'A':
             case 'S':
                 sscanf(linha, " %c %d %d", &comando, &x, &n);
-                printf("Comando %c\n", comando);
-                printf("X: %d | N: %d\n\n", x, n);
+                //printf("Comando %c\n", comando);
+                //printf("X: %d | N: %d\n\n", x, n);
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].x = x;
                 listaInstrucoes[iterador].n = n;
@@ -101,33 +101,33 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
 
             case 'B':
                 sscanf(linha, " %c %d", &comando, &n);
-                printf("Comando N\n");
-                printf("N: %d\n\n", n);
+                //printf("Comando N\n");
+                //printf("N: %d\n\n", n);
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].n = n;
                 break;
 
             case 'R':
                 sscanf(linha, " %c %s", &comando, caminho);
-                printf("Comando R\n");
-                printf("Arquivo: %s\n\n", caminho);
+                //printf("Comando R\n");
+                //printf("Arquivo: %s\n\n", caminho);
                 listaInstrucoes[iterador].tipo = comando;
                 strcpy(listaInstrucoes[iterador].caminhoArquivo,caminho);
                 break;
 
             case 'F':
                 sscanf(linha, " %c %d", &comando, &x);
-                printf("Comando F\n");
-                printf("X: %d\n\n", x);
+                //printf("Comando F\n");
+                //printf("X: %d\n\n", x);
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].x = x;
                 break;
             case 'T':
                 sscanf(linha, " %c", &comando);
-                printf("Comando %c\n", comando);
+                //printf("Comando %c\n", comando);
                 listaInstrucoes[iterador].tipo = comando;
-                printf("\n");
-                printf("-----encerra execucao-----");
+                //printf("\n");
+                //printf("-----encerra execucao-----");
                 break;
 
             default:
@@ -137,9 +137,10 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
         iterador++;
 }
     printf("Instruçoes guardadas\n");
-    inicializarProcessoInit(cpu->processo_atual, 1,listaInstrucoes,qntdInstruções); //mudar para pid o 1
-    
-    imprimirInstrucoes(cpu->processo_atual->listaInstrucoes,qntdInstruções);
+    inicializarProcessoInit(cpu->processo_atual,listaInstrucoes,qntdInstrucoes); //mudar para pid o 1
+    proximoPidDisponivel++;
+    //iniciar processo novo aqui
+    imprimirInstrucoes(cpu->processo_atual->listaInstrucoes,qntdInstrucoes);
     free(listaInstrucoes);
 
     fclose(arquivo);

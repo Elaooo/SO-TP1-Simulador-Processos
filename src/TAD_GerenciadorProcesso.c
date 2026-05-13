@@ -5,7 +5,7 @@
 #include "../include/TAD_LeituraArquivo.h"
 
 
-int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
+int leituraProcessoInit(processo *processo){
     //variaveis leitura
     char caminho[256] = "data/init.txt";
     char linha[256];
@@ -22,11 +22,10 @@ int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
     }
     
     //variaveis processo
-    int qntdInstruções = contarLinhasArquivo(caminho);
+    int qntdInstrucoes = contarLinhasArquivo(caminho);
     int pidInicial = 0;
-    processo processo;
     
-    instrucao *listaInstrucoes = malloc(qntdInstruções * sizeof(instrucao));;
+    instrucao *listaInstrucoes = malloc(qntdInstrucoes * sizeof(instrucao));;
 
     if (!listaInstrucoes) {
         printf("Erro de alocacao\n");
@@ -47,24 +46,24 @@ int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
 
             case 'N':
                 sscanf(linha, " %c %d", &comando, &n);
-                printf("Comando N\n");
-                printf("N: %d\n\n", n);
+                //printf("Comando N\n");
+                //printf("N: %d\n\n", n);
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].n = n;
                 break;
 
             case 'D':
                 sscanf(linha, " %c %d", &comando, &x);
-                printf("Comando D\n");
-                printf("X: %d\n\n", x);
+                //printf("Comando D\n");
+                //printf("X: %d\n\n", x);
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].x = x;
                 break;
 
             case 'V':
                 sscanf(linha, " %c %d %d", &comando, &x, &n);
-                printf("Comando V\n");
-                printf("X: %d | N: %d\n\n", x, n);
+                //printf("Comando V\n");
+                //printf("X: %d | N: %d\n\n", x, n);
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].x = x;
                 listaInstrucoes[iterador].n = n;
@@ -73,8 +72,8 @@ int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
             case 'A':
             case 'S':
                 sscanf(linha, " %c %d %d", &comando, &x, &n);
-                printf("Comando %c\n", comando);
-                printf("X: %d | N: %d\n\n", x, n);
+                //printf("Comando %c\n", comando);
+                //printf("X: %d | N: %d\n\n", x, n);
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].x = x;
                 listaInstrucoes[iterador].n = n;
@@ -82,25 +81,25 @@ int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
 
             case 'R':
                 sscanf(linha, " %c %s", &comando, caminho);
-                printf("Comando R\n");
-                printf("Arquivo: %s\n\n", caminho);
+                //printf("Comando R\n");
+                //printf("Arquivo: %s\n\n", caminho);
                 listaInstrucoes[iterador].tipo = comando;
                 strcpy(listaInstrucoes[iterador].caminhoArquivo,caminho);
                 break;
 
             case 'F':
                 sscanf(linha, " %c %d", &comando, &x);
-                printf("Comando F\n");
-                printf("X: %d\n\n", x);
+                //printf("Comando F\n");
+                //printf("X: %d\n\n", x);
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].x = x;
                 break;
             case 'T':
                 sscanf(linha, " %c", &comando);
-                printf("Comando %c\n", comando);
+                //printf("Comando %c\n", comando);
                 listaInstrucoes[iterador].tipo = comando;
-                printf("\n");
-                printf("-----encerra execucao-----");
+                //printf("\n");
+                //printf("-----encerra execucao-----");
                 break;
 
             default:
@@ -110,11 +109,10 @@ int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos){
     iterador++;
 }
     // printf("Instruçoes guardadas\n");
-    inicializarProcessoInit(&processo, pidInicial,listaInstrucoes,qntdInstruções);
+    inicializarProcessoInit(processo,listaInstrucoes,qntdInstrucoes);
     
-    // imprimirInstrucoes(processo.listaInstrucoes,qntdInstruções);
+    // imprimirInstrucoes(processo.listaInstrucoes,qntdInstrucoes);
 
-    inserirProcessoTabela(tabelaProcessos, &processo);
     free(listaInstrucoes);
 
 

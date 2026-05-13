@@ -19,7 +19,7 @@ typedef struct{
 
 }GerenciadorProcesso;
 
-int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos);
+int leituraProcessoInit(processo *processo);
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
 
 

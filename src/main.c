@@ -10,20 +10,25 @@
 
 int main(){
 
-        cpu_s cpu;
-        TabelaDeProcessos tabela;
-        processo init;
-        inicializarTabelaProcessos(&tabela);
-        leituraProcessoInit(&tabela);
-        // if(buscarProcessoTabela(&tabela, 0) == NULL){
-        //     printf("EWEEEEEEEEEEEEEEEEEEEEe");
-        // }
-        // inicializarCPU(&cpu);
-        // AtualizarRegistradorCPU(&cpu,(buscarProcessoTabela(&tabela, 0)), 1);
-        //executaInstrucoes(&cpu);
-//     char caminho[256] = "file_a.txt";
-//     leituraProcessoInit();
-//     leituraArquivoProcesso(caminho);
+    processo proc;
+    cpu_s cpu;
+    inicializarCPU(&cpu);
+    leituraProcessoInit(&proc);
+    printf("%d", proc.pid);
+    //imprimirInstrucoes(proc.listaInstrucoes,proc.nInstrucoes);
+
+    AtualizarRegistradorCPU(&cpu,&proc,20);
+    
+    imprimirCPU(&cpu);
+    
+    for(int i = 0; i<20 ; i++){
+        executaInstrucoes(&cpu);
+        imprimirCPU(&cpu);
+    }
+
+    SalvarContextoCPU(&cpu);
+
+    imprimirProcesso(&proc);
    
 
     return 0;
