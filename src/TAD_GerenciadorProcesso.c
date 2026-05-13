@@ -169,51 +169,61 @@ int escalonadorFIFO(GerenciadorProcesso* gerenciador){
 
 
 }
-void rodarGerenciador(int fd_leitura) {
+void rodarGerenciador(int fd_leitura, int escFlag) {
     char comando;
     int bytesLidos;
     gerenciadorProcessos gp;
-    inicializaGerenciadorProcessos(gp);
+    inicializaGerenciadorProcessos(&gp);
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
 
 
     while ((bytesLidos = read(fd_leitura, &comando, sizeof(char))) > 0) {
         
+        
         if (comando == 'U') {
             //escalonamento
-            
-            if (gp.cpu.processo_atual == NULL) {
-                int pidEscalonado = escalonadorMLFQ(&gp);
-                if (pidEscalonado != -1) {
-                    gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
-                    gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
-                    printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
+            if (escFlag > 0) {
+                if (gp.cpu.processo_atual == NULL) {
+                    int pidEscalonado = escalonadorMLFQ(&gp);
+                    if (pidEscalonado != -1) {
+                        gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
+                        //gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                        printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
+                    }
+                }
+            }else{
+                if (gp.cpu.processo_atual == NULL) {
+                    int pidEscalonado = escalonadorFIFO(&gp);
+                    if (pidEscalonado != -1) {
+                        gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
+                        //gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                        printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
+                    }
                 }
             }
-
             // execução
-            if (gp->cpu.processo_atual != NULL) {
+            if (gp.cpu.processo_atual != NULL) {
                 // alguma função que lê a instrução no PC atual e faz a operação
          
                 
-                gp->cpu.registradorPC++;
+                gp.cpu.registradorPC++;
                 IncrementarQuantum_usado(&gp->cpu);
             }
 
             IncrementaTempo(&gp->tempo);
 
             // troca de contexto
-            if (gp->cpu.processo_atual != NULL) {
-                if (gp->cpu.quantum_usado >= gp->cpu.quantum_total) {
+            if (gp.cpu.processo_atual != NULL) {
+                if (gp.cpu.quantum_usado >= gp.cpu.quantum_total) {
 
                     SalvarContextoCPU(&gp->cpu);
                     
                     TItem novoItem;
-                    novoItem.Chave = gp->cpu.processo_atual->pid;
-                    FilaEnfileira(&gp->estadoPronto, &novoItem);
+                    novoItem.Chave = gp.cpu.processo_atual->pid;
+                    FilaEnfileira(&gp.estadoPronto, &novoItem);
                     
-                    gp->cpu.processo_atual = NULL; 
-                    gp->indiceEstadoExecucao = -1; // CPU fica livre
+                    gp.cpu.processo_atual = NULL; 
+                    gp.indiceEstadoExecucao = -1; // CPU fica livre
                 }
             }
 
