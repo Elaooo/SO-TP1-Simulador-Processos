@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 #include <../include/TAD_GerenciadorProcesso.h>
+#include "../include/TAD_LeituraArquivo.h"
 // Em TAD_GerenciadorProcesso.c
 //do escalonador
 static int quantumPorPrioridade[NUM_PRIORIDADES] = {
@@ -52,7 +55,7 @@ int escalonadorMLFQ(GerenciadorProcesso* gerenciador) {
 
         } else {
             //Não esgotou o quantum: foi bloqueado. Aumenta prioridade
-            if (procAtual->prioridade > 0 && procAtual->estado = BLOQUEADO) {
+            if (procAtual->prioridade > 0 && procAtual->estado == BLOQUEADO) {
                 procAtual->prioridade--;
                 printf("[Gerenciador] Processo %d teve prioridade aumentada para %d (bloqueado antes de usar todo o quantum)\n",
                 procAtual->pid, procAtual->prioridade);
@@ -172,7 +175,7 @@ int escalonadorFIFO(GerenciadorProcesso* gerenciador){
 void rodarGerenciador(int fd_leitura, int escFlag) {
     char comando;
     int bytesLidos;
-    gerenciadorProcessos gp;
+    GerenciadorProcesso gp;
     inicializaGerenciadorProcessos(&gp);
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
 
@@ -207,16 +210,16 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
          
                 
                 gp.cpu.registradorPC++;
-                IncrementarQuantum_usado(&gp->cpu);
+                IncrementarQuantum_usado(&gp.cpu);
             }
 
-            IncrementaTempo(&gp->tempo);
+            IncrementaTempo(&gp.tempo);
 
             // troca de contexto
             if (gp.cpu.processo_atual != NULL) {
                 if (gp.cpu.quantum_usado >= gp.cpu.quantum_total) {
 
-                    SalvarContextoCPU(&gp->cpu);
+                    SalvarContextoCPU(&gp.cpu);
                     
                     TItem novoItem;
                     novoItem.Chave = gp.cpu.processo_atual->pid;
@@ -228,11 +231,11 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
             }
 
         } else if (comando == 'I') {
-            printf("\n--- ESTADO DO SISTEMA NO TEMPO %d ---\n", gp->tempo.valor);
+            printf("\n--- ESTADO DO SISTEMA NO TEMPO %d ---\n", gp.tempo.valor);
             // fazer função de print
 
         } else if (comando == 'M') {
-            printf("\n[Gerenciador] A encerrar simulação. Tempo final: %d\n", gp->tempo.valor);
+            printf("\n[Gerenciador] A encerrar simulação. Tempo final: %d\n", gp.tempo.valor);
             break; 
             
         } else {
