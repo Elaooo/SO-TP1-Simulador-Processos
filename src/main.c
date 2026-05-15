@@ -3,12 +3,15 @@
 #include <stdlib.h>
 #include "../include/TAD_processo_simulado.h"
 #include "../include/TAD_LeituraArquivo.h"
+#include "../include/TAD_TabelaProcessos.h"
 #include "../include/TAD_CPU.h"
+#include "../include/TAD_GerenciadorProcesso.h"
+
 #include "../src/ProcessoControle.c"
 
-int main(int argc, char *argv[]){
+// int main(int argc, char *argv[]){
 
-    inicializaProcessoControle(argc, argv);
+//     inicializaProcessoControle(argc, argv);
 
     
 
@@ -81,6 +84,27 @@ int main(int argc, char *argv[]){
 //     printf("\nProcesso 2 colocado na CPU\n");
 //     printf("Quantum total (P2): %d\n", cpu.quantum_total);
 //     printf("Quantum usado na CPU apos troca (deve ser 0): %d\n", cpu.quantum_usado);
+int main(){
+
+    processo proc;
+    cpu_s cpu;
+    inicializarCPU(&cpu);
+    leituraProcessoInit(&proc);
+    printf("%d", proc.pid);
+    //imprimirInstrucoes(proc.listaInstrucoes,proc.nInstrucoes);
+
+    AtualizarRegistradorCPU(&cpu,&proc,20);
+    
+    imprimirCPU(&cpu);
+    
+    while(cpu.registradorPC<proc.nInstrucoes){
+        executaInstrucoes(&cpu);
+    }
+
+    imprimirCPU(&cpu);
+
+    //imprimirProcesso(&proc);
+   
 
     return 0;
 }
