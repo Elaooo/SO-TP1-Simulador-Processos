@@ -29,6 +29,7 @@ typedef struct{
 }cpu_s;
 
 void inicializarCPU(cpu_s* cpu);
+processo* clonaProcesso(cpu_s *cpu);
 //atualiza a cpu para os dados do processo em execução atual
 void AtualizarRegistradorCPU(cpu_s*cpu,processo*proc, int quantum);
 void IncrementarQuantum_usado(cpu_s *cpu);

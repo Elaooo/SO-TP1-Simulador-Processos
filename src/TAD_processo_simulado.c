@@ -55,8 +55,39 @@ void inicializarProcessoInit(processo* proc, instrucao* listaInstrucoes, int nIn
 
     proc->tempoBloqueado=0;
 
-        
     proc->listaInstrucoes = (instrucao*) malloc(sizeof(instrucao) * nInstrucao);
+    
+    if (proc->listaInstrucoes != NULL) {
+        for (int i = 0; i < nInstrucao; i++) {
+            proc->listaInstrucoes[i] = listaInstrucoes[i];
+        }
+    }
+
+    if((proc->listaInstrucoes[0].tipo == 'N')){
+
+        proc->variaveis = (int*) malloc(sizeof(int) * proc->listaInstrucoes[0].n);
+    } else{
+        printf("Alocacao de memoria do Falhou\n ");
+    }
+}
+
+void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstrucao){
+
+    proc->nInstrucoes=nInstrucao;
+    proc->pcCounter=0;
+    proc->estado=PRONTO;
+
+    proc->quantum=0;
+    proc->quantum_usado_CPUatual=0;
+
+    proc->tempoBloqueado=0;
+
+    if (proc->listaInstrucoes =! NULL){
+        free(proc->listaInstrucoes);
+    }
+
+    proc->listaInstrucoes = (instrucao*) malloc(sizeof(instrucao) * nInstrucao);
+    
     if (proc->listaInstrucoes != NULL) {
         for (int i = 0; i < nInstrucao; i++) {
             proc->listaInstrucoes[i] = listaInstrucoes[i];
@@ -233,3 +264,4 @@ void imprimirProcesso(processo *p){
 
     printf("================================\n");
 }
+

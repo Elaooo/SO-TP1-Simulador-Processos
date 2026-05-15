@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "../include/TAD_CPU.h"
 #include "../include/TAD_LeituraArquivo.h"
+#include "../include/globais.h"
 
 void inicializarCPU(cpu_s *cpu){
     cpu->processo_atual = NULL; // Inicializa o ponteiro para o processo atual como NULL
@@ -84,7 +85,7 @@ void SalvarContextoCPU(cpu_s *cpu){
     cpu->processo_atual->pcCounter = cpu->registradorPC; // Salva o PC do processo atual
     cpu->processo_atual->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
     
-    if(cpu->registradorPC >= cpu->processo_atual->nInstrucoes){
+    if(cpu->registradorPC >= cpu->processo_atual->nInstrucoes-1){ //Terminou a execução
         cpu->processo_atual->estado = TERMINADO;
     }
     else if(cpu->quantum_usado<cpu->quantum_total){ //foi bloqueado por uma instrucao B
@@ -143,12 +144,16 @@ void executaInstrucoes(cpu_s* cpu){
             printf("Leu o arquivo %s e iniciou o processo\n", instrucaoAtual.caminhoArquivo);
             break;
 
-        case 'F':
-            printf("instrucao F\n");
+        case 'F':{
+            // processo* processoFilhinho = clonaProcesso(cpu); // lembrar que o f pula o pcCounter = pcCounter + n + 1
+            // imprimirProcesso(processoFilhinho);
+            // printf("instrucao F\n");
             cpu->registradorPC++;
             break;
+        }
         case 'T':
-            printf("instrucao T\n");
+            SalvarContextoCPU(cpu);
+            printf("FIM DO PROCESSO");
             break;
 
         default:
@@ -159,5 +164,30 @@ void executaInstrucoes(cpu_s* cpu){
     cpu->registradorPC++;
 }
 
-// LEITURA DO FILE_A.TXT pela CPU
+processo* clonaProcesso(cpu_s *cpu){
 
+    processo *procFilho = (processo*) malloc(sizeof(processo));
+    processo *procPai = cpu->processo_atual;
+
+    procFilho->pid = proximoPidDisponivel;
+    proximoPidDisponivel++;
+    procFilho->nInstrucoes=procPai->nInstrucoes;
+
+    procFilho->pcCounter=procPai->pcCounter+1;
+    procFilho->estado=PRONTO;
+
+    procFilho->quantum=0;
+    procFilho->quantum_usado_CPUatual=0;
+
+    procFilho->tempoBloqueado=0;
+
+        
+    procFilho->listaInstrucoes = (instrucao*) malloc(sizeof(instrucao) * procFilho->nInstrucoes);
+    if (procFilho->listaInstrucoes != NULL) {
+        for (int i = 0; i < procPai->nInstrucoes; i++) {
+            procFilho->listaInstrucoes[i] = procPai->listaInstrucoes[i];
+        }
+    }
+
+    return procFilho;
+}

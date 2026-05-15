@@ -137,10 +137,8 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
         iterador++;
 }
     printf("Instruçoes guardadas\n");
-    inicializarProcessoInit(cpu->processo_atual,listaInstrucoes,qntdInstrucoes); //mudar para pid o 1
-    proximoPidDisponivel++;
-    //iniciar processo novo aqui
-    imprimirInstrucoes(cpu->processo_atual->listaInstrucoes,qntdInstrucoes);
+    inicializarProcesso(cpu->processo_atual,listaInstrucoes,qntdInstrucoes);
+    //imprimirInstrucoes(cpu->processo_atual->listaInstrucoes,qntdInstrucoes);
     free(listaInstrucoes);
 
     fclose(arquivo);

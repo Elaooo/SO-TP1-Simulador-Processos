@@ -21,14 +21,13 @@ int main(){
     
     imprimirCPU(&cpu);
     
-    for(int i = 0; i<20 ; i++){
+    while(cpu.registradorPC<proc.nInstrucoes){
         executaInstrucoes(&cpu);
-        imprimirCPU(&cpu);
     }
 
-    SalvarContextoCPU(&cpu);
+    imprimirCPU(&cpu);
 
-    imprimirProcesso(&proc);
+    //imprimirProcesso(&proc);
    
 
     return 0;
