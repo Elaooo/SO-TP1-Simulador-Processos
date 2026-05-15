@@ -22,13 +22,15 @@ typedef struct{
     Tempo tempo;
     cpu_s cpu;
     TabelaDeProcessos tabelaProcessos;
+    int totalProcessosFinalizados;
+    int somaTemposResposta;
 
 }GerenciadorProcesso;
 int escalonadorFIFO(GerenciadorProcesso* gerenciador);
 int escalonadorMLFQ(GerenciadorProcesso* gerenciador);
 int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos);
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
-void rodarGerenciador(int fd_leitura);
+void rodarGerenciador(int fd_leitura, int escFlag);
 
 
 

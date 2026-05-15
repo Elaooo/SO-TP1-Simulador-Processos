@@ -8,7 +8,8 @@
 enum estado {
   PRONTO = 1,
   BLOQUEADO = 0,
-  EXECUCAO = 2
+  EXECUCAO = 2,
+  TERMINADO = 3
 };
 
 typedef struct{

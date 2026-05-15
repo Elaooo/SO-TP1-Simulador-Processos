@@ -135,7 +135,7 @@ int escalonadorFIFO(GerenciadorProcesso* gerenciador){
 
         }
         if(procAtual->estado == TERMINADO){
-            //insere na fila de bloqueados
+            gerenciador->totalProcessosFinalizados++;
             printf("[FIFO] Processo %d Terminou\n", procAtual->pid);
         }
         if(procAtual->estado == PRONTO){
@@ -223,10 +223,10 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
                     
                     TItem novoItem;
                     novoItem.Chave = gp.cpu.processo_atual->pid;
-                    FilaEnfileira(&gp.estadoPronto, &novoItem);
+                    FilaEnfileira(gp.estadoPronto, &novoItem);
                     
                     gp.cpu.processo_atual = NULL; 
-                    gp.indiceEstadoExecucao = -1; // CPU fica livre
+                    //gp.indiceEstadoExecucao = -1; // CPU fica livre
                 }
             }
 
@@ -235,7 +235,16 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
             // fazer função de print
 
         } else if (comando == 'M') {
-            printf("\n[Gerenciador] A encerrar simulação. Tempo final: %d\n", gp.tempo.valor);
+            printf("\n--- RELATÓRIO FINAL DA SIMULAÇÃO ---");
+            //Imprime(&gp); 
+            float mediaResposta = 0;
+            if (gp.tabelaProcessos.quantidade_atual > 0) {
+                mediaResposta = (float)gp.somaTemposResposta / (gp.totalProcessosFinalizados + gp.tabelaProcessos.quantidade_atual);
+            }
+
+            printf("\n[Gerenciador] Tempo Médio de Resposta: %.2f unidades de tempo\n", mediaResposta);
+            printf("[Gerenciador] A encerrar simulação. Tempo final: %d\n", gp.tempo.valor);
+            
             break; 
             
         } else {
@@ -367,9 +376,12 @@ int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos){
     inicializarTabelaProcessos(&gerenciadorProcessos->tabelaProcessos);
     inicializarCPU(&gerenciadorProcessos->cpu);
     InicializaTempo(&gerenciadorProcessos->tempo);
-    FazFilaVazia(&gerenciadorProcessos->estadoPronto);
+    for (int i = 0; i < 4; i++) {
+        FazFilaVazia(&gerenciadorProcessos->estadoPronto[i]);
+    }
     FazFilaVazia(&gerenciadorProcessos->estadoEmExecucao);
     FazFilaVazia(&gerenciadorProcessos->estadoBloquado);
+    gerenciadorProcessos->totalProcessosFinalizados = 0;
 
     if(gerenciadorProcessos == NULL){
         return 0;
