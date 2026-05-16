@@ -43,6 +43,7 @@ SRCS = \
 	$(SRC_DIR)/tempo.c\
 	$(SRC_DIR)/TAD_GerenciadorProcesso.c\
 	$(SRC_DIR)/tabela_processos.c\
+	$(SRC_DIR)/globais.c\
 	$(SRC_DIR)/ProcessoControle.c
 
 	
