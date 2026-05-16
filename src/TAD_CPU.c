@@ -95,11 +95,12 @@ void SalvarContextoCPU(cpu_s *cpu){
         cpu->processo_atual->estado = PRONTO; // Atualiza o estado do processo para pronto para reinserção na fila
     }
 
-    cpu->emUso=0; //indica que a CPU está livre
 
     for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
         cpu->processo_atual->variaveis[i] = cpu->variaveis[i]; 
     }
+
+    cpu->emUso=0; //indica que a CPU está livre
 
     // Adiciona o processo na fila de prontos (Não sei se isso é feito na cpu ou no gerenciador, verificar isso)
 }

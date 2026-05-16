@@ -91,7 +91,7 @@ int main(){
     inicializarCPU(&cpu);
     leituraProcessoInit(&proc);
     printf("%d", proc.pid);
-    //imprimirInstrucoes(proc.listaInstrucoes,proc.nInstrucoes);
+    imprimirInstrucoes(proc.listaInstrucoes,proc.nInstrucoes);
 
     AtualizarRegistradorCPU(&cpu,&proc);
     
@@ -103,7 +103,7 @@ int main(){
 
     imprimirCPU(&cpu);
 
-    //imprimirProcesso(&proc);
+    imprimirProcesso(&proc);
    
 
     return 0;

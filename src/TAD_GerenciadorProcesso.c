@@ -209,8 +209,9 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
             }
             // execução
             if (gp.cpu.emUso) {
+
+                //se a instrucao que esta no pc counter for F, chamar a funcao de clonagem (transferir ela da cpu para o gerenciador talvez?) e colocar o processo filho na lista de pronto
                 // alguma função que lê a instrução no PC atual e faz a operação
-        
                 
                 gp.cpu.registradorPC++;
                 IncrementarQuantum_usado(&gp.cpu);
@@ -229,6 +230,7 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
                     FilaEnfileira(gp.estadoPronto, &novoItem);
                     
                     gp.cpu.processo_atual = NULL; 
+                    //mudar a flag de cpu livre aqui
                     //gp.indiceEstadoExecucao = -1; // CPU fica livre
                 }
             }
