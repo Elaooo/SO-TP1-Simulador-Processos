@@ -197,19 +197,20 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
                     }
                 }
             }else{
-                if (gp.cpu.processo_atual == NULL) {
+                if (!gp.cpu.emUso) {
                     int pidEscalonado = escalonadorFIFO(&gp);
                     if (pidEscalonado != -1) {
                         gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
                         //gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                        AtualizarRegistradorCPU(&gp.cpu,&gp.cpu.processo_atual);
                         printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
             }
             // execução
-            if (gp.cpu.processo_atual != NULL) {
+            if (gp.cpu.emUso) {
                 // alguma função que lê a instrução no PC atual e faz a operação
-         
+        
                 
                 gp.cpu.registradorPC++;
                 IncrementarQuantum_usado(&gp.cpu);

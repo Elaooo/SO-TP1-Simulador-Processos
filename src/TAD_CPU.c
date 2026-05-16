@@ -57,7 +57,7 @@ void IncrementarQuantum_usado(cpu_s *cpu){
     cpu->quantum_usado++; // Incrementa o tempo executado neste quantum
 }
 
-void AtualizarRegistradorCPU(cpu_s*cpu,processo* proc, int quantum){
+void AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     if(proc == NULL){
         printf("Erro:Tentativa de atualizar registradores com processo nulo\n");
         return;
@@ -65,7 +65,7 @@ void AtualizarRegistradorCPU(cpu_s*cpu,processo* proc, int quantum){
     cpu->emUso=1;
     cpu->processo_atual = proc; // Atualiza o processo atual
     cpu->registradorPC = proc->pcCounter; // Atualiza o PC com o valor do processo
-    cpu->quantum_total = quantum; // Atualiza o quantum total alocado
+    cpu->quantum_total = proc->quantum; // Atualiza o quantum total alocado
     cpu->quantum_usado = 0; // Reinicia o tempo executado neste quantum
     cpu->listaInstrucao = proc->listaInstrucoes;
     
