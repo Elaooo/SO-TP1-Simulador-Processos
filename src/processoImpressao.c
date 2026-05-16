@@ -2,11 +2,11 @@
 
 #include <stdio.h>
 
-#define AZUL    "\033[34m"
+#define AZUL        "\033[34m"
 #define AMARELO     "\033[33m"
 #define VERMELHO    "\033[31m"
-#define BRANCO  "\033[37m"
-#define RESET   "\033[0m"
+#define BRANCO      "\033[37m"
+#define RESET       "\033[0m"
 
 
 void Imprime(GerenciadorProcesso *gerenciadorProcesso)
@@ -22,8 +22,8 @@ void Imprime(GerenciadorProcesso *gerenciadorProcesso)
     int menuExecutando = 1, opcao = 0;
     while (menuExecutando)
     {
-        printf(AZUL"O"BRANCO" que deseja visualizar?\n"RESET);
-        printf(AZUL"1-" BRANCO " Todos os processos\n"RESET);
+        printf(AZUL"O que deseja visualizar?\n"RESET);
+        printf(AZUL"1-"BRANCO" Todos os processos\n"RESET);
         printf(AZUL"2-"BRANCO" Processos em execucao\n"RESET);
         printf(AZUL"3-"BRANCO" Processos prontos para executar\n"RESET);
         printf(AZUL"4-"BRANCO" Processos bloqueados\n"RESET);
