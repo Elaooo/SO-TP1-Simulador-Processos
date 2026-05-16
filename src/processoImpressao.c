@@ -1,6 +1,7 @@
 #include "../include/processoImpressao.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 #define AZUL        "\033[34m"
 #define AMARELO     "\033[33m"
@@ -58,6 +59,9 @@ void Imprime(GerenciadorProcesso *gerenciadorProcesso)
         }
     }
     printf(AZUL"----------------------------------------\n"RESET);
+    fflush(stdout);
+
+    _exit(0);
 }
 
 void ColetaInformacoes(Informacoes * info , GerenciadorProcesso * gerenciadorProcesso){
@@ -77,8 +81,8 @@ void ColetaInformacoes(Informacoes * info , GerenciadorProcesso * gerenciadorPro
 
 void ImprimeTodosOsProcessos(Informacoes * info){
 
-    printf(AZUL"----------PROCESSOS BLOQUEADOS----------"RESET);
-    printf(AZUL"quantidade de processos bloqueados: "BRANCO"%d \n"RESET, info->qtdProcessosBloqueados);
+    printf(AZUL"----------PROCESSOS BLOQUEADOS----------\n"RESET);
+    printf("%squantidade de processos bloqueados:  %s%d %s\n",AZUL, BRANCO,info->qtdProcessosBloqueados, RESET);
     printf(AZUL"Fila de processos bloqueados: \n\n"RESET);
 
     Celula *celulaBloquados = info->gerenciadorProcesso->estadoBloquado.pFrente->pProx;
@@ -88,25 +92,25 @@ void ImprimeTodosOsProcessos(Informacoes * info){
     {
         processoBloqueado = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaBloquados->Item.Chave);
 
-        printf(AZUL"  %d  "BRANCO"  %d  "AZUL"  %d  "BRANCO"  %d\n"RESET,
-               processoBloqueado->pid, processoBloqueado->pcCounter,
-               processoBloqueado->prioridade, processoBloqueado->quantum);
+        printf("%s  %d  %s  %d  %s  %d  %s  %d\n%s",AZUL,
+               processoBloqueado->pid,BRANCO, processoBloqueado->pcCounter,AZUL,
+               processoBloqueado->prioridade,BRANCO, processoBloqueado->quantum, RESET);
 
         celulaBloquados = celulaBloquados->pProx;
     }
-    free(celulaBloquados);
+    
     printf("\n");
 
     /////////////////////////////////////////////////////////////////
 
-    printf(AZUL"-----------PROCESSOS PRONTOS-----------"RESET);
-    printf(AZUL"quantidade de processos prontos para executar: "BRANCO"%d\n"RESET, info->qtdProcessosProntos);
+    printf(AZUL"-----------PROCESSOS PRONTOS-----------\n"RESET);
+    printf("%squantidade de processos prontos para executar: %s%d\n%s", AZUL,BRANCO,info->qtdProcessosProntos,RESET);
     printf(AZUL"Filas de processos prontos: \n\n"RESET);
 
     for (int k = 0; k < 4; k++)
     {
 
-        printf(AZUL"Fila Prontos ["BRANCO"%d"AZUL"]\n"RESET, k);
+        printf("%sFila Prontos [%s%d%s]\n%s", AZUL,BRANCO,k,AZUL,RESET);
 
         TFila *filaProntos = &info->gerenciadorProcesso->estadoPronto[k];
         Celula *celulaProntos = filaProntos->pFrente->pProx;
@@ -117,20 +121,20 @@ void ImprimeTodosOsProcessos(Informacoes * info){
         {
             processoPronto = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaProntos->Item.Chave);
 
-            printf(AZUL"  %d  "BRANCO"  %d  "AZUL"  %d  "BRANCO"  %d\n"RESET,
-                   processoPronto->pid, processoPronto->pcCounter,
-                   processoPronto->prioridade, processoPronto->quantum);
+            printf("%s  %d  %s  %d  %s  %d  C  %d\n%s",AZUL,
+               processoPronto->pid,BRANCO, processoPronto->pcCounter,AZUL,
+               processoPronto->prioridade,BRANCO, processoPronto->quantum, RESET);
 
             celulaProntos = celulaProntos->pProx;
         }
-        free(celulaProntos);
+        
         printf("\n");
     }
     /////////////////////////////////////////////////////////////////
 
     printf(AZUL"----------PROCESSOS EM EXECUCAO----------\n"RESET);
 
-    printf(AZUL"quantidade de processos em execucao: "BRANCO"%d\n"RESET, info->qtdProcessosEmExecucao);
+    printf("%squantidade de processos em execucao: %s%d\n%s", AZUL,BRANCO,info->qtdProcessosEmExecucao,RESET);
     printf(AZUL"Fila de processos em execucao: \n\n"RESET);
 
     Celula *celulaEmExecucao = info->gerenciadorProcesso->estadoEmExecucao.pFrente->pProx;
@@ -140,13 +144,13 @@ void ImprimeTodosOsProcessos(Informacoes * info){
     {
         processoEmExecucao = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaEmExecucao->Item.Chave);
 
-        printf(AZUL"  %d  "BRANCO"  %d  "AZUL"  %d  "BRANCO"  %d\n"RESET,
-               processoEmExecucao->pid, processoEmExecucao->pcCounter,
-               processoEmExecucao->prioridade, processoEmExecucao->quantum);
+        printf("%s  %d  %s  %d  %s  %d  %s  %d\n%s",AZUL,
+               processoEmExecucao->pid,BRANCO, processoEmExecucao->pcCounter,AZUL,
+               processoEmExecucao->prioridade,BRANCO, processoEmExecucao->quantum, RESET);
 
         celulaEmExecucao = celulaEmExecucao->pProx;
     }
-    free(celulaEmExecucao);
+    
 
     printf("\n");
     printf(AMARELO"Voltando para o menu...\n"RESET);
@@ -159,7 +163,7 @@ void ImprimeProcessosEmExecucao(Informacoes * info){
 
     printf(AZUL"----------PROCESSOS EM EXECUCAO----------\n"RESET);
 
-    printf(AZUL"quantidade de processos em execucao: "BRANCO"%d\n"RESET, info->qtdProcessosEmExecucao);
+    printf("%squantidade de processos em execucao: %s%d\n%s", AZUL,BRANCO,info->qtdProcessosEmExecucao,RESET);
     printf(AZUL"Fila de processos em execucao: \n\n"RESET);
 
     Celula *celulaEmExecucao = info->gerenciadorProcesso->estadoEmExecucao.pFrente->pProx;
@@ -169,13 +173,13 @@ void ImprimeProcessosEmExecucao(Informacoes * info){
     {
         processoEmExecucao = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaEmExecucao->Item.Chave);
 
-        printf(AZUL"  %d  "BRANCO"  %d  "AZUL"  %d  "BRANCO"  %d\n"RESET,
-               processoEmExecucao->pid, processoEmExecucao->pcCounter,
-               processoEmExecucao->prioridade, processoEmExecucao->quantum);
+        printf("%s  %d  %s  %d  %s  %d  %s  %d\n%s",AZUL,
+               processoEmExecucao->pid,BRANCO, processoEmExecucao->pcCounter,AZUL,
+               processoEmExecucao->prioridade,BRANCO, processoEmExecucao->quantum, RESET);
 
         celulaEmExecucao = celulaEmExecucao->pProx;
     }
-    free(celulaEmExecucao);
+    
     printf("\n");
     printf(AMARELO"Voltando para o menu...\n"RESET);
     printf("\n");
@@ -184,14 +188,14 @@ void ImprimeProcessosEmExecucao(Informacoes * info){
 
 void ImprimeProcessosProntos(Informacoes * info){
 
-    printf(AZUL"-----------PROCESSOS PRONTOS-----------"RESET);
-    printf(AZUL"quantidade de processos prontos para executar: "BRANCO"%d\n"RESET, info->qtdProcessosProntos);
+    printf(AZUL"-----------PROCESSOS PRONTOS-----------\n"RESET);
+    printf("%squantidade de processos prontos para executar: %s%d\n%s",AZUL,BRANCO, info->qtdProcessosProntos,RESET);
     printf(AZUL"Filas de processos prontos: \n\n"RESET);
 
     for (int k = 0; k < 4; k++)
     {
 
-        printf(AZUL"Fila Prontos ["BRANCO"%d"AZUL"]\n"RESET, k);
+        printf("%sFila Prontos [%s%d%s]\n%s", AZUL,BRANCO,k,AZUL,RESET);
 
         TFila *filaProntos = &info->gerenciadorProcesso->estadoPronto[k];
         Celula *celulaProntos = filaProntos->pFrente->pProx;
@@ -202,13 +206,13 @@ void ImprimeProcessosProntos(Informacoes * info){
         {
             processoPronto = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaProntos->Item.Chave);
 
-            printf(AZUL"  %d  "BRANCO"  %d  "AZUL"  %d  "BRANCO"  %d\n"RESET,
-                   processoPronto->pid, processoPronto->pcCounter,
-                   processoPronto->prioridade, processoPronto->quantum);
+            printf("%s  %d  %s  %d  %s  %d  C  %d\n%s",AZUL,
+               processoPronto->pid,BRANCO, processoPronto->pcCounter,AZUL,
+               processoPronto->prioridade,BRANCO, processoPronto->quantum, RESET);
 
             celulaProntos = celulaProntos->pProx;
         }
-        free(celulaProntos);
+        
         printf("\n");
     }
     printf("\n");
@@ -218,8 +222,8 @@ void ImprimeProcessosProntos(Informacoes * info){
 
 void ImprimeProcessosBloqueados(Informacoes * info){
 
-    printf(AZUL"----------PROCESSOS BLOQUEADOS----------"RESET);
-    printf(AZUL"quantidade de processos bloqueados: "BRANCO"%d \n"RESET, info->qtdProcessosBloqueados);
+    printf(AZUL"----------PROCESSOS BLOQUEADOS----------\n"RESET);
+    printf("%squantidade de processos bloqueados:  %s%d %s\n",AZUL, BRANCO,info->qtdProcessosBloqueados, RESET);
     printf(AZUL"Fila de processos bloqueados: \n\n"RESET);
 
     Celula *celulaBloquados = info->gerenciadorProcesso->estadoBloquado.pFrente->pProx;
@@ -229,13 +233,13 @@ void ImprimeProcessosBloqueados(Informacoes * info){
     {
         processoBloqueado = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaBloquados->Item.Chave);
 
-        printf(AZUL"  %d  "BRANCO"  %d  "AZUL"  %d  "BRANCO"  %d\n"RESET,
-               processoBloqueado->pid, processoBloqueado->pcCounter,
-               processoBloqueado->prioridade, processoBloqueado->quantum);
+        printf("%s  %d  %s  %d  %s  %d  %s  %d\n%s",AZUL,
+               processoBloqueado->pid,BRANCO, processoBloqueado->pcCounter,AZUL,
+               processoBloqueado->prioridade,BRANCO, processoBloqueado->quantum, RESET);
 
         celulaBloquados = celulaBloquados->pProx;
     }
-    free(celulaBloquados);
+    
     printf("\n");
     printf(AMARELO"Voltando para o menu...\n"RESET);
     printf("\n");
@@ -244,15 +248,15 @@ void ImprimeProcessosBloqueados(Informacoes * info){
 void ImprimeInformacoesGerais(Informacoes * info){
 
     printf(AZUL"Informacoes do Gerenciador de Processos:\n"RESET);
-    printf(AZUL"Total de processo finalizados:  "BRANCO"%d\n"RESET, info->gerenciadorProcesso->totalProcessosFinalizados);
-    printf(AZUL"Tempo:  "BRANCO"%d\n"RESET, info->gerenciadorProcesso->tempo.valor);
+    printf("Total de processo finalizados:  %s%d\n%s",AZUL,BRANCO, info->gerenciadorProcesso->totalProcessosFinalizados,RESET);
+    printf("%sTempo:  %s%d\n%s",AZUL, BRANCO ,info->gerenciadorProcesso->tempo.valor,RESET);
     
     printf("\n");
 
     printf(AZUL"Informacoes da CPU:\n"RESET);
-    printf(AZUL"Indice da proxima instrucao (PC):  "BRANCO"%d\n"RESET, info->gerenciadorProcesso->cpu.registradorPC);
-    printf(AZUL"Processo atual:  "BRANCO"%d\n"RESET, info->processoAtual);
-    printf(AZUL"Quantum alocado para o processo atual:  "BRANCO"%d\n"RESET, info->gerenciadorProcesso->cpu.quantum_total);
+    printf("%sIndice da proxima instrucao (PC):  %s%d\n%s", AZUL,BRANCO,info->gerenciadorProcesso->cpu.registradorPC,RESET);
+    printf("%sProcesso atual:  %s%d\n%s",AZUL, BRANCO, info->processoAtual, RESET);
+    printf("%sQuantum alocado para o processo atual:  %s%d\n%s",AZUL, BRANCO ,info->gerenciadorProcesso->cpu.quantum_total,RESET);
     
     printf("\n");
     printf(AMARELO"Voltando para o menu...\n"RESET);
