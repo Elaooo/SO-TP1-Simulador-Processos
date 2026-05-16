@@ -93,7 +93,7 @@ int main(){
     printf("%d", proc.pid);
     //imprimirInstrucoes(proc.listaInstrucoes,proc.nInstrucoes);
 
-    AtualizarRegistradorCPU(&cpu,&proc,20);
+    AtualizarRegistradorCPU(&cpu,&proc);
     
     imprimirCPU(&cpu);
     

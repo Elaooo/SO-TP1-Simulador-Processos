@@ -46,7 +46,7 @@ void imprimirCPU(cpu_s *cpu){
     for(int i=0;i<3;i++){
         printf("Registrador %d = %d\n",i, cpu->variaveis[i]);
     }
-    printf("");
+    printf(" ");
 }
 
 void IncrementarQuantum_usado(cpu_s *cpu){
@@ -70,9 +70,9 @@ void AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     cpu->listaInstrucao = proc->listaInstrucoes;
     
     for(int i = 0; i<proc->nVariaveis; i++){
-        if (proc->variaveis[i] != NULL){
-            cpu->variaveis[i] = proc->variaveis[i];
-        }
+        
+        cpu->variaveis[i] = proc->variaveis[i];
+        
     }
 }
 
@@ -98,9 +98,7 @@ void SalvarContextoCPU(cpu_s *cpu){
     cpu->emUso=0; //indica que a CPU está livre
 
     for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
-        if (cpu->variaveis[i] != NULL){
-            cpu->processo_atual->variaveis[i] = cpu->variaveis[i]; 
-        }
+        cpu->processo_atual->variaveis[i] = cpu->variaveis[i]; 
     }
 
     // Adiciona o processo na fila de prontos (Não sei se isso é feito na cpu ou no gerenciador, verificar isso)
@@ -148,7 +146,7 @@ void executaInstrucoes(cpu_s* cpu){
             // processo* processoFilhinho = clonaProcesso(cpu); // lembrar que o f pula o pcCounter = pcCounter + n + 1
             // imprimirProcesso(processoFilhinho);
             // printf("instrucao F\n");
-            cpu->registradorPC++;
+            cpu->registradorPC+=instrucaoAtual.n;
             break;
         }
         case 'T':

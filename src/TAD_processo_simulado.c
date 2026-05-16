@@ -82,7 +82,7 @@ void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstru
 
     proc->tempoBloqueado=0;
 
-    if (proc->listaInstrucoes =! NULL){
+    if (proc->listaInstrucoes != NULL){
         free(proc->listaInstrucoes);
     }
 

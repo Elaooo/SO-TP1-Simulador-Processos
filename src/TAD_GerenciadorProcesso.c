@@ -192,7 +192,7 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
                     if (pidEscalonado != -1) {
                         gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
                         //gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
-                        AtualizarRegistradorCPU(&gp.cpu,&gp.cpu.processo_atual);
+                        AtualizarRegistradorCPU(&gp.cpu,gp.cpu.processo_atual);
                         printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
@@ -202,7 +202,7 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
                     if (pidEscalonado != -1) {
                         gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
                         //gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
-                        AtualizarRegistradorCPU(&gp.cpu,&gp.cpu.processo_atual);
+                        AtualizarRegistradorCPU(&gp.cpu,gp.cpu.processo_atual);
                         printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
@@ -274,7 +274,6 @@ int leituraProcessoInit(processo *processo){
     
     //variaveis processo
     int qntdInstrucoes = contarLinhasArquivo(caminho);
-    int pidInicial = 0;
     
     instrucao *listaInstrucoes = malloc(qntdInstrucoes * sizeof(instrucao));;
 
@@ -377,6 +376,7 @@ int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos){
     inicializarTabelaProcessos(&gerenciadorProcessos->tabelaProcessos);
     inicializarCPU(&gerenciadorProcessos->cpu);
     InicializaTempo(&gerenciadorProcessos->tempo);
+    //mudar isso
     for (int i = 0; i < 4; i++) {
         FazFilaVazia(&gerenciadorProcessos->estadoPronto[i]);
     }
