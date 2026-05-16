@@ -28,7 +28,7 @@ typedef struct{
 }GerenciadorProcesso;
 int escalonadorFIFO(GerenciadorProcesso* gerenciador);
 int escalonadorMLFQ(GerenciadorProcesso* gerenciador);
-int leituraProcessoInit(TabelaDeProcessos *tabelaProcessos);
+int leituraProcessoInit(processo *processo);
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
 void rodarGerenciador(int fd_leitura, int escFlag);
 

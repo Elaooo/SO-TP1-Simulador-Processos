@@ -44,7 +44,8 @@ SRCS = \
 	$(SRC_DIR)/TAD_GerenciadorProcesso.c\
 	$(SRC_DIR)/tabela_processos.c\
 	$(SRC_DIR)/ProcessoControle.c\
-	$(SRC_DIR)/processoImpressao.c
+	$(SRC_DIR)/processoImpressao.c\
+	$(SRC_DIR)/globais.c
 
 	
 # ==============================
