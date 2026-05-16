@@ -220,7 +220,7 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
                 if (gp.cpu.quantum_usado >= gp.cpu.quantum_total) {
 
                     SalvarContextoCPU(&gp.cpu);
-                    
+                    // inserir outro processo na CPU
                     TItem novoItem;
                     novoItem.Chave = gp.cpu.processo_atual->pid;
                     FilaEnfileira(gp.estadoPronto, &novoItem);
