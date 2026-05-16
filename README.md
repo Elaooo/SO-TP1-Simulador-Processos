@@ -24,4 +24,4 @@ O simulador implementa:
 ## ▶️ Como compilar
 
 ```bash
-make
+make && clean
