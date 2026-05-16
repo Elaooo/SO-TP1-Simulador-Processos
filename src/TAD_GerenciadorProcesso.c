@@ -187,11 +187,12 @@ void rodarGerenciador(int fd_leitura, int escFlag) {
         if (comando == 'U') {
             //escalonamento
             if (escFlag > 0) {
-                if (gp.cpu.processo_atual == NULL) {
+                if (!gp.cpu.emUso) {
                     int pidEscalonado = escalonadorMLFQ(&gp);
                     if (pidEscalonado != -1) {
                         gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
                         //gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                        AtualizarRegistradorCPU(&gp.cpu,&gp.cpu.processo_atual);
                         printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
