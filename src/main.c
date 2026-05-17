@@ -1,12 +1,14 @@
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "../include/TAD_processo_simulado.h"
-#include "../include/TAD_LeituraArquivo.h"
-#include "../include/TAD_TabelaProcessos.h"
-#include "../include/TAD_CPU.h"
-#include "../include/TAD_GerenciadorProcesso.h"
 #include "../include/ProcessoControle.h"
+
+int main(int argc, char *argv[]) {
+    printf("\n===== Simulador de Gerenciamento de Processos =====\n\n");
+    inicializaProcessoControle(argc, argv);
+    return 0;
+}
+
+
+
 
 // int main(int argc, char *argv[]){
 
@@ -83,7 +85,7 @@
 //     printf("\nProcesso 2 colocado na CPU\n");
 //     printf("Quantum total (P2): %d\n", cpu.quantum_total);
 //     printf("Quantum usado na CPU apos troca (deve ser 0): %d\n", cpu.quantum_usado);
-int main(){
+/*int main(){
 
     processo proc;
     cpu_s cpu;
@@ -105,4 +107,4 @@ int main(){
    
 
     return 0;
-}
+}*/
