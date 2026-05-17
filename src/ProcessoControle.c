@@ -58,13 +58,24 @@ int inicializaProcessoControle(int argc, char *argv[]){
                 continue;
             }
 
-            write(fd[1], &comando, sizeof(char));
+            ComandoPipe msg;
+            msg.tipo = comando;
+            msg.opcaoImpressao = -1;
+
+            if (comando == 'I') {
+            msg.opcaoImpressao = lerOpcaoImpressao();
+            }
+
+            if (comando == 'M') {
+                msg.opcaoImpressao = 5;
+            }
+
+            write(fd[1], &msg, sizeof(ComandoPipe));
 
             if (comando == 'M') {
                 break;
             }
         }
-
         if (entrada != stdin) {
             fclose(entrada);
         }
@@ -76,4 +87,28 @@ int inicializaProcessoControle(int argc, char *argv[]){
     }
 
     return 0;
+}
+
+int lerOpcaoImpressao() {
+    int opcao = -1;
+
+    do {
+        printf("\nO que deseja visualizar?\n");
+        printf("1 - Todos os processos\n");
+        printf("2 - Processos em execucao\n");
+        printf("3 - Processos prontos\n");
+        printf("4 - Processos bloqueados\n");
+        printf("5 - Informacoes gerais\n");
+        printf("0 - Sair\n");
+        printf("Opcao: ");
+
+        if (scanf("%d", &opcao) != 1) {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            opcao = -1;
+        }
+
+    } while (opcao < 0 || opcao > 5);
+
+    return opcao;
 }

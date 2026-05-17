@@ -9,6 +9,7 @@
 #include "../include/TAD_LeituraArquivo.h"
 #include "../include/globais.h"
 #include "../include/processoImpressao.h"
+#include "../include/ProcessoControle.h"
 
 // Em TAD_GerenciadorProcesso.c
 // do escalonador
@@ -187,7 +188,7 @@ int escalonadorFIFO(GerenciadorProcesso *gerenciador)
 
     return proximoProcesso->pid;
 }
-void rodarGerenciador(int fd_leitura, int escFlag)
+void rodarGerenciador(int fd_leitura, int escFlag, ComandoPipe msg)
 {
     char comando;
     int bytesLidos;
@@ -199,10 +200,10 @@ void rodarGerenciador(int fd_leitura, int escFlag)
 
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
 
-    while ((bytesLidos = read(fd_leitura, &comando, sizeof(char))) > 0)
+    while ((bytesLidos = read(fd_leitura, &msg, sizeof(ComandoPipe))) > 0)
     {
 
-        if (comando == 'U')
+        if (msg.tipo == 'U')
         {
             // escalonamento
             if (!gp.cpu.emUso)
@@ -285,30 +286,41 @@ void rodarGerenciador(int fd_leitura, int escFlag)
             }
             IncrementaTempo(&gp.tempo);
         }
-        else if (comando == 'I')
+        else if (msg.tipo == 'I')
         {  
             pid_t pid = fork();
             //Processo filho: Impressao
-            if (pid == 0) {
-                Imprime(&gp);
-            }else{
-                printf("aaaaaa");
-                wait(NULL);
+            if (pid < 0) {
+                perror("Erro ao criar processo impressao");
+            }
+            else if (pid == 0) {
+                Imprime(&gp, msg.opcaoImpressao);
+                _exit(0);
+            }
+            else {
+                waitpid(pid, NULL, 0);
             }
         }
-        else if (comando == 'M')
+        else if (msg.tipo == 'M')
         {
             pid_t pid = fork();
-            //Processo filho: Impressao
-            if (pid == 0) {
-                Imprime(&gp);
-            } else {   //Processo pai: gerenciador de processos
-                exit(1);
-            }    
+
+            if (pid < 0) {
+                perror("Erro ao criar processo impressao");
+            }
+            else if (pid == 0) {
+                Imprime(&gp, msg.opcaoImpressao);
+                _exit(0);
+            }
+            else {
+                waitpid(pid, NULL, 0);
+                close(fd_leitura);
+                exit(0);
+            }
         }
         else
         {
-            printf("[Gerenciador] Comando ignorado: %c\n", comando);
+            printf("[Gerenciador] Comando ignorado: %c\n", msg.tipo);
         }
     }
 }
