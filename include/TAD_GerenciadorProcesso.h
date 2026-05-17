@@ -35,7 +35,7 @@ int escalonadorFIFO(GerenciadorProcesso* gerenciador);
 int escalonadorMLFQ(GerenciadorProcesso* gerenciador);
 int leituraProcessoInit(processo *processo);
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
-void rodarGerenciador(int fd_leitura, int escFlag, ComandoPipe msg);
+void rodarGerenciador(int fd_leitura, int escFlag);
 
 processo* clonaProcesso(cpu_s *cpu);
 

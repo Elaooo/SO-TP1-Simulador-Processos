@@ -188,8 +188,9 @@ int escalonadorFIFO(GerenciadorProcesso *gerenciador)
 
     return proximoProcesso->pid;
 }
-void rodarGerenciador(int fd_leitura, int escFlag, ComandoPipe msg)
+void rodarGerenciador(int fd_leitura, int escFlag)
 {
+    ComandoPipe msg;
 
     int bytesLidos;
     GerenciadorProcesso gp;
@@ -252,7 +253,7 @@ void rodarGerenciador(int fd_leitura, int escFlag, ComandoPipe msg)
             // execução
             if(gp.cpu.emUso)
             {
-
+                
                 // se a instrucao que esta no pc counter for F, chamar a funcao de clonagem (transferir ela da cpu para o gerenciador talvez?) e colocar o processo filho na lista de pronto
                 //  alguma função que lê a instrução no PC atual e faz a operação
                 executaInstrucoes(&gp.cpu);

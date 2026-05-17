@@ -196,7 +196,7 @@ void executaInstrucoes(cpu_s* cpu){
             printf("Comando desconhecido: %c\n\n", comando);
             break;
         }
-    cpu->registradorPC++;
+    //cpu->registradorPC++;
 }
 
 

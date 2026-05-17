@@ -29,7 +29,7 @@ int inicializaProcessoControle(int argc, char *argv[])
         perror("Erro ao criar pipe");
         exit(1);
     }
-    char comando = NULL;
+    char comando = 'Z';
     ComandoPipe msg;
     msg.tipo = comando;
     msg.opcaoImpressao = -1;
@@ -45,7 +45,7 @@ int inicializaProcessoControle(int argc, char *argv[])
     {
         // Processo filho: gerenciador de processos
         close(fd[1]);                // filho não escreve no pipe
-        rodarGerenciador(fd[0], op, msg); // receber do usuario
+        rodarGerenciador(fd[0], op); // receber do usuario
     }
     else
     {
