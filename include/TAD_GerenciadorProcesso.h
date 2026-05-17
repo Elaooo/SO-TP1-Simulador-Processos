@@ -7,6 +7,7 @@
 #include <../include/tempo.h>
 #include <../include/TAD_CPU.h>
 #include <../include/TAD_TabelaProcessos.h>
+#include <../include/ProcessoControle.h>
 //para o escalonador
 #define QUANTUM_PRIORIDADE_0 1
 #define QUANTUM_PRIORIDADE_1 2
@@ -34,7 +35,7 @@ int escalonadorFIFO(GerenciadorProcesso* gerenciador);
 int escalonadorMLFQ(GerenciadorProcesso* gerenciador);
 int leituraProcessoInit(processo *processo);
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
-void rodarGerenciador(int fd_leitura, int escFlag);
+void rodarGerenciador(int fd_leitura, int escFlag, ComandoPipe msg);
 
 processo* clonaProcesso(cpu_s *cpu);
 

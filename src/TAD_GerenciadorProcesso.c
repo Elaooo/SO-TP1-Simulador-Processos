@@ -190,7 +190,7 @@ int escalonadorFIFO(GerenciadorProcesso *gerenciador)
 }
 void rodarGerenciador(int fd_leitura, int escFlag, ComandoPipe msg)
 {
-    char comando;
+
     int bytesLidos;
     GerenciadorProcesso gp;
     inicializaGerenciadorProcessos(&gp);

@@ -17,7 +17,7 @@ typedef struct{
 }Informacoes;
 
 void ColetaInformacoes(Informacoes * info, GerenciadorProcesso * gerenciadorProcesso);
-void Imprime(GerenciadorProcesso * gerenciadorProcesso);
+void Imprime(GerenciadorProcesso * gerenciadorProcesso, int opcao);
 void ImprimeTodosOsProcessos(Informacoes * info);
 void ImprimeProcessosEmExecucao(Informacoes * info);
 void ImprimeProcessosProntos(Informacoes * info);
