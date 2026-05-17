@@ -26,7 +26,14 @@ int inicializaProcessoControle(int argc, char *argv[]){
     if (pid == 0) {
         //Processo filho: gerenciador de processos
         close(fd[1]); // filho não escreve no pipe
-        rodarGerenciador(fd[0],1); // receber do usuario
+        int op;
+        do{
+            printf("Escolha qual escalonador usar:\n");
+            printf("0 - Escalonador MLFQ:\n");
+            printf("1 - Escalonador FIFO:\n");
+            scanf("%d",&op);
+        }while(op != 1 || op != 0);
+        rodarGerenciador(fd[0],op); // receber do usuario
     } else {
         //Processo pai: processo controle
         close(fd[0]); // pai não lê do pipe

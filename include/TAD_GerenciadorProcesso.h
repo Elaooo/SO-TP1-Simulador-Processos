@@ -13,6 +13,9 @@
 #define QUANTUM_PRIORIDADE_2 4
 #define QUANTUM_PRIORIDADE_3 8
 #define NUM_PRIORIDADES 4
+//Flag pioraidade
+#define FIFO 1
+#define MLFQ 0
 
 typedef struct{
 

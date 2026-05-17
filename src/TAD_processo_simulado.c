@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "../include/TAD_processo_simulado.h"
 #include "../include/globais.h"
 
@@ -49,6 +50,7 @@ void inicializarProcessoInit(processo* proc, instrucao* listaInstrucoes, int nIn
 
     proc->pcCounter=0;
     proc->estado=PRONTO;
+    proc->prioridade=0;
 
     proc->quantum=0;
     proc->quantum_usado_CPUatual=0;
@@ -82,6 +84,7 @@ void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstru
 
     proc->tempoBloqueado=0;
 
+
     if (proc->listaInstrucoes != NULL){
         free(proc->listaInstrucoes);
     }
@@ -100,6 +103,8 @@ void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstru
     } else{
         printf("Alocacao de memoria do Falhou\n ");
     }
+
+
 }
 
 

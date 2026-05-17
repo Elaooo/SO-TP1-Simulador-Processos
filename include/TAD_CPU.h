@@ -39,4 +39,6 @@ void SalvarContextoCpuQuantum(cpu_s *cpu);
 void SalvarContextoCpuTermino(cpu_s *cpu);
 void SalvarContextoCpuBloqueio(cpu_s *cpu);
 
+void esvaziaCpu(cpu_s *cpu);
+
 #endif
