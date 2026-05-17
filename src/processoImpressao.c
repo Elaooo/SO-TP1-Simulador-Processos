@@ -70,7 +70,7 @@ void ColetaInformacoes(Informacoes * info , GerenciadorProcesso * gerenciadorPro
     info->qtdProcessosBloqueados = gerenciadorProcesso->estadoBloquado.tam;
     info->qtdProcessosEmExecucao = gerenciadorProcesso->estadoEmExecucao.tam;
 
-    info->qtdProcessos = info->gerenciadorProcesso->estadoPronto[0].tam + info->gerenciadorProcesso->estadoPronto[1].tam +
+    info->qtdProcessosProntos = info->gerenciadorProcesso->estadoPronto[0].tam + info->gerenciadorProcesso->estadoPronto[1].tam +
                           info->gerenciadorProcesso->estadoPronto[2].tam + info->gerenciadorProcesso->estadoPronto[3].tam;
 
     info->qtdProcessos = info->qtdProcessosBloqueados + info->qtdProcessosEmExecucao + info->qtdProcessosProntos;

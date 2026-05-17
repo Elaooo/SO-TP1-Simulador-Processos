@@ -193,6 +193,10 @@ void rodarGerenciador(int fd_leitura, int escFlag)
     int bytesLidos;
     GerenciadorProcesso gp;
     inicializaGerenciadorProcessos(&gp);
+    processo init;
+    leituraProcessoInit(&init);
+    AtualizarRegistradorCPU(&gp.cpu,&init);
+
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
 
     while ((bytesLidos = read(fd_leitura, &comando, sizeof(char))) > 0)
@@ -215,7 +219,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                         printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
-                else if(escFlag == FIFO)
+                else
                 {
 
                     int pidEscalonado = escalonadorFIFO(&gp);
@@ -287,7 +291,10 @@ void rodarGerenciador(int fd_leitura, int escFlag)
             //Processo filho: Impressao
             if (pid == 0) {
                 Imprime(&gp);
-            }  
+            }else{
+                printf("aaaaaa");
+                wait(NULL);
+            }
         }
         else if (comando == 'M')
         {

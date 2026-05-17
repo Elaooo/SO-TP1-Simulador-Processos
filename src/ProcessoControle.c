@@ -6,11 +6,16 @@
 #include "../include/TAD_GerenciadorProcesso.h"
 #include "../include/ProcessoControle.h"
 
-
-
 int inicializaProcessoControle(int argc, char *argv[]){
     int fd[2];
 
+    int op = -999;
+    do{
+        printf("Escolha qual escalonador usar:\n");
+        printf("0 - Escalonador MLFQ:\n");
+        printf("1 - Escalonador FIFO:\n");
+        scanf("%d",&op);
+    }while(op != 1 && op != 0);
     if (pipe(fd) == -1) {
         perror("Erro ao criar pipe");
         exit(1);
@@ -26,13 +31,6 @@ int inicializaProcessoControle(int argc, char *argv[]){
     if (pid == 0) {
         //Processo filho: gerenciador de processos
         close(fd[1]); // filho não escreve no pipe
-        int op;
-        do{
-            printf("Escolha qual escalonador usar:\n");
-            printf("0 - Escalonador MLFQ:\n");
-            printf("1 - Escalonador FIFO:\n");
-            scanf("%d",&op);
-        }while(op != 1 || op != 0);
         rodarGerenciador(fd[0],op); // receber do usuario
     } else {
         //Processo pai: processo controle
