@@ -121,7 +121,7 @@ void ImprimeTodosOsProcessos(Informacoes * info){
         {
             processoPronto = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaProntos->Item.Chave);
 
-            printf("%s  %d  %s  %d  %s  %d  C  %d\n%s",AZUL,
+            printf("%s  %d  %s  %d  %s  %d  %s  %d\n%s",AZUL,
                processoPronto->pid,BRANCO, processoPronto->pcCounter,AZUL,
                processoPronto->prioridade,BRANCO, processoPronto->quantum, RESET);
 
@@ -206,7 +206,7 @@ void ImprimeProcessosProntos(Informacoes * info){
         {
             processoPronto = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaProntos->Item.Chave);
 
-            printf("%s  %d  %s  %d  %s  %d  C  %d\n%s",AZUL,
+            printf("%s  %d  %s  %d  %s  %d  %s  %d\n%s",AZUL,
                processoPronto->pid,BRANCO, processoPronto->pcCounter,AZUL,
                processoPronto->prioridade,BRANCO, processoPronto->quantum, RESET);
 
@@ -248,14 +248,14 @@ void ImprimeProcessosBloqueados(Informacoes * info){
 void ImprimeInformacoesGerais(Informacoes * info){
 
     printf(AZUL"Informacoes do Gerenciador de Processos:\n"RESET);
-    printf("Total de processo finalizados:  %s%d\n%s",AZUL,BRANCO, info->gerenciadorProcesso->totalProcessosFinalizados,RESET);
+    printf("%sTotal de processo finalizados:  %s%d\n%s",AZUL,BRANCO, info->gerenciadorProcesso->totalProcessosFinalizados,RESET);
     printf("%sTempo:  %s%d\n%s",AZUL, BRANCO ,info->gerenciadorProcesso->tempo.valor,RESET);
     
     printf("\n");
 
     printf(AZUL"Informacoes da CPU:\n"RESET);
     printf("%sIndice da proxima instrucao (PC):  %s%d\n%s", AZUL,BRANCO,info->gerenciadorProcesso->cpu.registradorPC,RESET);
-    printf("%sProcesso atual:  %s%d\n%s",AZUL, BRANCO, info->processoAtual, RESET);
+    printf("%sProcesso atual:  %s%d\n%s",AZUL, BRANCO, info->processoAtual->pid, RESET);
     printf("%sQuantum alocado para o processo atual:  %s%d\n%s",AZUL, BRANCO ,info->gerenciadorProcesso->cpu.quantum_total,RESET);
     
     printf("\n");
