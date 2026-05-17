@@ -29,13 +29,14 @@ typedef struct{
 }cpu_s;
 
 void inicializarCPU(cpu_s* cpu);
-processo* clonaProcesso(cpu_s *cpu);
 //atualiza a cpu para os dados do processo em execução atual
 void AtualizarRegistradorCPU(cpu_s*cpu,processo*proc);
 void IncrementarQuantum_usado(cpu_s *cpu);
-// Salva o contexto do processo atual da CPU.
-void SalvarContextoCPU(cpu_s *cpu);
 void imprimirCPU(cpu_s *cpu);
 void executaInstrucoes(cpu_s *cpu);
+//salva contexto da cpu em cada caso
+void SalvarContextoCpuQuantum(cpu_s *cpu);
+void SalvarContextoCpuTermino(cpu_s *cpu);
+void SalvarContextoCpuBloqueio(cpu_s *cpu);
 
 #endif

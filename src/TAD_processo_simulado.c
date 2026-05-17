@@ -135,7 +135,7 @@ void imprimirInstrucoes(instrucao *lista, int tamanho) {
                        lista[i].caminhoArquivo);
                 break;
             case 'F':
-                printf("Comando F | X: %d\n", lista[i].x);
+                printf("Comando F | X: %d\n", lista[i].n);
                 break;
             case 'T':
                 printf("Comando T\n");

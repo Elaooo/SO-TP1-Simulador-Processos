@@ -116,11 +116,11 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
                 break;
 
             case 'F':
-                sscanf(linha, " %c %d", &comando, &x);
+                sscanf(linha, " %c %d", &comando, &n);
                 //printf("Comando F\n");
                 //printf("X: %d\n\n", x);
                 listaInstrucoes[iterador].tipo = comando;
-                listaInstrucoes[iterador].x = x;
+                listaInstrucoes[iterador].n = n;
                 break;
             case 'T':
                 sscanf(linha, " %c", &comando);

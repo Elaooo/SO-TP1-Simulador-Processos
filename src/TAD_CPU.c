@@ -76,7 +76,30 @@ void AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     }
 }
 
-void SalvarContextoCPU(cpu_s *cpu){
+void SalvarContextoCpuQuantum(cpu_s *cpu){
+
+    if(cpu->processo_atual == NULL){
+        printf("Erro:Tentativa de salvar contexto com processo nulo\n");
+        return;
+    }
+    cpu->processo_atual->pcCounter = cpu->registradorPC; // Salva o PC do processo atual
+    cpu->processo_atual->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
+    
+    if(cpu->quantum_usado>=cpu->quantum_total){
+        cpu->processo_atual->estado = PRONTO; // Atualiza o estado do processo para pronto para reinserção na fila
+    }
+
+    for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
+        cpu->processo_atual->variaveis[i] = cpu->variaveis[i]; 
+    }
+
+    esvaziaCpu(cpu); //indica que a CPU está livre
+
+    // Adiciona o processo na fila de prontos (Não sei se isso é feito na cpu ou no gerenciador, verificar isso)
+}
+
+
+void SalvarContextoCpuTermino(cpu_s *cpu){
 
     if(cpu->processo_atual == NULL){
         printf("Erro:Tentativa de salvar contexto com processo nulo\n");
@@ -88,25 +111,41 @@ void SalvarContextoCPU(cpu_s *cpu){
     if(cpu->registradorPC >= cpu->processo_atual->nInstrucoes-1){ //Terminou a execução
         cpu->processo_atual->estado = TERMINADO;
     }
-    else if(cpu->quantum_usado<cpu->quantum_total){ //foi bloqueado por uma instrucao B
-        cpu->processo_atual->estado = BLOQUEADO;
-    }
-    else{
-        cpu->processo_atual->estado = PRONTO; // Atualiza o estado do processo para pronto para reinserção na fila
-    }
-
 
     for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
         cpu->processo_atual->variaveis[i] = cpu->variaveis[i]; 
     }
 
-    cpu->emUso=0; //indica que a CPU está livre
+    esvaziaCpu(cpu); //indica que a CPU está livre
 
     // Adiciona o processo na fila de prontos (Não sei se isso é feito na cpu ou no gerenciador, verificar isso)
 }
 
-void executaInstrucoes(cpu_s* cpu){
+
+
+void SalvarContextoCpuBloqueio(cpu_s *cpu){
+
+    if(cpu->processo_atual == NULL){
+        printf("Erro:Tentativa de salvar contexto com processo nulo\n");
+        return;
+    }
+    cpu->processo_atual->pcCounter = cpu->registradorPC; // Salva o PC do processo atual
+    cpu->processo_atual->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
     
+    if(cpu->quantum_usado<cpu->quantum_total){ //foi bloqueado por uma instrucao B
+        cpu->processo_atual->tempoBloqueado=cpu->listaInstrucao[cpu->registradorPC].n;
+        cpu->processo_atual->estado = BLOQUEADO;
+    }
+    
+    for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
+        cpu->processo_atual->variaveis[i] = cpu->variaveis[i]; 
+    }
+
+    esvaziaCpu(cpu); //indica que a CPU está livre
+}
+
+void executaInstrucoes(cpu_s* cpu){
+
     instrucao instrucaoAtual = cpu->listaInstrucao[cpu->registradorPC];
     char comando = instrucaoAtual.tipo;
     
@@ -135,23 +174,21 @@ void executaInstrucoes(cpu_s* cpu){
         case 'B':
             //o processo passara para o estado bloqueado, logo, os dados da cpu serao guardados de volta no processo
             // e consequentemente na tabela de processos, e a cpu sera liberada 
-            SalvarContextoCPU(cpu);
-            printf("Processo bloqueado. CPU disponivell\n");
+            printf("Processo bloqueado. CPU disponivel\n");
             break;
         case 'R':
             leituraArquivoProcesso(instrucaoAtual.caminhoArquivo, cpu);
             printf("Leu o arquivo %s e iniciou o processo\n", instrucaoAtual.caminhoArquivo);
             break;
 
-        case 'F':{
+        case 'F':
             // processo* processoFilhinho = clonaProcesso(cpu); // lembrar que o f pula o pcCounter = pcCounter + n + 1
             // imprimirProcesso(processoFilhinho);
             // printf("instrucao F\n");
-            cpu->registradorPC+=instrucaoAtual.n;
+            
+            cpu->registradorPC += instrucaoAtual.n;
             break;
-        }
         case 'T':
-            SalvarContextoCPU(cpu);
             printf("FIM DO PROCESSO");
             break;
 
@@ -159,34 +196,12 @@ void executaInstrucoes(cpu_s* cpu){
             printf("Comando desconhecido: %c\n\n", comando);
             break;
         }
-        
     cpu->registradorPC++;
 }
 
-processo* clonaProcesso(cpu_s *cpu){
 
-    processo *procFilho = (processo*) malloc(sizeof(processo));
-    processo *procPai = cpu->processo_atual;
 
-    procFilho->pid = proximoPidDisponivel;
-    proximoPidDisponivel++;
-    procFilho->nInstrucoes=procPai->nInstrucoes;
-
-    procFilho->pcCounter=procPai->pcCounter+1;
-    procFilho->estado=PRONTO;
-
-    procFilho->quantum=0;
-    procFilho->quantum_usado_CPUatual=0;
-
-    procFilho->tempoBloqueado=0;
-
-        
-    procFilho->listaInstrucoes = (instrucao*) malloc(sizeof(instrucao) * procFilho->nInstrucoes);
-    if (procFilho->listaInstrucoes != NULL) {
-        for (int i = 0; i < procPai->nInstrucoes; i++) {
-            procFilho->listaInstrucoes[i] = procPai->listaInstrucoes[i];
-        }
-    }
-
-    return procFilho;
+void esvaziaCpu(cpu_s *cpu){
+    cpu->processo_atual = NULL; 
+    cpu->emUso = 0;
 }

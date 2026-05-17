@@ -6,8 +6,7 @@
 #include "../include/TAD_TabelaProcessos.h"
 #include "../include/TAD_CPU.h"
 #include "../include/TAD_GerenciadorProcesso.h"
-
-#include "../src/ProcessoControle.c"
+#include "../include/ProcessoControle.h"
 
 // int main(int argc, char *argv[]){
 
@@ -101,7 +100,6 @@ int main(){
         executaInstrucoes(&cpu);
     }
 
-    imprimirCPU(&cpu);
 
     imprimirProcesso(&proc);
    

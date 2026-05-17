@@ -19,6 +19,7 @@ typedef struct{
     TFila estadoPronto[4];//No FIFO usamos somente o estadoPronto[0]
     TFila estadoBloquado;
     TFila estadoEmExecucao;
+    TFila finalizados;
     Tempo tempo;
     cpu_s cpu;
     TabelaDeProcessos tabelaProcessos;
@@ -31,6 +32,8 @@ int escalonadorMLFQ(GerenciadorProcesso* gerenciador);
 int leituraProcessoInit(processo *processo);
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
 void rodarGerenciador(int fd_leitura, int escFlag);
+
+processo* clonaProcesso(cpu_s *cpu);
 
 
 
