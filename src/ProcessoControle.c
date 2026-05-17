@@ -67,10 +67,10 @@ int inicializaProcessoControle(int argc, char *argv[]){
             }
 
             if (comando == 'M') {
-                msg.opcaoImpressao = 5;
+                msg.opcaoImpressao = lerOpcaoImpressao();;
             }
 
-            write(fd[1], &msg, sizeof(ComandoPipe));
+            write(fd[1],&msg, sizeof(ComandoPipe));
 
             if (comando == 'M') {
                 break;
