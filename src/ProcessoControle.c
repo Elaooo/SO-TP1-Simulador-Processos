@@ -29,7 +29,7 @@ int inicializaProcessoControle(int argc, char *argv[])
         perror("Erro ao criar pipe");
         exit(1);
     }
-    char comando;
+    char comando = NULL;
     ComandoPipe msg;
     msg.tipo = comando;
     msg.opcaoImpressao = -1;
@@ -77,7 +77,7 @@ int inicializaProcessoControle(int argc, char *argv[])
                 printf("[Controle] Comando inválido ignorado: %c\n", comando);
                 continue;
             }
-
+            msg.tipo = comando;
             if (comando == 'I' || comando == 'M')
             {
                 msg.opcaoImpressao = lerOpcaoImpressao();

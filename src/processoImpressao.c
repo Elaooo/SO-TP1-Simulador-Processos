@@ -37,8 +37,8 @@ void Imprime(GerenciadorProcesso *gerenciadorProcesso, int opcao)
     }
 
     printf(AZUL "----------------------------------------\n" RESET);
+    printf("Fim da Impressao\n");
     fflush(stdout);
-
     _exit(0);
 }
 
@@ -131,8 +131,6 @@ void ImprimeTodosOsProcessos(Informacoes *info)
     }
 
     printf("\n");
-    printf(AMARELO "Voltando para o menu...\n" RESET);
-    printf("\n");
 }
 
 void ImprimeProcessosEmExecucao(Informacoes *info)
@@ -157,8 +155,6 @@ void ImprimeProcessosEmExecucao(Informacoes *info)
         celulaEmExecucao = celulaEmExecucao->pProx;
     }
 
-    printf("\n");
-    printf(AMARELO "Voltando para o menu...\n" RESET);
     printf("\n");
 }
 
@@ -193,8 +189,7 @@ void ImprimeProcessosProntos(Informacoes *info)
         printf("\n");
     }
     printf("\n");
-    printf(AMARELO "Voltando para o menu...\n" RESET);
-    printf("\n");
+
 }
 
 void ImprimeProcessosBloqueados(Informacoes *info)
@@ -219,8 +214,7 @@ void ImprimeProcessosBloqueados(Informacoes *info)
     }
 
     printf("\n");
-    printf(AMARELO "Voltando para o menu...\n" RESET);
-    printf("\n");
+
 }
 
 void ImprimeInformacoesGerais(Informacoes *info)
@@ -238,6 +232,5 @@ void ImprimeInformacoesGerais(Informacoes *info)
     printf("%sQuantum alocado para o processo atual:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->cpu.quantum_total, RESET);
 
     printf("\n");
-    printf(AMARELO "Voltando para o menu...\n" RESET);
     printf("\n");
 }
