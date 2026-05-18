@@ -48,6 +48,9 @@ void inicializarProcessoInit(processo* proc, instrucao* listaInstrucoes, int nIn
     proximoPidDisponivel++;
     proc->nInstrucoes=nInstrucao;
 
+    proc->listaInstrucoes=NULL;
+    proc->variaveis=NULL;
+
     proc->pcCounter=0;
     proc->estado=PRONTO;
     proc->prioridade=0;
@@ -67,7 +70,18 @@ void inicializarProcessoInit(processo* proc, instrucao* listaInstrucoes, int nIn
 
     if((proc->listaInstrucoes[0].tipo == 'N')){
 
-        proc->variaveis = (int*) malloc(sizeof(int) * proc->listaInstrucoes[0].n);
+        proc->nVariaveis= proc->listaInstrucoes[0].n;
+
+        proc->variaveis = (int*) malloc(sizeof(int) * proc->nVariaveis);
+
+        if(proc->variaveis!=NULL){
+            for(int j=0;j < proc->nVariaveis; j++){
+                proc->variaveis[j]=999;
+            }
+        }else{
+            printf("erro");
+        }
+
     } else{
         printf("Alocacao de memoria do Falhou\n ");
     }
@@ -258,6 +272,9 @@ void imprimirProcesso(processo *p){
 
                 printf(" arquivo=%s",
                        inst.caminhoArquivo);
+            }
+            else if(inst.tipo == 'F'){
+                printf(" %d", inst.n);
             }
 
             printf("\n");

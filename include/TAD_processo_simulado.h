@@ -31,7 +31,7 @@ typedef struct{
     int quantum;
     int quantum_usado_CPUatual;
     int prioridade;
-    int nInstrucoes;
+    int nInstrucoes; 
     instrucao *listaInstrucoes;
     int tempoBloqueado;
  

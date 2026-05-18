@@ -2,7 +2,7 @@
 # Compilador e flags
 # ==============================
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude
+CFLAGS = -Wall -Wextra -g -Iinclude
 
 # ==============================
 # Diretórios

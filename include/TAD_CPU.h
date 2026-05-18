@@ -5,6 +5,7 @@
 #include "TAD_LeituraArquivo.h"
 #ifndef TAD_CPU_H
 #define TAD_CPU_H
+#define MAX_VARIAVEIS_CPU 31
 
 //representa nossa CPU
 typedef struct{
@@ -14,7 +15,7 @@ typedef struct{
     processo *processo_atual;
 
     instrucao *listaInstrucao;
-    int *variaveis;
+    int variaveis[MAX_VARIAVEIS_CPU];
     
     //Índice da próxima instrução a ser executada do processso simulado.
     int registradorPC;
@@ -35,9 +36,7 @@ void IncrementarQuantum_usado(cpu_s *cpu);
 void imprimirCPU(cpu_s *cpu);
 void executaInstrucoes(cpu_s *cpu);
 //salva contexto da cpu em cada caso
-void SalvarContextoCpuQuantum(cpu_s *cpu);
-void SalvarContextoCpuTermino(cpu_s *cpu);
-void SalvarContextoCpuBloqueio(cpu_s *cpu);
+void SalvarContextoCpu(cpu_s *cpu);
 
 void esvaziaCpu(cpu_s *cpu);
 

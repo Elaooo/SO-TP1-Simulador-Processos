@@ -257,7 +257,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                     if (gp.cpu.quantum_usado >= gp.cpu.quantum_total)
                     {
 
-                        SalvarContextoCpuQuantum(&gp.cpu);
+                        SalvarContextoCpu(&gp.cpu);
                         // inserir outro processo na CPU
                         TItem novoItem;
                         novoItem.Chave = gp.cpu.processo_atual->pid;
@@ -271,19 +271,22 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                 // execução
                 if(gp.cpu.emUso)
                 {
-                    
+                    printf("Executando instrução do processo\n");
                     // se a instrucao que esta no pc counter for F, chamar a funcao de clonagem (transferir ela da cpu para o gerenciador talvez?) e colocar o processo filho na lista de pronto
                     //  alguma função que lê a instrução no PC atual e faz a operação
                     executaInstrucoes(&gp.cpu);
                     TItem novoItem;
+                    printf("EXECUTADO\n");
+                    
+
 
                     if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
                     {
-                        SalvarContextoCpuBloqueio(&gp.cpu);
+                        SalvarContextoCpu(&gp.cpu);
                     }
                     else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
                     {
-                        SalvarContextoCpuTermino(&gp.cpu);
+                        SalvarContextoCpu(&gp.cpu);
                         novoItem.Chave = gp.cpu.processo_atual->pid;
                         FilaEnfileira(&gp.finalizados, &novoItem);
                     }
@@ -304,6 +307,9 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                     IncrementarQuantum_usado(&gp.cpu);
                 }
                 IncrementaTempo(&gp.tempo);
+
+                imprimirCPU(&gp.cpu);
+                imprimirProcesso(gp.cpu.processo_atual);
         }
         else if (msg.tipo == 'I')
         {  
@@ -366,7 +372,6 @@ int leituraProcessoInit(processo *processo)
     int qntdInstrucoes = contarLinhasArquivo(caminho);
 
     instrucao *listaInstrucoes = malloc(qntdInstrucoes * sizeof(instrucao));
-    ;
 
     if (!listaInstrucoes)
     {
@@ -393,16 +398,20 @@ int leituraProcessoInit(processo *processo)
             // printf("Comando N\n");
             // printf("N: %d\n\n", n);
             listaInstrucoes[iterador].tipo = comando;
-                listaInstrucoes[iterador].n = n;
-                break;
+            listaInstrucoes[iterador].n = n;
+            listaInstrucoes[iterador].x = 0;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+            break;
 
             case 'D':
             sscanf(linha, " %c %d", &comando, &x);
             // printf("Comando D\n");
             // printf("X: %d\n\n", x);
             listaInstrucoes[iterador].tipo = comando;
-                listaInstrucoes[iterador].x = x;
-                break;
+            listaInstrucoes[iterador].x = x;
+            listaInstrucoes[iterador].n = 0;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+            break;
 
             case 'V':
             sscanf(linha, " %c %d %d", &comando, &x, &n);
@@ -411,6 +420,7 @@ int leituraProcessoInit(processo *processo)
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].x = x;
             listaInstrucoes[iterador].n = n;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             break;
 
             case 'A':
@@ -419,17 +429,20 @@ int leituraProcessoInit(processo *processo)
             // printf("Comando %c\n", comando);
             // printf("X: %d | N: %d\n\n", x, n);
             listaInstrucoes[iterador].tipo = comando;
-                listaInstrucoes[iterador].x = x;
-                listaInstrucoes[iterador].n = n;
-                break;
+            listaInstrucoes[iterador].x = x;
+            listaInstrucoes[iterador].n = n;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+            break;
 
             case 'R':
             sscanf(linha, " %c %s", &comando, caminho);
             // printf("Comando R\n");
             // printf("Arquivo: %s\n\n", caminho);
             listaInstrucoes[iterador].tipo = comando;
+            listaInstrucoes[iterador].n = 0;
+            listaInstrucoes[iterador].x = 0;
             strcpy(listaInstrucoes[iterador].caminhoArquivo, caminho);
-                break;
+            break;
 
         case 'F':
             sscanf(linha, " %c %d", &comando, &n);
@@ -437,14 +450,18 @@ int leituraProcessoInit(processo *processo)
             // printf("X: %d\n\n", x);
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].n = n;
+            listaInstrucoes[iterador].x = 0;
             break;
             case 'T':
             sscanf(linha, " %c", &comando);
             // printf("Comando %c\n", comando);
             listaInstrucoes[iterador].tipo = comando;
+            listaInstrucoes[iterador].n = 0;
+            listaInstrucoes[iterador].x = 0;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             // printf("\n");
             // printf("-----encerra execucao-----");
-                break;
+            break;
 
             default:
             printf("Comando desconhecido: %c\n\n", comando);
@@ -456,7 +473,6 @@ int leituraProcessoInit(processo *processo)
     inicializarProcessoInit(processo, listaInstrucoes, qntdInstrucoes);
 
     // imprimirInstrucoes(processo.listaInstrucoes,qntdInstrucoes);
-
     free(listaInstrucoes);
 
     fclose(arquivo);
@@ -520,3 +536,109 @@ processo *clonaProcesso(cpu_s *cpu)
 
     return procFilho;
 }
+
+// int leituraProcessoInit(processo *processo)
+// {
+//     int iterador = 0;
+
+//     // variaveis processo
+//     int qntdInstrucoes = 12;
+
+//     instrucao *listaInstrucoes = malloc(qntdInstrucoes * sizeof(instrucao));
+
+//     if (!listaInstrucoes)
+//     {
+//         printf("Erro de alocacao\n");
+//         return 0;
+//     }
+
+//     // N 2
+//     listaInstrucoes[iterador].tipo = 'N';
+//     listaInstrucoes[iterador].n = 2;
+//     listaInstrucoes[iterador].x = 0;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // D 0
+//     listaInstrucoes[iterador].tipo = 'D';
+//     listaInstrucoes[iterador].x = 0;
+//     listaInstrucoes[iterador].n = 0;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // D 1
+//     listaInstrucoes[iterador].tipo = 'D';
+//     listaInstrucoes[iterador].x = 1;
+//     listaInstrucoes[iterador].n = 0;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // V 0 1000
+//     listaInstrucoes[iterador].tipo = 'V';
+//     listaInstrucoes[iterador].x = 0;
+//     listaInstrucoes[iterador].n = 1000;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // V 1 500
+//     listaInstrucoes[iterador].tipo = 'V';
+//     listaInstrucoes[iterador].x = 1;
+//     listaInstrucoes[iterador].n = 500;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // A 0 19
+//     listaInstrucoes[iterador].tipo = 'A';
+//     listaInstrucoes[iterador].x = 0;
+//     listaInstrucoes[iterador].n = 19;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // A 0 20
+//     listaInstrucoes[iterador].tipo = 'A';
+//     listaInstrucoes[iterador].x = 0;
+//     listaInstrucoes[iterador].n = 20;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // S 1 53
+//     listaInstrucoes[iterador].tipo = 'S';
+//     listaInstrucoes[iterador].x = 1;
+//     listaInstrucoes[iterador].n = 53;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // A 1 55
+//     listaInstrucoes[iterador].tipo = 'A';
+//     listaInstrucoes[iterador].x = 1;
+//     listaInstrucoes[iterador].n = 55;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // F 1
+//     listaInstrucoes[iterador].tipo = 'F';
+//     listaInstrucoes[iterador].n = 1;
+//     listaInstrucoes[iterador].x = 0;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     // R file_a
+//     listaInstrucoes[iterador].tipo = 'R';
+//     listaInstrucoes[iterador].n = 0;
+//     listaInstrucoes[iterador].x = 0;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "file_a");
+//     iterador++;
+
+//     // T
+//     listaInstrucoes[iterador].tipo = 'T';
+//     listaInstrucoes[iterador].n = 0;
+//     listaInstrucoes[iterador].x = 0;
+//     strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+//     iterador++;
+
+//     inicializarProcessoInit(processo, listaInstrucoes, qntdInstrucoes);
+
+//     free(listaInstrucoes);
+
+//     return 1;
+// }

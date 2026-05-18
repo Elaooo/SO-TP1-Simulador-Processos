@@ -4,7 +4,7 @@
 #include "../include/TAD_CPU.h"
 #include "../include/TAD_LeituraArquivo.h"
 #include "../include/globais.h"
-#define MAX_VARIAVEIS_CPU 31
+
 
 void inicializarCPU(cpu_s *cpu)
 {
@@ -19,15 +19,8 @@ void inicializarCPU(cpu_s *cpu)
     cpu->quantum_total = 0;
     cpu->quantum_usado = 0;
 
-    cpu->variaveis = malloc(sizeof(int) * MAX_VARIAVEIS_CPU);
-
-    if (cpu->variaveis == NULL) {
-        printf("Erro ao alocar variaveis da CPU.\n");
-        return;
-    }
-
     for (int i = 0; i < MAX_VARIAVEIS_CPU; i++) {
-        cpu->variaveis[i] = 999;
+        cpu->variaveis[i] = 0;
     }
 }
 
@@ -76,7 +69,7 @@ void IncrementarQuantum_usado(cpu_s *cpu){
 
 int AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     if(proc == NULL){
-        printf("Erro:Tentativa de atualizar registradores com processo nulo\n");
+        printf("Processo nulo\n");
         return 0;
     }
     cpu->emUso=1;
@@ -85,6 +78,10 @@ int AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     cpu->quantum_total = proc->quantum; // Atualiza o quantum total alocado
     cpu->quantum_usado = 0; // Reinicia o tempo executado neste quantum
     cpu->listaInstrucao = proc->listaInstrucoes;
+    // printf("IMPRESSAO lista da cpu:\n");
+    // imprimirInstrucoes(cpu->listaInstrucao, cpu->processo_atual->nInstrucoes);
+    // printf("IMPRESSAO LSITA DO PROCESSO:\n");
+    // imprimirInstrucoes(proc->listaInstrucoes, proc->nInstrucoes);
 
     for(int i = 0; i<proc->nVariaveis; i++){
 
@@ -94,73 +91,40 @@ int AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     return 1;
 }
 
-void SalvarContextoCpuQuantum(cpu_s *cpu){
+void SalvarContextoCpu(cpu_s *cpu){
 
-    if(cpu->processo_atual == NULL){
-        printf("Erro:Tentativa de salvar contexto com processo nulo\n");
+    if(cpu->processo_atual == NULL || cpu == NULL){
+        printf("Processo nulo OR cpu nula\n");
         return;
     }
-    cpu->processo_atual->pcCounter = cpu->registradorPC; // Salva o PC do processo atual
-    cpu->processo_atual->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
+
+    processo* p = cpu->processo_atual;
+    
+    instrucao atual = p->listaInstrucoes[cpu->registradorPC];
+    
+
+    p->pcCounter = cpu->registradorPC + 1; // Salva o PC do processo atual
+    p->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
     
     if(cpu->quantum_usado>=cpu->quantum_total){
-        cpu->processo_atual->estado = PRONTO; // Atualiza o estado do processo para pronto para reinserção na fila
+        p->estado = PRONTO; // Atualiza o estado do processo para pronto para reinserção na fila
+    }
+    else if(atual.tipo == 'B'){
+        p->tempoBloqueado=cpu->listaInstrucao[cpu->registradorPC].n;
+        p->estado = BLOQUEADO;
+    }
+    else if(atual.tipo == 'T'){
+        p->estado = TERMINADO;
     }
 
     for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
-        cpu->processo_atual->variaveis[i] = cpu->variaveis[i]; 
+        p->variaveis[i] = cpu->variaveis[i]; 
     }
 
     esvaziaCpu(cpu); //indica que a CPU está livre
 
-    // Adiciona o processo na fila de prontos (Não sei se isso é feito na cpu ou no gerenciador, verificar isso)
 }
 
-
-void SalvarContextoCpuTermino(cpu_s *cpu){
-
-    if(cpu->processo_atual == NULL){
-        printf("Erro:Tentativa de salvar contexto com processo nulo\n");
-        return;
-    }
-    cpu->processo_atual->pcCounter = cpu->registradorPC; // Salva o PC do processo atual
-    cpu->processo_atual->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
-    
-    if(cpu->registradorPC >= cpu->processo_atual->nInstrucoes-1){ //Terminou a execução
-        cpu->processo_atual->estado = TERMINADO;
-    }
-
-    for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
-        cpu->processo_atual->variaveis[i] = cpu->variaveis[i]; 
-    }
-
-    esvaziaCpu(cpu); //indica que a CPU está livre
-
-    // Adiciona o processo na fila de prontos (Não sei se isso é feito na cpu ou no gerenciador, verificar isso)
-}
-
-
-
-void SalvarContextoCpuBloqueio(cpu_s *cpu){
-
-    if(cpu->processo_atual == NULL){
-        printf("Erro:Tentativa de salvar contexto com processo nulo\n");
-        return;
-    }
-    cpu->processo_atual->pcCounter = cpu->registradorPC; // Salva o PC do processo atual
-    cpu->processo_atual->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
-    
-    if(cpu->quantum_usado<cpu->quantum_total){ //foi bloqueado por uma instrucao B
-        cpu->processo_atual->tempoBloqueado=cpu->listaInstrucao[cpu->registradorPC].n;
-        cpu->processo_atual->estado = BLOQUEADO;
-    }
-    
-    for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
-        cpu->processo_atual->variaveis[i] = cpu->variaveis[i]; 
-    }
-
-    esvaziaCpu(cpu); //indica que a CPU está livre
-}
 
 void executaInstrucoes(cpu_s* cpu){
 
