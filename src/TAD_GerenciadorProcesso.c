@@ -202,7 +202,6 @@ void rodarGerenciador(int fd_leitura, int escFlag)
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
     while ((bytesLidos = read(fd_leitura, &msg, sizeof(ComandoPipe))) > 0)
     {
-        printf("AAAAAA");
         if (msg.tipo == 'U')
         {
             // escalonamento
