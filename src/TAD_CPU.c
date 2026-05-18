@@ -4,14 +4,31 @@
 #include "../include/TAD_CPU.h"
 #include "../include/TAD_LeituraArquivo.h"
 #include "../include/globais.h"
+#define MAX_VARIAVEIS_CPU 31
 
-void inicializarCPU(cpu_s *cpu){
-    cpu->processo_atual = NULL; // Inicializa o ponteiro para o processo atual como NULL
-    cpu->registradorPC = 0; // Inicializa o PC
-    cpu->quantum_total = 0; // Inicializa o quantum total alocado
-    cpu->quantum_usado = 0; // Inicializa o tempo executado neste quantum
-    cpu->variaveis = (int*) malloc(sizeof(int) * (31)); // a cpu deve ter uma memoria de variaveis propria
+void inicializarCPU(cpu_s *cpu)
+{
+    if (cpu == NULL) {
+        return;
+    }
+
     cpu->emUso = 0;
+    cpu->processo_atual = NULL;
+    cpu->listaInstrucao = NULL;
+    cpu->registradorPC = 0;
+    cpu->quantum_total = 0;
+    cpu->quantum_usado = 0;
+
+    cpu->variaveis = malloc(sizeof(int) * MAX_VARIAVEIS_CPU);
+
+    if (cpu->variaveis == NULL) {
+        printf("Erro ao alocar variaveis da CPU.\n");
+        return;
+    }
+
+    for (int i = 0; i < MAX_VARIAVEIS_CPU; i++) {
+        cpu->variaveis[i] = 999;
+    }
 }
 
 void imprimirCPU(cpu_s *cpu){
@@ -43,7 +60,7 @@ void imprimirCPU(cpu_s *cpu){
 
     printf("\n========= REGISTRADORES =========\n");
 
-    for(int i=0;i<3;i++){
+    for(int i=0;i<31;i++){
         printf("Registrador %d = %d\n",i, cpu->variaveis[i]);
     }
     printf(" ");
@@ -57,10 +74,10 @@ void IncrementarQuantum_usado(cpu_s *cpu){
     cpu->quantum_usado++; // Incrementa o tempo executado neste quantum
 }
 
-void AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
+int AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     if(proc == NULL){
         printf("Erro:Tentativa de atualizar registradores com processo nulo\n");
-        return;
+        return 0;
     }
     cpu->emUso=1;
     cpu->processo_atual = proc; // Atualiza o processo atual
@@ -68,12 +85,13 @@ void AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     cpu->quantum_total = proc->quantum; // Atualiza o quantum total alocado
     cpu->quantum_usado = 0; // Reinicia o tempo executado neste quantum
     cpu->listaInstrucao = proc->listaInstrucoes;
-    
+
     for(int i = 0; i<proc->nVariaveis; i++){
-        
+
         cpu->variaveis[i] = proc->variaveis[i];
         
     }
+    return 1;
 }
 
 void SalvarContextoCpuQuantum(cpu_s *cpu){

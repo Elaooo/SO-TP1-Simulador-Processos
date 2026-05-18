@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <../include/fila.h>
-#include <../include/tempo.h>
-#include <../include/TAD_CPU.h>
-#include <../include/TAD_TabelaProcessos.h>
-#include <../include/ProcessoControle.h>
+#include "../include/fila.h"
+#include "../include/tempo.h"
+#include "../include/TAD_CPU.h"
+#include "../include/TAD_TabelaProcessos.h"
+#include "../include/ProcessoControle.h"
 //para o escalonador
 #define QUANTUM_PRIORIDADE_0 1
 #define QUANTUM_PRIORIDADE_1 2

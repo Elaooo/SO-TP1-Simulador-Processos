@@ -1,3 +1,3 @@
-#include "globais.h"
+#include "../include/globais.h"
 
 int proximoPidDisponivel = 0;
