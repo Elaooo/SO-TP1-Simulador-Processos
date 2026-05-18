@@ -191,21 +191,37 @@ int escalonadorFIFO(GerenciadorProcesso *gerenciador)
 void rodarGerenciador(int fd_leitura, int escFlag)
 {   
     ComandoPipe msg;
+    TItem novoItem;
+
+
     int bytesLidos;
     GerenciadorProcesso gp;
     inicializaGerenciadorProcessos(&gp);
     processo init;
     leituraProcessoInit(&init);
-    init.quantum = quantumPorPrioridade[init.prioridade];
-    AtualizarRegistradorCPU(&gp.cpu,&init);
+
+    inserirProcessoTabela(&gp.tabelaProcessos,&init);
+    novoItem.Chave=init.pid;
+    
+    if (escFlag == MLFQ){
+        FilaEnfileira(&gp.estadoPronto[init.prioridade],&novoItem);//escalonador MLFQ
+    }
+    else if (escFlag == FIFO){
+        FilaEnfileira(&gp.estadoPronto[0], &novoItem);
+    }
+
+    //init.quantum = quantumPorPrioridade[init.prioridade];
+    init.quantum=15;
+
 
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
     while ((bytesLidos = read(fd_leitura, &msg, sizeof(ComandoPipe))) > 0)
     {
-        printf("AAAAAA");
         if (msg.tipo == 'U')
         {
             // escalonamento
+
+            imprimirCPU(&gp.cpu);
             if (!gp.cpu.emUso)
             {
                 if (escFlag == MLFQ)
@@ -240,7 +256,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
 
                     processo *procAtual = gp.cpu.processo_atual;
 
-                    SalvarContextoCpuQuantum(&gp.cpu);
+                    SalvarContextoCpu(&gp.cpu);
 
                     TItem novoItem;
                     novoItem.Chave = procAtual->pid;
@@ -265,13 +281,13 @@ void rodarGerenciador(int fd_leitura, int escFlag)
 
                 if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
                 {
-                    SalvarContextoCpuBloqueio(&gp.cpu);
+                    SalvarContextoCpu(&gp.cpu);
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
                 {
                     processo *procAtual = gp.cpu.processo_atual;
 
-                    SalvarContextoCpuTermino(&gp.cpu);
+                    SalvarContextoCpu(&gp.cpu);
 
                     novoItem.Chave = procAtual->pid;
                     FilaEnfileira(&gp.finalizados, &novoItem);
@@ -294,8 +310,8 @@ void rodarGerenciador(int fd_leitura, int escFlag)
             }
             IncrementaTempo(&gp.tempo);
 
-                imprimirCPU(&gp.cpu);
-                imprimirProcesso(gp.cpu.processo_atual);
+            imprimirCPU(&gp.cpu);
+            imprimirProcesso(gp.cpu.processo_atual);
         }
         else if (msg.tipo == 'I')
         {  
