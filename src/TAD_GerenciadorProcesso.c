@@ -189,124 +189,110 @@ int escalonadorFIFO(GerenciadorProcesso *gerenciador)
     return proximoProcesso->pid;
 }
 void rodarGerenciador(int fd_leitura, int escFlag)
-{
-    
+{   
     ComandoPipe msg;
-    TItem novoItem;
-
-
     int bytesLidos;
     GerenciadorProcesso gp;
     inicializaGerenciadorProcessos(&gp);
     processo init;
     leituraProcessoInit(&init);
-    inserirProcessoTabela(&gp.tabelaProcessos,&init);
-    novoItem.Chave=init.pid;
-    
-    if (escFlag == MLFQ){
-        FilaEnfileira(&gp.estadoPronto[init.prioridade],&novoItem);//escalonador MLFQ
-    }
-    else if (escFlag == FIFO){
-        FilaEnfileira(&gp.estadoPronto[0], &novoItem);
-    }
-
-
-    imprimirCPU(&gp.cpu);
-    imprimirProcesso(&init);
-
-    ImprimeFila(&gp.estadoPronto[init.prioridade]);
-
+    init.quantum = quantumPorPrioridade[init.prioridade];
+    AtualizarRegistradorCPU(&gp.cpu,&init);
 
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
-
     while ((bytesLidos = read(fd_leitura, &msg, sizeof(ComandoPipe))) > 0)
     {
-
+        printf("AAAAAA");
         if (msg.tipo == 'U')
         {
-                // escalonamento
-                if (!gp.cpu.emUso)
+            // escalonamento
+            if (!gp.cpu.emUso)
+            {
+                if (escFlag == MLFQ)
                 {
-                    if (escFlag == MLFQ)
+
+                    int pidEscalonado = escalonadorMLFQ(&gp);
+                    if (pidEscalonado != -1)
                     {
-
-                        int pidEscalonado = escalonadorMLFQ(&gp);
-                        if (pidEscalonado != -1)
-                        {
-                            gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
-                            // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
-                            AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
-                            printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
-                        }
-                    }
-                    else
-                    {
-
-                        int pidEscalonado = escalonadorFIFO(&gp);
-                        if (pidEscalonado != -1)
-                        {
-                            gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
-                            // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
-                            AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
-                            printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
-                        }
-                    }
-                }else if(gp.cpu.emUso)
-                {
-                // troca de contexto
-                    if (gp.cpu.quantum_usado >= gp.cpu.quantum_total)
-                    {
-
-                        SalvarContextoCpu(&gp.cpu);
-                        // inserir outro processo na CPU
-                        TItem novoItem;
-                        novoItem.Chave = gp.cpu.processo_atual->pid;
-                        FilaEnfileira(gp.estadoPronto, &novoItem);
-
-                        gp.cpu.processo_atual = NULL;
-                        // mudar a flag de cpu livre aqui
-                        // gp.indiceEstadoExecucao = -1; // CPU fica livre
+                        gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
+                        // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                        AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
+                        printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
-                // execução
-                if(gp.cpu.emUso)
+                else
                 {
-                    printf("Executando instrução do processo\n");
-                    // se a instrucao que esta no pc counter for F, chamar a funcao de clonagem (transferir ela da cpu para o gerenciador talvez?) e colocar o processo filho na lista de pronto
-                    //  alguma função que lê a instrução no PC atual e faz a operação
-                    executaInstrucoes(&gp.cpu);
+
+                    int pidEscalonado = escalonadorFIFO(&gp);
+                    if (pidEscalonado != -1)
+                    {
+                        gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
+                        // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                        AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
+                        printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
+                    }
+                }
+            }else if(gp.cpu.emUso)
+            {
+            // troca de contexto
+                if (gp.cpu.quantum_usado >= gp.cpu.quantum_total)
+                {
+
+                    processo *procAtual = gp.cpu.processo_atual;
+
+                    SalvarContextoCpuQuantum(&gp.cpu);
+
                     TItem novoItem;
-                    printf("EXECUTADO\n");
-                    
+                    novoItem.Chave = procAtual->pid;
 
-
-                    if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
-                    {
-                        SalvarContextoCpu(&gp.cpu);
+                    if (escFlag == MLFQ) {
+                        FilaEnfileira(&gp.estadoPronto[procAtual->prioridade], &novoItem);
+                    } else if (escFlag == FIFO) {
+                        FilaEnfileira(&gp.estadoPronto[0], &novoItem);
                     }
-                    else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
-                    {
-                        SalvarContextoCpu(&gp.cpu);
-                        novoItem.Chave = gp.cpu.processo_atual->pid;
-                        FilaEnfileira(&gp.finalizados, &novoItem);
-                    }
-                    else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'F')
-                    {
-                        processo *processoFilhinho = clonaProcesso(&gp.cpu);
-                        novoItem.Chave = gp.cpu.processo_atual->pid;
-
-                        if (escFlag == MLFQ){
-                            FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);//escalonador MLFQ
-                        }
-                        else if (escFlag == FIFO){
-                            FilaEnfileira(&gp.estadoPronto[0], &novoItem);
-                        }
-                    }
-
-                    gp.cpu.registradorPC++;
-                    IncrementarQuantum_usado(&gp.cpu);
+                    // mudar a flag de cpu livre aqui
+                    // gp.indiceEstadoExecucao = -1; // CPU fica livre
                 }
-                IncrementaTempo(&gp.tempo);
+            }
+            // execução
+            if(gp.cpu.emUso)
+            {
+
+                // se a instrucao que esta no pc counter for F, chamar a funcao de clonagem (transferir ela da cpu para o gerenciador talvez?) e colocar o processo filho na lista de pronto
+                //  alguma função que lê a instrução no PC atual e faz a operação
+                executaInstrucoes(&gp.cpu);
+                TItem novoItem;
+
+                if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
+                {
+                    SalvarContextoCpuBloqueio(&gp.cpu);
+                }
+                else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
+                {
+                    processo *procAtual = gp.cpu.processo_atual;
+
+                    SalvarContextoCpuTermino(&gp.cpu);
+
+                    novoItem.Chave = procAtual->pid;
+                    FilaEnfileira(&gp.finalizados, &novoItem);
+                }
+                else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'F')
+                {
+                    processo *processoFilhinho = clonaProcesso(&gp.cpu);
+                    novoItem.Chave = gp.cpu.processo_atual->pid;
+
+                    if (escFlag == MLFQ){
+                        FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);//escalonador MLFQ
+                    }
+                    else if (escFlag == FIFO){
+                        FilaEnfileira(&gp.estadoPronto[0], &novoItem);
+                    }
+                }
+
+                gp.cpu.registradorPC++;
+                IncrementarQuantum_usado(&gp.cpu);
+            }
+            IncrementaTempo(&gp.tempo);
 
                 imprimirCPU(&gp.cpu);
                 imprimirProcesso(gp.cpu.processo_atual);
@@ -393,7 +379,7 @@ int leituraProcessoInit(processo *processo)
         switch (comando)
         {
 
-            case 'N':
+        case 'N':
             sscanf(linha, " %c %d", &comando, &n);
             // printf("Comando N\n");
             // printf("N: %d\n\n", n);
@@ -403,7 +389,7 @@ int leituraProcessoInit(processo *processo)
             strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             break;
 
-            case 'D':
+        case 'D':
             sscanf(linha, " %c %d", &comando, &x);
             // printf("Comando D\n");
             // printf("X: %d\n\n", x);
@@ -413,7 +399,7 @@ int leituraProcessoInit(processo *processo)
             strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             break;
 
-            case 'V':
+        case 'V':
             sscanf(linha, " %c %d %d", &comando, &x, &n);
             // printf("Comando V\n");
             // printf("X: %d | N: %d\n\n", x, n);
@@ -423,8 +409,8 @@ int leituraProcessoInit(processo *processo)
             strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             break;
 
-            case 'A':
-            case 'S':
+        case 'A':
+        case 'S':
             sscanf(linha, " %c %d %d", &comando, &x, &n);
             // printf("Comando %c\n", comando);
             // printf("X: %d | N: %d\n\n", x, n);
@@ -434,7 +420,7 @@ int leituraProcessoInit(processo *processo)
             strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             break;
 
-            case 'R':
+        case 'R':
             sscanf(linha, " %c %s", &comando, caminho);
             // printf("Comando R\n");
             // printf("Arquivo: %s\n\n", caminho);
@@ -442,6 +428,7 @@ int leituraProcessoInit(processo *processo)
             listaInstrucoes[iterador].n = 0;
             listaInstrucoes[iterador].x = 0;
             strcpy(listaInstrucoes[iterador].caminhoArquivo, caminho);
+            break;
             break;
 
         case 'F':
@@ -452,7 +439,7 @@ int leituraProcessoInit(processo *processo)
             listaInstrucoes[iterador].n = n;
             listaInstrucoes[iterador].x = 0;
             break;
-            case 'T':
+        case 'T':
             sscanf(linha, " %c", &comando);
             // printf("Comando %c\n", comando);
             listaInstrucoes[iterador].tipo = comando;
@@ -462,8 +449,9 @@ int leituraProcessoInit(processo *processo)
             // printf("\n");
             // printf("-----encerra execucao-----");
             break;
+            break;
 
-            default:
+        default:
             printf("Comando desconhecido: %c\n\n", comando);
             break;
         }
