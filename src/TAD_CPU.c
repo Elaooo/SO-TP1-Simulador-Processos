@@ -53,7 +53,7 @@ void imprimirCPU(cpu_s *cpu){
 
     printf("\n========= REGISTRADORES =========\n");
 
-    for(int i=0;i<31;i++){
+    for(int i=0;i<3;i++){
         printf("Registrador %d = %d\n",i, cpu->variaveis[i]);
     }
     printf(" ");

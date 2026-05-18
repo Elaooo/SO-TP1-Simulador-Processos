@@ -285,12 +285,12 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
                 {
-                    processo *procAtual = gp.cpu.processo_atual;
 
+                    novoItem.Chave = gp.cpu.processo_atual->pid;
                     SalvarContextoCpu(&gp.cpu);
 
-                    novoItem.Chave = procAtual->pid;
                     FilaEnfileira(&gp.finalizados, &novoItem);
+
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'F')
                 {
