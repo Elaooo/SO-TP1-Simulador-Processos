@@ -565,7 +565,7 @@ processo *clonaProcesso(cpu_s *cpu)
     procFilho->variaveis = (int*) malloc(sizeof(int) * procFilho->nVariaveis);
 
     if(procFilho->variaveis != NULL){
-        for(int j = 0; j < procFilho->nInstrucoes; j++){
+        for(int j = 0; j < procFilho->nVariaveis; j++){
             procFilho->variaveis[j]=procPai->variaveis[j];
         }
     }else{
