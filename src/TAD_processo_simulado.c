@@ -111,10 +111,16 @@ void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstru
         }
     }
 
+    if (proc->variaveis != NULL) {
+        free(proc->variaveis);
+    }
+
     if((proc->listaInstrucoes[0].tipo == 'N')){
 
         proc->variaveis = (int*) malloc(sizeof(int) * proc->listaInstrucoes[0].n);
+        
     } else{
+        
         printf("Alocacao de memoria do Falhou\n ");
     }
 
@@ -236,54 +242,54 @@ void imprimirProcesso(processo *p){
         printf("Nenhuma variavel alocada.\n");
     }
 
-    printf("\n----- Instrucoes -----\n");
+//     printf("\n----- Instrucoes -----\n");
 
-    printf("Numero de instrucoes: %d\n",
-           p->nInstrucoes);
+//     printf("Numero de instrucoes: %d\n",
+//            p->nInstrucoes);
 
-    if(p->listaInstrucoes != NULL){
+//     if(p->listaInstrucoes != NULL){
 
-        for(int i = 0; i < p->nInstrucoes; i++){
+//         for(int i = 0; i < p->nInstrucoes; i++){
 
-            instrucao inst = p->listaInstrucoes[i];
+//             instrucao inst = p->listaInstrucoes[i];
 
-            printf("[%d] Tipo: %c",
-                   i,
-                   inst.tipo);
+//             printf("[%d] Tipo: %c",
+//                    i,
+//                    inst.tipo);
 
-            if(inst.tipo == 'N'){
-                printf(" n=%d", inst.n);
-            }
+//             if(inst.tipo == 'N'){
+//                 printf(" n=%d", inst.n);
+//             }
 
-            else if(inst.tipo == 'D'){
-                printf(" x=%d", inst.x);
-            }
+//             else if(inst.tipo == 'D'){
+//                 printf(" x=%d", inst.x);
+//             }
 
-            else if(inst.tipo == 'V' ||
-                    inst.tipo == 'A' ||
-                    inst.tipo == 'S'){
+//             else if(inst.tipo == 'V' ||
+//                     inst.tipo == 'A' ||
+//                     inst.tipo == 'S'){
 
-                printf(" x=%d n=%d",
-                       inst.x,
-                       inst.n);
-            }
+//                 printf(" x=%d n=%d",
+//                        inst.x,
+//                        inst.n);
+//             }
 
-            else if(inst.tipo == 'R'){
+//             else if(inst.tipo == 'R'){
 
-                printf(" arquivo=%s",
-                       inst.caminhoArquivo);
-            }
-            else if(inst.tipo == 'F'){
-                printf(" %d", inst.n);
-            }
+//                 printf(" arquivo=%s",
+//                        inst.caminhoArquivo);
+//             }
+//             else if(inst.tipo == 'F'){
+//                 printf(" %d", inst.n);
+//             }
 
-            printf("\n");
-        }
-    }
-    else{
-        printf("Nenhuma instrucao carregada.\n");
-    }
+//             printf("\n");
+//         }
+//     }
+//     else{
+//         printf("Nenhuma instrucao carregada.\n");
+//     }
 
-    printf("================================\n");
+//     printf("================================\n");
 }
 

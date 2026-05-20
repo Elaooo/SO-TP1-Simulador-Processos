@@ -221,7 +221,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
         {
             // escalonamento
 
-            imprimirCPU(&gp.cpu);
+            
             if (!gp.cpu.emUso)
             {
                 if (escFlag == MLFQ)
@@ -273,10 +273,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
             // execução
             if(gp.cpu.emUso)
             {
-
-                // se a instrucao que esta no pc counter for F, chamar a funcao de clonagem (transferir ela da cpu para o gerenciador talvez?) e colocar o processo filho na lista de pronto
-                //  alguma função que lê a instrução no PC atual e faz a operação
-
+                printf("--- Executando %c...\n",gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo);
                 executaInstrucoes(&gp.cpu);
                 IncrementarQuantum_usado(&gp.cpu);
 
@@ -284,15 +281,23 @@ void rodarGerenciador(int fd_leitura, int escFlag)
 
                 if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
                 {
+                    novoItem.Chave = gp.cpu.processo_atual->pid;
                     SalvarContextoCpu(&gp.cpu);
+
+                    FilaEnfileira(&gp.estadoBloquado, &novoItem);
+
+                    imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
                 {
-
+                    
                     novoItem.Chave = gp.cpu.processo_atual->pid;
                     SalvarContextoCpu(&gp.cpu);
 
                     FilaEnfileira(&gp.finalizados, &novoItem);
+
+                    imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
+
 
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'F')
@@ -302,17 +307,13 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                     
                     inserirProcessoTabela(&gp.tabelaProcessos, processoFilhinho);
                     novoItem.Chave = processoFilhinho->pid;
-
-                    // printf("---DEBUG---\n");
-                    // printf("%d",processoFilhinho->pcCounter);
-
+                    
                     if (escFlag == MLFQ){
                         FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);//escalonador MLFQ
                     }
                     else if (escFlag == FIFO){
                         FilaEnfileira(&gp.estadoPronto[0], &novoItem);
                     }
-                    ImprimeFila(&gp.estadoPronto[processoFilhinho->prioridade]);
                     gp.cpu.registradorPC+=gp.cpu.listaInstrucao[gp.cpu.registradorPC].n;
                 }
 
@@ -320,9 +321,6 @@ void rodarGerenciador(int fd_leitura, int escFlag)
             }
             IncrementaTempo(&gp.tempo);
 
-            printf("CPU ao final da instrução: \n");
-            imprimirCPU(&gp.cpu);
-            ///imprimirProcesso(gp.cpu.processo_atual);
         }
         else if (msg.tipo == 'I')
         {  
@@ -423,6 +421,16 @@ int leituraProcessoInit(processo *processo)
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].x = x;
             listaInstrucoes[iterador].n = 0;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+            break;
+
+        case 'B':
+            sscanf(linha, " %c %d", &comando, &n);
+            // printf("Comando V\n");
+            // printf("X: %d | N: %d\n\n", x, n);
+            listaInstrucoes[iterador].tipo = comando;
+            listaInstrucoes[iterador].x = 0;
+            listaInstrucoes[iterador].n = n;
             strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             break;
 
@@ -528,7 +536,6 @@ processo *clonaProcesso(cpu_s *cpu)
 
     procFilho->pid = proximoPidDisponivel;
     proximoPidDisponivel++;
-    procFilho->nInstrucoes = procPai->nInstrucoes;
 
     procFilho->pcCounter = cpu->registradorPC + 1;
     procFilho->estado = PRONTO;
@@ -539,16 +546,29 @@ processo *clonaProcesso(cpu_s *cpu)
     procFilho->tempoBloqueado = 0;
 
     procFilho->prioridade = procPai->prioridade;
-    procFilho->nVariaveis=0;
-    procFilho->variaveis=NULL;
-
+    
+    procFilho->nInstrucoes = procPai->nInstrucoes;
     procFilho->listaInstrucoes = (instrucao *)malloc(sizeof(instrucao) * procFilho->nInstrucoes);
+
     if (procFilho->listaInstrucoes != NULL)
     {
         for (int i = 0; i < procPai->nInstrucoes; i++)
         {
             procFilho->listaInstrucoes[i] = procPai->listaInstrucoes[i];
         }
+    }else{
+        printf("Falha ao copiar instruções do processo pai");
+    }
+
+    procFilho->nVariaveis = procPai->nVariaveis;
+    procFilho->variaveis = (int*) malloc(sizeof(int) * procFilho->nVariaveis);
+
+    if(procFilho->variaveis != NULL){
+        for(int j = 0; j < procFilho->nInstrucoes; j++){
+            procFilho->variaveis[j]=procPai->variaveis[j];
+        }
+    }else{
+        printf("Falha ao copiar variáveis do processo pai");
     }
 
     return procFilho;

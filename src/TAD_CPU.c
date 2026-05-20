@@ -134,45 +134,43 @@ void executaInstrucoes(cpu_s* cpu){
     switch (comando) {
 
         case 'N':
-            printf("instrucao N\n");
+            printf("--- %d variáveis definidas para o processo.\n",instrucaoAtual.n);
             cpu->processo_atual->nVariaveis=instrucaoAtual.n;
             break;
         case 'D':
             cpu->variaveis[instrucaoAtual.x] = 0;
-            printf("--- Definiu o registrador (%d) para (0)\n", instrucaoAtual.x);
+            printf("--- Definiu o registrador (%d) para (0).\n", instrucaoAtual.x);
             break;
         case 'V':
             cpu->variaveis[instrucaoAtual.x]=instrucaoAtual.n;
-            printf("Definiu registrador %d para %d\n",instrucaoAtual.x, instrucaoAtual.n);
+            printf("--- Definiu registrador %d para %d.\n",instrucaoAtual.x, instrucaoAtual.n);
             break;
         case 'A':
             cpu->variaveis[instrucaoAtual.x] = cpu->variaveis[instrucaoAtual.x] + instrucaoAtual.n;
-            printf("somou %d no registrador %d\n",instrucaoAtual.x, instrucaoAtual.n);
+            printf("--- Somou %d no registrador %d.\n",instrucaoAtual.n,instrucaoAtual.x);
             break;
         case 'S':
             cpu->variaveis[instrucaoAtual.x] = cpu->variaveis[instrucaoAtual.x] - instrucaoAtual.n;
-            printf("subtraiu %d no registrador %d\n",instrucaoAtual.x, instrucaoAtual.n);
+            printf("--- Subtraiu %d no registrador %d.\n",instrucaoAtual.n,instrucaoAtual.x);
             break;
         case 'B':
-            //o processo passara para o estado bloqueado, logo, os dados da cpu serao guardados de volta no processo
-            // e consequentemente na tabela de processos, e a cpu sera liberada 
-            printf("Processo bloqueado. CPU disponivel\n");
+            printf("--- Processo bloqueado por %d unidades de tempo. CPU disponivel.\n",instrucaoAtual.n);
             break;
         case 'R':
             leituraArquivoProcesso(instrucaoAtual.caminhoArquivo, cpu);
-            printf("Leu o arquivo %s e iniciou o processo\n", instrucaoAtual.caminhoArquivo);
+            printf("--- Leu o arquivo %s e iniciou o processo.\n", instrucaoAtual.caminhoArquivo);
             cpu->registradorPC=-1;
             break;
 
         case 'F':
             // processo* processoFilhinho = clonaProcesso(cpu); // lembrar que o f pula o pcCounter = pcCounter + n + 1
             // imprimirProcesso(processoFilhinho);
-            printf("\ninstrucao F\n");
+            printf("--- Criação de processo filho.\n");
             
             //cpu->registradorPC += instrucaoAtual.n;
             break;
         case 'T':
-            printf("\nFIM DO PROCESSO\n");
+            printf("\n--- O processo finalizou sua execução.\n");
             break;
 
         default:
