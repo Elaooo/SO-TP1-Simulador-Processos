@@ -276,7 +276,10 @@ void rodarGerenciador(int fd_leitura, int escFlag)
 
                 // se a instrucao que esta no pc counter for F, chamar a funcao de clonagem (transferir ela da cpu para o gerenciador talvez?) e colocar o processo filho na lista de pronto
                 //  alguma função que lê a instrução no PC atual e faz a operação
+
                 executaInstrucoes(&gp.cpu);
+                IncrementarQuantum_usado(&gp.cpu);
+
                 TItem novoItem;
 
                 if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
@@ -294,8 +297,14 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'F')
                 {
+
                     processo *processoFilhinho = clonaProcesso(&gp.cpu);
-                    novoItem.Chave = gp.cpu.processo_atual->pid;
+                    
+                    inserirProcessoTabela(&gp.tabelaProcessos, processoFilhinho);
+                    novoItem.Chave = processoFilhinho->pid;
+
+                    // printf("---DEBUG---\n");
+                    // printf("%d",processoFilhinho->pcCounter);
 
                     if (escFlag == MLFQ){
                         FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);//escalonador MLFQ
@@ -303,15 +312,17 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                     else if (escFlag == FIFO){
                         FilaEnfileira(&gp.estadoPronto[0], &novoItem);
                     }
+                    ImprimeFila(&gp.estadoPronto[processoFilhinho->prioridade]);
+                    gp.cpu.registradorPC+=gp.cpu.listaInstrucao[gp.cpu.registradorPC].n;
                 }
 
                 gp.cpu.registradorPC++;
-                IncrementarQuantum_usado(&gp.cpu);
             }
             IncrementaTempo(&gp.tempo);
 
+            printf("CPU ao final da instrução: \n");
             imprimirCPU(&gp.cpu);
-            imprimirProcesso(gp.cpu.processo_atual);
+            ///imprimirProcesso(gp.cpu.processo_atual);
         }
         else if (msg.tipo == 'I')
         {  
@@ -519,15 +530,17 @@ processo *clonaProcesso(cpu_s *cpu)
     proximoPidDisponivel++;
     procFilho->nInstrucoes = procPai->nInstrucoes;
 
-    procFilho->pcCounter = procPai->pcCounter + 1;
+    procFilho->pcCounter = cpu->registradorPC + 1;
     procFilho->estado = PRONTO;
 
-    procFilho->quantum = 0;
+    procFilho->quantum = 15;
     procFilho->quantum_usado_CPUatual = 0;
 
     procFilho->tempoBloqueado = 0;
 
     procFilho->prioridade = procPai->prioridade;
+    procFilho->nVariaveis=0;
+    procFilho->variaveis=NULL;
 
     procFilho->listaInstrucoes = (instrucao *)malloc(sizeof(instrucao) * procFilho->nInstrucoes);
     if (procFilho->listaInstrucoes != NULL)

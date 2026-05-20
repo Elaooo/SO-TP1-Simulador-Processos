@@ -161,17 +161,18 @@ void executaInstrucoes(cpu_s* cpu){
         case 'R':
             leituraArquivoProcesso(instrucaoAtual.caminhoArquivo, cpu);
             printf("Leu o arquivo %s e iniciou o processo\n", instrucaoAtual.caminhoArquivo);
+            cpu->registradorPC=-1;
             break;
 
         case 'F':
             // processo* processoFilhinho = clonaProcesso(cpu); // lembrar que o f pula o pcCounter = pcCounter + n + 1
             // imprimirProcesso(processoFilhinho);
-            // printf("instrucao F\n");
+            printf("\ninstrucao F\n");
             
-            cpu->registradorPC += instrucaoAtual.n;
+            //cpu->registradorPC += instrucaoAtual.n;
             break;
         case 'T':
-            printf("FIM DO PROCESSO");
+            printf("\nFIM DO PROCESSO\n");
             break;
 
         default:
