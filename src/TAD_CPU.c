@@ -157,8 +157,8 @@ void executaInstrucoes(cpu_s* cpu){
             printf("--- Processo bloqueado por %d unidades de tempo. CPU disponivel.\n",instrucaoAtual.n);
             break;
         case 'R':
-            leituraArquivoProcesso(instrucaoAtual.caminhoArquivo, cpu);
             printf("--- Leu o arquivo %s e iniciou o processo.\n", instrucaoAtual.caminhoArquivo);
+            leituraArquivoProcesso(instrucaoAtual.caminhoArquivo, cpu);
             cpu->registradorPC=-1;
             break;
 

@@ -473,6 +473,7 @@ int leituraProcessoInit(processo *processo)
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].n = n;
             listaInstrucoes[iterador].x = 0;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             break;
         case 'T':
             sscanf(linha, " %c", &comando);

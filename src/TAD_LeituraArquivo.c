@@ -70,6 +70,8 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
             //printf("N: %d\n\n", n);
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].n = n;
+            listaInstrucoes[iterador].x = 0;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             break;
 
         case 'D':
@@ -78,6 +80,8 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
             //printf("X: %d\n\n", x);
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].x = x;
+            listaInstrucoes[iterador].n = 0;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
             break;
 
             case 'V':
@@ -87,7 +91,8 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
             listaInstrucoes[iterador].tipo = comando;
             listaInstrucoes[iterador].x = x;
             listaInstrucoes[iterador].n = n;
-                break;
+            strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
+            break;
 
             case 'A':
             case 'S':
@@ -97,6 +102,7 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].x = x;
                 listaInstrucoes[iterador].n = n;
+                strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
                 break;
 
             case 'B':
@@ -104,7 +110,9 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
                 //printf("Comando N\n");
                 //printf("N: %d\n\n", n);
                 listaInstrucoes[iterador].tipo = comando;
+                listaInstrucoes[iterador].x = 0;
                 listaInstrucoes[iterador].n = n;
+                strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
                 break;
 
             case 'R':
@@ -121,11 +129,16 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
                 //printf("X: %d\n\n", x);
                 listaInstrucoes[iterador].tipo = comando;
                 listaInstrucoes[iterador].n = n;
+                listaInstrucoes[iterador].x = 0;
+                strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
                 break;
             case 'T':
                 sscanf(linha, " %c", &comando);
                 //printf("Comando %c\n", comando);
                 listaInstrucoes[iterador].tipo = comando;
+                listaInstrucoes[iterador].n = 0;
+                listaInstrucoes[iterador].x = 0;
+                strcpy(listaInstrucoes[iterador].caminhoArquivo, "vazio");
                 //printf("\n");
                 //printf("-----encerra execucao-----");
                 break;
