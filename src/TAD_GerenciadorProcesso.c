@@ -251,7 +251,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
             }else if(gp.cpu.emUso)
             {
             // troca de contexto
-                if (gp.cpu.quantum_usado >= gp.cpu.quantum_total)
+                if (escFlag == MLFQ && gp.cpu.quantum_usado >= gp.cpu.quantum_total)
                 {
 
                     processo *procAtual = gp.cpu.processo_atual;
