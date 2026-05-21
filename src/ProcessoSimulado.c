@@ -93,7 +93,7 @@ void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstru
     proc->pcCounter=0;
     proc->estado=PRONTO;
 
-    proc->quantum=15;
+    //proc->quantum=15;
     proc->quantum_usado_CPUatual=0;
 
     proc->tempoBloqueado=0;

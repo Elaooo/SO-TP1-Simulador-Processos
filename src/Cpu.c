@@ -130,34 +130,35 @@ void executaInstrucoes(cpu_s* cpu){
 
     instrucao instrucaoAtual = cpu->listaInstrucao[cpu->registradorPC];
     char comando = instrucaoAtual.tipo;
+    int pid = cpu->processo_atual->pid;
     
     switch (comando) {
 
         case 'N':
-            printf("--- %d variáveis definidas para o processo.\n",instrucaoAtual.n);
+            printf("[Processo %d]--- %d variáveis definidas.\n",pid, instrucaoAtual.n);
             cpu->processo_atual->nVariaveis=instrucaoAtual.n;
             break;
         case 'D':
             cpu->variaveis[instrucaoAtual.x] = 0;
-            printf("--- Definiu o registrador (%d) para (0).\n", instrucaoAtual.x);
+            printf("[Processo %d]--- Registrador (%d) definido para (0).\n",pid, instrucaoAtual.x);
             break;
         case 'V':
             cpu->variaveis[instrucaoAtual.x]=instrucaoAtual.n;
-            printf("--- Definiu registrador %d para %d.\n",instrucaoAtual.x, instrucaoAtual.n);
+            printf("[Processo %d]--- Registrador %d definido para %d.\n",pid, instrucaoAtual.x, instrucaoAtual.n);
             break;
         case 'A':
             cpu->variaveis[instrucaoAtual.x] = cpu->variaveis[instrucaoAtual.x] + instrucaoAtual.n;
-            printf("--- Somou %d no registrador %d.\n",instrucaoAtual.n,instrucaoAtual.x);
+            printf("[Processo %d]--- Somou %d ao registrador %d.\n",pid, instrucaoAtual.n,instrucaoAtual.x);
             break;
         case 'S':
             cpu->variaveis[instrucaoAtual.x] = cpu->variaveis[instrucaoAtual.x] - instrucaoAtual.n;
-            printf("--- Subtraiu %d no registrador %d.\n",instrucaoAtual.n,instrucaoAtual.x);
+            printf("[Processo %d]--- Subtraiu %d no registrador %d.\n",pid, instrucaoAtual.n,instrucaoAtual.x);
             break;
         case 'B':
-            printf("--- Processo bloqueado por %d unidades de tempo. CPU disponivel.\n",instrucaoAtual.n);
+            printf("[Processo %d]--- Bloqueado por %d unidades de tempo. CPU disponivel.\n",pid, instrucaoAtual.n);
             break;
         case 'R':
-            printf("--- Leu o arquivo %s e iniciou o processo.\n", instrucaoAtual.caminhoArquivo);
+            printf("[Processo %d] --- Leu o arquivo %s e iniciou.\n", pid, instrucaoAtual.caminhoArquivo);
             leituraArquivoProcesso(instrucaoAtual.caminhoArquivo, cpu);
             cpu->registradorPC=-1;
             break;
@@ -165,7 +166,7 @@ void executaInstrucoes(cpu_s* cpu){
         case 'F':
             // processo* processoFilhinho = clonaProcesso(cpu); // lembrar que o f pula o pcCounter = pcCounter + n + 1
             // imprimirProcesso(processoFilhinho);
-            printf("--- Criação de processo filho.\n");
+            printf("[Processo %d] --- Criação de processo filho.\n",pid);
             
             //cpu->registradorPC += instrucaoAtual.n;
             break;
