@@ -156,7 +156,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                 perror("Erro ao criar processo impressao");
             }
             else if (pid == 0) {
-                Imprime(&gp, msg.opcaoImpressao);
+                Imprime(&gp, msg.opcaoImpressao, escFlag);
                 _exit(0);
             }
             else {
@@ -171,7 +171,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                 perror("Erro ao criar processo impressao");
             }
             else if (pid == 0) {
-                Imprime(&gp, msg.opcaoImpressao);
+                Imprime(&gp, msg.opcaoImpressao,escFlag);
                 _exit(0);
             }
             else {
