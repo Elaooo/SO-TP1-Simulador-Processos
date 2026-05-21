@@ -28,8 +28,13 @@ typedef struct{
 
 }GerenciadorProcesso;
 
+typedef struct {
+    GerenciadorProcesso *gerenciador;
+    int opcao;
+} ArgsImpressao;
+
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
-void rodarGerenciador(int fd_leitura, int escFlag);
+void* rodarGerenciador(void* arg);
 void atualizarProcessosBloqueados(GerenciadorProcesso *gerenciador, int escFlag);
 
 processo* clonaProcesso(cpu_s *cpu);

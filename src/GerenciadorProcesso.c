@@ -13,13 +13,14 @@
 #include "../include/Escalonador.h"
 
 
-void rodarGerenciador(int fd_leitura, int escFlag)
+void* rodarGerenciador(void* arg)
 {   
+    // extrai a flag do escalonador passada pela thread principal
+    int escFlag = *(int*)arg; 
+
     ComandoPipe msg;
     TItem novoItem;
 
-
-    int bytesLidos;
     GerenciadorProcesso gp;
     inicializaGerenciadorProcessos(&gp);
     processo init;
@@ -38,13 +39,27 @@ void rodarGerenciador(int fd_leitura, int escFlag)
     //init.quantum = quantumPorPrioridade[init.prioridade];
     init.quantum=15;
 
-
-    printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
-    while ((bytesLidos = read(fd_leitura, &msg, sizeof(ComandoPipe))) > 0)
+    printf("[Gerenciador] Iniciado como Thread. A aguardar comandos (U, I, M)...\n");
+    
+    //loop infinito baseado nas variáveis de condição do pthreads
+    while (1)
     {
+        // tranca para ler a memória compartilhada de forma segura
+        pthread_mutex_lock(&mutex_comando);
+        
+        // espera até que haja um comando novo
+        while (tem_novo_comando == 0) {
+            pthread_cond_wait(&cond_comando, &mutex_comando);
+        }
+        
+        msg = msg_compartilhada;
+        tem_novo_comando = 0;
+        
+        //libera
+        pthread_mutex_unlock(&mutex_comando);
+
         if (msg.tipo == 'U')
         {
-            TItem novoItem;
             //decrementa tempo dos processos bloqueados e move para pronto se zerar
             atualizarProcessosBloqueados(&gp, escFlag);
 
@@ -53,45 +68,31 @@ void rodarGerenciador(int fd_leitura, int escFlag)
             {
                 if (escFlag == MLFQ)
                 {
-
                     int pidEscalonado = escalonadorMLFQ(&gp);
                     if (pidEscalonado != -1)
                     {
                         gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
-                        // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
                         AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
-
-                        novoItem.Chave = gp.cpu.processo_atual->pid;
-                        FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
-
                         printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
                 else
                 {
-
                     int pidEscalonado = escalonadorFIFO(&gp);
                     if (pidEscalonado != -1)
                     {
                         gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
-                        // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
                         AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
-
-                        novoItem.Chave = gp.cpu.processo_atual->pid;
-                        FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
-                        
                         printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
             }else if(gp.cpu.emUso)
             {
             // troca de contexto
-                if (escFlag == MLFQ && gp.cpu.quantum_usado >= gp.cpu.quantum_total)
+                if (gp.cpu.quantum_usado >= gp.cpu.quantum_total)
                 {
-
                     processo *procAtual = gp.cpu.processo_atual;
-
-                    SalvarContextoCpu(&gp.cpu);
+                    SalvarContextoCpu(&gp.cpu); // Nota: Confirme se essa função está no seu TAD_CPU
 
                     TItem novoItem;
                     novoItem.Chave = procAtual->pid;
@@ -101,12 +102,9 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                     } else if (escFlag == FIFO) {
                         FilaEnfileira(&gp.estadoPronto[0], &novoItem);
                     }
-                    
-                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
-
-                    printf("Quantum máximo atingido. Troca de contexto.\n");
                 }
             }
+            
             // execução
             if(gp.cpu.emUso)
             {
@@ -114,39 +112,33 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                 executaInstrucoes(&gp.cpu);
                 IncrementarQuantum_usado(&gp.cpu);
 
+                TItem novoItem;
+
                 if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
                 {
                     novoItem.Chave = gp.cpu.processo_atual->pid;
-                    SalvarContextoCpu(&gp.cpu);
+                    SalvarContextoCpu(&gp.cpu); 
 
                     FilaEnfileira(&gp.estadoBloquado, &novoItem);
-                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
-
                     imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
                 {
-                    
                     novoItem.Chave = gp.cpu.processo_atual->pid;
                     SalvarContextoCpu(&gp.cpu);
 
                     FilaEnfileira(&gp.finalizados, &novoItem);
-                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
-
                     imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
-
-
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'F')
                 {
-
                     processo *processoFilhinho = clonaProcesso(&gp.cpu);
                     
                     inserirProcessoTabela(&gp.tabelaProcessos, processoFilhinho);
                     novoItem.Chave = processoFilhinho->pid;
                     
                     if (escFlag == MLFQ){
-                        FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);//escalonador MLFQ
+                        FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);
                     }
                     else if (escFlag == FIFO){
                         FilaEnfileira(&gp.estadoPronto[0], &novoItem);
@@ -157,45 +149,52 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                 gp.cpu.registradorPC++;
             }
             IncrementaTempo(&gp.tempo);
-
         }
         else if (msg.tipo == 'I')
         {  
-            pid_t pid = fork();
-            //Processo filho: Impressao
-            if (pid < 0) {
-                perror("Erro ao criar processo impressao");
-            }
-            else if (pid == 0) {
-                Imprime(&gp, msg.opcaoImpressao, escFlag);
-                _exit(0);
-            }
-            else {
-                waitpid(pid, NULL, 0);
+            // CRIAR THREAD DE IMPRESSÃO (substitui fork)
+            pthread_t t_impressao;
+            ArgsImpressao *args = (ArgsImpressao*) malloc(sizeof(ArgsImpressao));
+            
+            if (args != NULL) {
+                args->gerenciador = &gp;
+                args->opcao = msg.opcaoImpressao;
+                
+                if (pthread_create(&t_impressao, NULL, rotinaImpressao, args) == 0) {
+                    pthread_join(t_impressao, NULL); // espera a impressão acabar
+                } else {
+                    perror("Erro ao criar thread de impressao");
+                    free(args);
+                }
             }
         }
         else if (msg.tipo == 'M')
         {
-            pid_t pid = fork();
-
-            if (pid < 0) {
-                perror("Erro ao criar processo impressao");
+            // CRIAR THREAD DE IMPRESSÃO (substitui fork)
+            pthread_t t_impressao;
+            ArgsImpressao *args = (ArgsImpressao*) malloc(sizeof(ArgsImpressao));
+            
+            if (args != NULL) {
+                args->gerenciador = &gp;
+                args->opcao = msg.opcaoImpressao;
+                
+                if (pthread_create(&t_impressao, NULL, rotinaImpressao, args) == 0) {
+                    pthread_join(t_impressao, NULL); // Espera a impressão acabar
+                } else {
+                    perror("Erro ao criar thread de impressao");
+                    free(args);
+                }
             }
-            else if (pid == 0) {
-                Imprime(&gp, msg.opcaoImpressao,escFlag);
-                _exit(0);
-            }
-            else {
-                waitpid(pid, NULL, 0);
-                close(fd_leitura);
-                exit(0);
-            }
+            
+            break; 
         }
         else
         {
             printf("[Gerenciador] Comando ignorado: %c\n", msg.tipo);
         }
     }
+    
+    return NULL;
 }
 
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos)
@@ -311,4 +310,11 @@ void atualizarProcessosBloqueados(GerenciadorProcesso *gp, int escFlag) {
             }
         }
     }
+}
+
+void* rotinaImpressao(void* arg) {
+    ArgsImpressao *args = (ArgsImpressao*) arg;
+    Imprime(args->gerenciador, args->opcao);
+    free(args);
+    return NULL;
 }
