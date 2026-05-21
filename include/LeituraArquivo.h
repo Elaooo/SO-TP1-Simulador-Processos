@@ -8,6 +8,7 @@
 
 int contarLinhasArquivo(char *caminho);
 int leituraArquivoProcesso(char *caminho, cpu_s *cpu);
+int leituraProcessoInit(processo *processo);
 
 //int leituraProcessoInit();
 

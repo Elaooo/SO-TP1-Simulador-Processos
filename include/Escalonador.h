@@ -1,0 +1,16 @@
+#ifndef ESCALONADOR_H
+#define ESCALONADOR_H
+
+#define QUANTUM_PRIORIDADE_0 1
+#define QUANTUM_PRIORIDADE_1 2
+#define QUANTUM_PRIORIDADE_2 4
+#define QUANTUM_PRIORIDADE_3 8
+#define NUM_PRIORIDADES 4
+
+
+#include "../include/GerenciadorProcesso.h"
+
+
+int escalonadorMLFQ(GerenciadorProcesso *gerenciador);
+int escalonadorFIFO(GerenciadorProcesso *gerenciador);
+#endif

@@ -45,7 +45,8 @@ SRCS = \
 	$(SRC_DIR)/TabelaProcessos.c\
 	$(SRC_DIR)/ProcessoControle.c\
 	$(SRC_DIR)/ProcessoImpressao.c\
-	$(SRC_DIR)/Globais.c
+	$(SRC_DIR)/Globais.c\
+	$(SRC_DIR)/Escalonador.c
 
 	
 # ==============================
