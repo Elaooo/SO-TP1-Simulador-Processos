@@ -4,14 +4,14 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include "../include/TAD_GerenciadorProcesso.h"
-#include "../include/TAD_LeituraArquivo.h"
-#include "../include/TAD_LeituraArquivo.h"
-#include "../include/globais.h"
-#include "../include/processoImpressao.h"
+#include "../include/GerenciadorProcesso.h"
+#include "../include/LeituraArquivo.h"
+#include "../include/LeituraArquivo.h"
+#include "../include/Globais.h"
+#include "../include/ProcessoImpressao.h"
 #include "../include/ProcessoControle.h"
 
-// Em TAD_GerenciadorProcesso.c
+// Em GerenciadorProcesso.c
 // do escalonador
 static int quantumPorPrioridade[NUM_PRIORIDADES] = {
     QUANTUM_PRIORIDADE_0,

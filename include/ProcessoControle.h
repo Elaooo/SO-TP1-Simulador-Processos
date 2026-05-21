@@ -1,5 +1,5 @@
-#ifndef PROCESSO_CONTROLE_H
-#define PROCESSO_CONTROLE_H
+#ifndef PROCESSOCONTROLE_H
+#define PROCESSOCONTROLE_H
 
 typedef struct {
     char tipo;

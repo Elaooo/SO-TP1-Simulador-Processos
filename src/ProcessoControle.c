@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <ctype.h>
-#include "../include/TAD_GerenciadorProcesso.h"
+#include "../include/GerenciadorProcesso.h"
 #include "../include/ProcessoControle.h"
 
 #define AZUL "\033[34m"
@@ -30,9 +30,11 @@ int inicializaProcessoControle(int argc, char *argv[])
         exit(1);
     }
     char comando = 'Z';
+
     ComandoPipe msg;
     msg.tipo = comando;
     msg.opcaoImpressao = -1;
+
     pid_t pid = fork();
 
     if (pid < 0)
@@ -67,7 +69,7 @@ int inicializaProcessoControle(int argc, char *argv[])
         }
 
         
-
+        // Leitura dos comandos U,I,M
         while (fscanf(entrada, " %c", &comando) == 1)
         {
             comando = toupper(comando);

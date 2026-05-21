@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "../include/TAD_processo_simulado.h"
-#include "../include/globais.h"
+#include "../include/ProcessoSimulado.h"
+#include "../include/Globais.h"
 
 // void salvaEstado(processo* proc, int pcAtual, int* variaveisAtuais, int quantumAtual, int nVar) {
 

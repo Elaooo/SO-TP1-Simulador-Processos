@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../include/TAD_CPU.h"
-#include "../include/TAD_LeituraArquivo.h"
-#include "../include/globais.h"
+#include "../include/Cpu.h"
+#include "../include/LeituraArquivo.h"
+#include "../include/Globais.h"
 
 
 void inicializarCPU(cpu_s *cpu)

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../include/fila.h"
+#include "../include/Fila.h"
 
 void FazFilaVazia(TFila* pFila){
     pFila->pFrente =(Celula*)malloc(sizeof(Celula));

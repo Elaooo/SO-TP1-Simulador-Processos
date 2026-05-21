@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "TAD_processo_simulado.h"
-#include "TAD_LeituraArquivo.h"
-#ifndef TAD_CPU_H
-#define TAD_CPU_H
+#include "ProcessoSimulado.h"
+#include "LeituraArquivo.h"
+#ifndef CPU_H
+#define CPU_H
 #define MAX_VARIAVEIS_CPU 31
 
 //representa nossa CPU

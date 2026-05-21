@@ -1,4 +1,4 @@
-#include "../include/tempo.h"
+#include "../include/Tempo.h"
 #include <stdio.h>
 
 

@@ -36,16 +36,16 @@ endif
 # ==============================
 SRCS = \
 	$(SRC_DIR)/main.c \
-	$(SRC_DIR)/TAD_LeituraArquivo.c \
-	$(SRC_DIR)/TAD_processo_simulado.c\
-	$(SRC_DIR)/TAD_CPU.c\
-	$(SRC_DIR)/fila.c\
-	$(SRC_DIR)/tempo.c\
-	$(SRC_DIR)/TAD_GerenciadorProcesso.c\
-	$(SRC_DIR)/tabela_processos.c\
+	$(SRC_DIR)/LeituraArquivo.c \
+	$(SRC_DIR)/ProcessoSimulado.c\
+	$(SRC_DIR)/Cpu.c\
+	$(SRC_DIR)/Fila.c\
+	$(SRC_DIR)/Tempo.c\
+	$(SRC_DIR)/GerenciadorProcesso.c\
+	$(SRC_DIR)/TabelaProcessos.c\
 	$(SRC_DIR)/ProcessoControle.c\
-	$(SRC_DIR)/processoImpressao.c\
-	$(SRC_DIR)/globais.c
+	$(SRC_DIR)/ProcessoImpressao.c\
+	$(SRC_DIR)/Globais.c
 
 	
 # ==============================
