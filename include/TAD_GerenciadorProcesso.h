@@ -28,9 +28,10 @@ typedef struct{
     cpu_s cpu;
     TabelaDeProcessos tabelaProcessos;
     int totalProcessosFinalizados;
-    int somaTemposResposta
+    int somaTemposResposta;
 
 }GerenciadorProcesso;
+
 int escalonadorFIFO(GerenciadorProcesso* gerenciador);
 int escalonadorMLFQ(GerenciadorProcesso* gerenciador);
 int leituraProcessoInit(processo *processo);
