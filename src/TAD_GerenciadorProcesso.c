@@ -219,9 +219,10 @@ void rodarGerenciador(int fd_leitura, int escFlag)
     {
         if (msg.tipo == 'U')
         {
-            // escalonamento
+            //decrementa tempo dos processos bloqueados e move para pronto se zerar
+            atualizarProcessosBloqueados(&gp, escFlag);
 
-            
+            // escalonamento
             if (!gp.cpu.emUso)
             {
                 if (escFlag == MLFQ)
@@ -573,6 +574,50 @@ processo *clonaProcesso(cpu_s *cpu)
     }
 
     return procFilho;
+}
+
+void atualizarProcessosBloqueados(GerenciadorProcesso *gp, int escFlag) {
+    
+    int tamanhoInicial = gp->estadoBloquado.tam; 
+
+    for (int i = 0; i < tamanhoInicial; i++) {
+        TItem itemRetirado;
+        
+        if (FilaDesenfileira(&gp->estadoBloquado, &itemRetirado)) {
+            
+            // busca os dados do processo na tabela geral
+            processo *proc = buscarProcessoTabela(&gp->tabelaProcessos, itemRetirado.Chave);
+            
+            if (proc != NULL && proc->estado == BLOQUEADO) {
+                proc->tempoBloqueado--; 
+                
+                if (proc->tempoBloqueado <= 0) {
+                    
+                    proc->estado = PRONTO; // Atualiza o estado
+                    
+                    TItem novoItem;
+                    novoItem.Chave = proc->pid;
+                    
+                    // verifica escalonador
+                    if (escFlag == MLFQ) {
+
+                        FilaEnfileira(&gp->estadoPronto[proc->prioridade], &novoItem);
+                        printf("[Gerenciador] Processo %d desbloqueado. Inserido na fila Prontos (Prioridade %d).\n", proc->pid, proc->prioridade);
+                    } 
+                    else {
+                        // no fifo n precisa preocupar com prioridade
+                        FilaEnfileira(&gp->estadoPronto[0], &novoItem);
+                        printf("[Gerenciador] Processo %d desbloqueado. Inserido na fila Prontos.\n", proc->pid);
+                    }
+                } 
+                else {
+                    // se ainda n zerou, o processo continua bloqueado
+                    // é inserido novamente no fim da fila de bloqueados
+                    FilaEnfileira(&gp->estadoBloquado, &itemRetirado);
+                }
+            }
+        }
+    }
 }
 
 // int leituraProcessoInit(processo *processo)
