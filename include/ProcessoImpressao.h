@@ -10,14 +10,16 @@
 typedef struct{
     GerenciadorProcesso * gerenciadorProcesso;
     int qtdProcessosProntos;
+    int qtdProcessosProntosPrioridade[4];
     int qtdProcessosBloqueados;
     int qtdProcessosEmExecucao;
     int qtdProcessos;
+    int escFlag;
     processo *processoAtual;
 }Informacoes;
 
-void ColetaInformacoes(Informacoes * info, GerenciadorProcesso * gerenciadorProcesso);
-void Imprime(GerenciadorProcesso * gerenciadorProcesso, int opcao);
+void ColetaInformacoes(Informacoes * info, GerenciadorProcesso * gerenciadorProcesso, int escFlag);
+void Imprime(GerenciadorProcesso * gerenciadorProcesso, int opcao, int escFlag);
 void ImprimeTodosOsProcessos(Informacoes * info);
 void ImprimeProcessosEmExecucao(Informacoes * info);
 void ImprimeProcessosProntos(Informacoes * info);
