@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/TAD_TabelaProcessos.h"
+#include "../include/TabelaProcessos.h"
 
 void inicializarTabelaProcessos(TabelaDeProcessos* tabela) {
     tabela->quantidade_atual = 0;

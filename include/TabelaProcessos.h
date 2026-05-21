@@ -1,7 +1,7 @@
 #ifndef TAD_TABELAPROCESSOS_H
 #define TAD_TABELAPROCESSOS_H
 
-#include "TAD_processo_simulado.h"
+#include "ProcessoSimulado.h"
 
 #define MAX_PROCESSOS 100 
 

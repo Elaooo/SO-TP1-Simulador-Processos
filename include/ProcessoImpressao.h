@@ -1,11 +1,11 @@
-#ifndef PROCESSO_IMPRESSAO_H
-#define PROCESSO_IMPRESSAO_H
+#ifndef PROCESSOIMPRESSAO_H
+#define PROCESSOIMPRESSAO_H
 
-#include "../include/TAD_GerenciadorProcesso.h"
-#include "../include/fila.h"
-#include "../include/tempo.h"
-#include "../include/TAD_CPU.h"
-#include "../include/TAD_TabelaProcessos.h"
+#include "../include/GerenciadorProcesso.h"
+#include "../include/Fila.h"
+#include "../include/Tempo.h"
+#include "../include/Cpu.h"
+#include "../include/TabelaProcessos.h"
 
 typedef struct{
     GerenciadorProcesso * gerenciadorProcesso;

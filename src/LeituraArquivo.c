@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../include/TAD_processo_simulado.h"
-#include "../include/TAD_CPU.h"
-#include "../include/globais.h"
+#include "../include/ProcessoSimulado.h"
+#include "../include/Cpu.h"
+#include "../include/Globais.h"
 
 int contarLinhasArquivo(char *caminho) {
     FILE *arquivo = fopen(caminho, "r");

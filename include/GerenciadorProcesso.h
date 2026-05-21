@@ -1,12 +1,12 @@
-#ifndef TAD_GERENCIADORPROCESSO_H
-#define TAD_GERENCIADORPROCESSO_H
+#ifndef GERENCIADORPROCESSO_H
+#define GERENCIADORPROCESSO_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/fila.h"
-#include "../include/tempo.h"
-#include "../include/TAD_CPU.h"
-#include "../include/TAD_TabelaProcessos.h"
+#include "../include/Fila.h"
+#include "../include/Tempo.h"
+#include "../include/Cpu.h"
+#include "../include/TabelaProcessos.h"
 #include "../include/ProcessoControle.h"
 //para o escalonador
 #define QUANTUM_PRIORIDADE_0 1

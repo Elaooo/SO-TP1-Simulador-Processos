@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef TAD_PROCESSO_SIMULADO_H
-#define TAD_PROCESSO_SIMULADO_H
+#ifndef PROCESSOSIMULADO_H
+#define PROCESSOSIMULADO_H
 
 
 enum estado {
