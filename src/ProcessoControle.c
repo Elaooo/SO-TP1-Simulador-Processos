@@ -16,14 +16,24 @@ int inicializaProcessoControle(int argc, char *argv[])
 {
     int fd[2];
 
-    int op = -999;
+    char op = ' ';
+    int opcaoEscolhida = -1;
     do
     {
         printf("Escolha qual escalonador usar:\n");
         printf("0 - Escalonador MLFQ:\n");
         printf("1 - Escalonador FIFO:\n");
-        scanf("%d", &op);
-    } while (op != 1 && op != 0);
+        scanf(" %c", &op);
+        if(op != '1' && op != '0'){
+            printf("Opcao invalida! Tente novamente.\n");
+        }
+    } while (op != '1' && op != '0');
+    if(op == '1'){
+        opcaoEscolhida = 1;
+    }else{
+        opcaoEscolhida = 0;
+    }
+
     if (pipe(fd) == -1)
     {
         perror("Erro ao criar pipe");
@@ -47,7 +57,7 @@ int inicializaProcessoControle(int argc, char *argv[])
     {
         // Processo filho: gerenciador de processos
         close(fd[1]);                // filho não escreve no pipe
-        rodarGerenciador(fd[0], op); // receber do usuario
+        rodarGerenciador(fd[0], opcaoEscolhida); // receber do usuario
     }
     else
     {
@@ -82,7 +92,11 @@ int inicializaProcessoControle(int argc, char *argv[])
             msg.tipo = comando;
             if (comando == 'I' || comando == 'M')
             {
-                msg.opcaoImpressao = lerOpcaoImpressao();
+                if(argc > 1){
+                    fscanf(entrada, " %d", &msg.opcaoImpressao);
+                }else{
+                    msg.opcaoImpressao = lerOpcaoImpressao();
+                }
             }
 
             write(fd[1], &msg, sizeof(ComandoPipe));
