@@ -16,14 +16,24 @@ int inicializaProcessoControle(int argc, char *argv[])
 {
     int fd[2];
 
-    int op = -999;
+    char op = ' ';
+    int opcaoEscolhida = -1;
     do
     {
         printf("Escolha qual escalonador usar:\n");
         printf("0 - Escalonador MLFQ:\n");
         printf("1 - Escalonador FIFO:\n");
-        scanf("%d", &op);
-    } while (op != 1 && op != 0);
+        scanf(" %c", &op);
+        if(op != '1' && op != '0'){
+            printf("Opcao invalida! Tente novamente.\n");
+        }
+    } while (op != '1' && op != '0');
+    if(op == '1'){
+        opcaoEscolhida = 1;
+    }else{
+        opcaoEscolhida = 0;
+    }
+
     if (pipe(fd) == -1)
     {
         perror("Erro ao criar pipe");
@@ -47,7 +57,7 @@ int inicializaProcessoControle(int argc, char *argv[])
     {
         // Processo filho: gerenciador de processos
         close(fd[1]);                // filho não escreve no pipe
-        rodarGerenciador(fd[0], op); // receber do usuario
+        rodarGerenciador(fd[0], opcaoEscolhida); // receber do usuario
     }
     else
     {
@@ -82,7 +92,11 @@ int inicializaProcessoControle(int argc, char *argv[])
             msg.tipo = comando;
             if (comando == 'I' || comando == 'M')
             {
-                msg.opcaoImpressao = lerOpcaoImpressao();
+                if(argc > 1){
+                    fscanf(entrada, " %d", &msg.opcaoImpressao);
+                }else{
+                    msg.opcaoImpressao = lerOpcaoImpressao();
+                }
             }
 
             write(fd[1], &msg, sizeof(ComandoPipe));
@@ -108,7 +122,8 @@ int inicializaProcessoControle(int argc, char *argv[])
 
 int lerOpcaoImpressao()
 {
-    int opcao = -1;
+    char opcao = ' ';
+    int opcaoEscolhida = -1;
 
     printf(AZUL "----------------------------------------------------------\n" RESET);
     printf(AZUL "Bem vindo ao menu de impressao do seu sistema operacional!\n" RESET);
@@ -124,14 +139,35 @@ int lerOpcaoImpressao()
         printf(AZUL "5-" BRANCO " Informacoes gerais\n" RESET);
         printf(AZUL "Opcao: " RESET);
         fflush(stdin);
-        scanf("%d", &opcao);
+        scanf(" %c", &opcao);
 
-        if (opcao < 1 || opcao > 5)
+        if (opcao != '1' && opcao != '2' && opcao != '3' && opcao != '4' && opcao != '5')
         {
             printf(VERMELHO "Opcao invalida! Tente novamente\n" RESET);
         }
 
-    } while (opcao < 1 || opcao > 5);
+    } while (opcao != '1' && opcao != '2' && opcao != '3' && opcao != '4' && opcao != '5');
     fflush(stdin);
-    return opcao;
+    switch (opcao)
+    {
+    case '1':
+        opcaoEscolhida = 1;
+        break;
+    case '2':
+        opcaoEscolhida = 2;
+        break;
+    case '3':
+        opcaoEscolhida = 3;
+        break;
+    case '4':
+        opcaoEscolhida = 4;
+        break;
+    case '5':
+        opcaoEscolhida = 5;
+        break;
+    default:
+        break;
+    }
+
+    return opcaoEscolhida;
 }
