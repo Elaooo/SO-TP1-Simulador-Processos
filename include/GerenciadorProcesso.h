@@ -25,6 +25,7 @@ typedef struct{
     TabelaDeProcessos tabelaProcessos;
     int totalProcessosFinalizados;
     int somaTemposResposta;
+    int nCPUs;
 
 }GerenciadorProcesso;
 

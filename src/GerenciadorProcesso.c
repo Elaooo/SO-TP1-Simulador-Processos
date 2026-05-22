@@ -214,6 +214,7 @@ int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos,int
     FazFilaVazia(&gerenciadorProcessos->estadoBloquado);
     FazFilaVazia(&gerenciadorProcessos->finalizados);
     gerenciadorProcessos->totalProcessosFinalizados = 0;
+    gerenciadorProcessos->nCPUs=cpuFlag;
 
     if (gerenciadorProcessos == NULL)
     {
