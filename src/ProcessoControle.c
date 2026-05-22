@@ -49,14 +49,15 @@ void *threadControle(void *arg)
         if (comando == 'I' || comando == 'M'){
             msg.opcaoImpressao = lerOpcaoImpressao();
         }
-        pthread_mutex_lock(&filaComandos.mutex);
+        enfileiraComando(&filaComandos, msg);
+        //pthread_mutex_lock(&filaComandos.mutex);
 
-        filaComandos.fila[filaComandos.fim] = msg;
-        filaComandos.fim++;
+        //filaComandos.fila[filaComandos.fim] = msg;
+        //filaComandos.fim++;
 
-        pthread_cond_signal(&filaComandos.cond);
+        //pthread_cond_signal(&filaComandos.cond);
 
-        pthread_mutex_unlock(&filaComandos.mutex);
+        //pthread_mutex_unlock(&filaComandos.mutex);
         
         if (comando == 'M'){
             break;

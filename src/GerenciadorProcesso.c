@@ -46,19 +46,17 @@ void* rodarGerenciador(void* arg)
     //loop infinito baseado nas variáveis de condição do pthreads
     while (1)
     {
+        msg = desenfileiraComando(&filaComandos);
         // tranca para ler a memória compartilhada de forma segura
-        pthread_mutex_lock(&mutex_comando);
-        
+        //pthread_mutex_lock(&mutex_comando);
         // espera até que haja um comando novo
-        while (tem_novo_comando == 0) {
-            pthread_cond_wait(&cond_comando, &mutex_comando);
-        }
-        
-        msg = msg_compartilhada;
-        tem_novo_comando = 0;
-        
+        //while (tem_novo_comando == 0) {
+            //pthread_cond_wait(&cond_comando, &mutex_comando);
+        //}
+        //msg = msg_compartilhada;
+        //tem_novo_comando = 0;
         //libera
-        pthread_mutex_unlock(&mutex_comando);
+        //pthread_mutex_unlock(&mutex_comando);
 
         if (msg.tipo == 'U')
         {
