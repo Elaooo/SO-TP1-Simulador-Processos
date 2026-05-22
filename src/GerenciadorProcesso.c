@@ -17,7 +17,7 @@ void* rodarGerenciador(void* arg)
 {   
     // extrai a flag do escalonador passada pela thread principal
     int escFlag = *(int*)arg; 
-
+    printf("DEBUG escFlag= %d",escFlag);
     Comando msg;
     TItem novoItem;
 
@@ -25,6 +25,8 @@ void* rodarGerenciador(void* arg)
     inicializaGerenciadorProcessos(&gp);
     processo init;
     leituraProcessoInit(&init);
+    printf("PID init: %d, nInstrucoes: %d\n", init.pid, init.nInstrucoes);
+
 
     inserirProcessoTabela(&gp.tabelaProcessos,&init);
     novoItem.Chave=init.pid;

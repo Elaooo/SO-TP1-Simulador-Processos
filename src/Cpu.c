@@ -184,6 +184,6 @@ void executaInstrucoes(cpu_s* cpu){
 
 
 void esvaziaCpu(cpu_s *cpu){
-    cpu->processo_atual = NULL; 
+    //cpu->processo_atual = NULL;
     cpu->emUso = 0;
 }

@@ -16,11 +16,11 @@
 
 void *threadControle(void *arg)
 {
-    ArgsControle *args = (ArgsControle *) args;
+    ArgsControle *args = (ArgsControle *) arg;
     int argc = args->argc;
-    char *argv = args->argv;
+    char **argv = args->argv;
 
-    int op = -999;
+
     char comando = 'Z';
     FILE *entrada = stdin;
 
@@ -61,15 +61,36 @@ void *threadControle(void *arg)
         if (comando == 'M'){
             break;
         }
-        if (entrada != stdin)
+
+    }
+    if (entrada != stdin)
         {
             fclose(entrada);
         }
-
-        
-    }
     printf("[Controle] Simulação finalizada.\n");
     return NULL;
+}
+
+int escolherEscalonador() {
+    char op = ' ';
+    int opcaoEscolhida = -1;
+    do {
+        printf("Escolha qual escalonador usar:\n");
+        printf("0 - Escalonador MLFQ:\n");
+        printf("1 - Escalonador FIFO:\n");
+        scanf(" %c", &op);
+        if (op != '1' && op != '0') {
+            printf("Opcao invalida! Tente novamente.\n");
+        }
+    } while (op != '1' && op != '0');
+
+    if (op == '1') {
+        opcaoEscolhida = FIFO;
+    } else {
+        opcaoEscolhida = MLFQ;
+    }
+
+    return opcaoEscolhida;
 }
 
 int lerOpcaoImpressao()

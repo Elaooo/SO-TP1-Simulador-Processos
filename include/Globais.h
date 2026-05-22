@@ -5,6 +5,11 @@
 #include "ProcessoControle.h"
 #include "../include/FilaComandos.h"
 
+
+// Flags do escalonador
+#define FIFO 1
+#define MLFQ 0
+
 extern int proximoPidDisponivel;
 extern FilaComandos filaComandos;
 extern Comando msg_compartilhada;

@@ -1,6 +1,7 @@
 #include "../include/Globais.h"
 
 int proximoPidDisponivel = 0;
+FilaComandos filaComandos;
 
 Comando msg_compartilhada;
 int tem_novo_comando = 0;
