@@ -122,7 +122,8 @@ int inicializaProcessoControle(int argc, char *argv[])
 
 int lerOpcaoImpressao()
 {
-    int opcao = -1;
+    char opcao = ' ';
+    int opcaoEscolhida = -1;
 
     printf(AZUL "----------------------------------------------------------\n" RESET);
     printf(AZUL "Bem vindo ao menu de impressao do seu sistema operacional!\n" RESET);
@@ -138,14 +139,35 @@ int lerOpcaoImpressao()
         printf(AZUL "5-" BRANCO " Informacoes gerais\n" RESET);
         printf(AZUL "Opcao: " RESET);
         fflush(stdin);
-        scanf("%d", &opcao);
+        scanf(" %c", &opcao);
 
-        if (opcao < 1 || opcao > 5)
+        if (opcao != '1' && opcao != '2' && opcao != '3' && opcao != '4' && opcao != '5')
         {
             printf(VERMELHO "Opcao invalida! Tente novamente\n" RESET);
         }
 
-    } while (opcao < 1 || opcao > 5);
+    } while (opcao != '1' && opcao != '2' && opcao != '3' && opcao != '4' && opcao != '5');
     fflush(stdin);
-    return opcao;
+    switch (opcao)
+    {
+    case '1':
+        opcaoEscolhida = 1;
+        break;
+    case '2':
+        opcaoEscolhida = 2;
+        break;
+    case '3':
+        opcaoEscolhida = 3;
+        break;
+    case '4':
+        opcaoEscolhida = 4;
+        break;
+    case '5':
+        opcaoEscolhida = 5;
+        break;
+    default:
+        break;
+    }
+
+    return opcaoEscolhida;
 }
