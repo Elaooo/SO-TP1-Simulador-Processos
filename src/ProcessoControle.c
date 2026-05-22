@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include "../include/GerenciadorProcesso.h"
 #include "../include/ProcessoControle.h"
+#include "../include/Globais.h"
+#include "../include/FilaComandos.h"
 
 #define AZUL "\033[34m"
 #define AMARELO "\033[33m"
@@ -12,98 +14,62 @@
 #define BRANCO "\033[37m"
 #define RESET "\033[0m"
 
-int inicializaProcessoControle(int argc, char *argv[])
+void *threadControle(void *arg)
 {
-    int fd[2];
+    ArgsControle *args = (ArgsControle *) args;
+    int argc = args->argc;
+    char *argv = args->argv;
 
     int op = -999;
-    do
-    {
-        printf("Escolha qual escalonador usar:\n");
-        printf("0 - Escalonador MLFQ:\n");
-        printf("1 - Escalonador FIFO:\n");
-        scanf("%d", &op);
-    } while (op != 1 && op != 0);
-    if (pipe(fd) == -1)
-    {
-        perror("Erro ao criar pipe");
-        exit(1);
-    }
     char comando = 'Z';
+    FILE *entrada = stdin;
 
-    ComandoPipe msg;
+    Comando msg;
     msg.tipo = comando;
     msg.opcaoImpressao = -1;
-
-    pid_t pid = fork();
-
-    if (pid < 0)
+    if (argc > 1)
     {
-        perror("Erro no fork");
-        exit(1);
-    }
-
-    if (pid == 0)
-    {
-        // Processo filho: gerenciador de processos
-        close(fd[1]);                // filho não escreve no pipe
-        rodarGerenciador(fd[0], op); // receber do usuario
-    }
-    else
-    {
-        // Processo pai: processo controle
-        close(fd[0]); // pai não lê do pipe
-
-        FILE *entrada = stdin;
-
-        if (argc > 1)
+        entrada = fopen(argv[1], "r");
+        if (entrada == NULL)
         {
-            entrada = fopen(argv[1], "r");
-            if (entrada == NULL)
-            {
-                perror("Erro ao abrir arquivo de comandos");
-                close(fd[1]);
-                wait(NULL);
-                exit(1);
-            }
+            perror("Erro ao abrir arquivo de comandos");
+            exit(1);
         }
+    }
 
+    // Leitura dos comandos U,I,M
+    while (fscanf(entrada, " %c", &comando) == 1){
+        comando = toupper(comando);
+
+        if (comando != 'U' && comando != 'I' && comando != 'M'){
+            printf("[Controle] Comando inválido ignorado: %c\n", comando);
+            continue;
+        }
+        msg.tipo = comando;
+        if (comando == 'I' || comando == 'M'){
+            msg.opcaoImpressao = lerOpcaoImpressao();
+        }
+        pthread_mutex_lock(&filaComandos.mutex);
+
+        filaComandos.fila[filaComandos.fim] = msg;
+        filaComandos.fim++;
+
+        pthread_cond_signal(&filaComandos.cond);
+
+        pthread_mutex_unlock(&filaComandos.mutex);
         
-        // Leitura dos comandos U,I,M
-        while (fscanf(entrada, " %c", &comando) == 1)
-        {
-            comando = toupper(comando);
-
-            if (comando != 'U' && comando != 'I' && comando != 'M')
-            {
-                printf("[Controle] Comando inválido ignorado: %c\n", comando);
-                continue;
-            }
-            msg.tipo = comando;
-            if (comando == 'I' || comando == 'M')
-            {
-                msg.opcaoImpressao = lerOpcaoImpressao();
-            }
-
-            write(fd[1], &msg, sizeof(ComandoPipe));
-
-            if (comando == 'M')
-            {
-                break;
-            }
+        if (comando == 'M'){
+            break;
         }
         if (entrada != stdin)
         {
             fclose(entrada);
         }
 
-        close(fd[1]); // avisa EOF ao gerenciador
-        wait(NULL);   // espera o gerenciador terminar
-
-        printf("[Controle] Simulação finalizada.\n");
+        
     }
-
-    return 0;
+    printf("[Controle] Simulação finalizada.\n");
+    return NULL;
 }
 
 int lerOpcaoImpressao()

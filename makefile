@@ -2,7 +2,7 @@
 # Compilador e flags
 # ==============================
 CC = gcc
-CFLAGS = -Wall -Wextra -g -Iinclude
+CFLAGS = -Wall -Wextra -g -Iinclude -lpthread
 
 # ==============================
 # Diretórios
@@ -46,7 +46,8 @@ SRCS = \
 	$(SRC_DIR)/ProcessoControle.c\
 	$(SRC_DIR)/ProcessoImpressao.c\
 	$(SRC_DIR)/Globais.c\
-	$(SRC_DIR)/Escalonador.c
+	$(SRC_DIR)/Escalonador.c\
+	$(SRC_DIR)/FilaComandos.c\
 
 	
 # ==============================

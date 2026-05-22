@@ -14,6 +14,7 @@
 #define FIFO 1
 #define MLFQ 0
 
+
 typedef struct{
 
     TFila estadoPronto[4];//No FIFO usamos somente o estadoPronto[0]
@@ -37,6 +38,7 @@ typedef struct {
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
 void* rodarGerenciador(void* arg);
 void atualizarProcessosBloqueados(GerenciadorProcesso *gerenciador, int escFlag);
+void* rotinaImpressao(void* arg);
 
 processo* clonaProcesso(cpu_s *cpu);
 

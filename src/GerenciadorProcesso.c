@@ -18,7 +18,7 @@ void* rodarGerenciador(void* arg)
     // extrai a flag do escalonador passada pela thread principal
     int escFlag = *(int*)arg; 
 
-    ComandoPipe msg;
+    Comando msg;
     TItem novoItem;
 
     GerenciadorProcesso gp;

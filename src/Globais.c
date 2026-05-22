@@ -2,7 +2,7 @@
 
 int proximoPidDisponivel = 0;
 
-ComandoPipe msg_compartilhada;
+Comando msg_compartilhada;
 int tem_novo_comando = 0;
 
 pthread_mutex_t mutex_comando = PTHREAD_MUTEX_INITIALIZER;
