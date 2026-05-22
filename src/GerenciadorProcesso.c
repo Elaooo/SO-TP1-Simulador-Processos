@@ -131,6 +131,8 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                     FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
 
                     imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
+                    removerProcessoTabela(&gp.tabelaProcessos,novoItem.Chave);
+                    gp.totalProcessosFinalizados++;
 
 
                 }

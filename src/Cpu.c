@@ -143,6 +143,14 @@ void quantumEsgotado(cpu_s *cpu){
     }
 
     cpu->emUso = 0; //indica que a CPU está livre
+    cpu->listaInstrucao=NULL;
+    for(int i =0;i<MAX_VARIAVEIS_CPU;i++){
+        cpu->variaveis[i]=0;
+    }
+    
+    cpu->registradorPC=0;
+    cpu->quantum_total=0;
+    cpu->quantum_usado=0;
 }
 
 
@@ -205,6 +213,15 @@ void executaInstrucoes(cpu_s* cpu){
 
 
 void esvaziaCpu(cpu_s *cpu){
+
     cpu->processo_atual = NULL; 
     cpu->emUso = 0;
+    cpu->listaInstrucao=NULL;
+    for(int i =0;i<MAX_VARIAVEIS_CPU;i++){
+        cpu->variaveis[i]=0;
+    }
+    
+    cpu->registradorPC=0;
+    cpu->quantum_total=0;
+    cpu->quantum_usado=0;
 }

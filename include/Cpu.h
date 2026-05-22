@@ -7,9 +7,9 @@
 #define CPU_H
 #define MAX_VARIAVEIS_CPU 31
 
-//representa nossa CPU
 typedef struct{
 
+    // Flag que indica se existe algum processo utilizando a cpu
     int emUso;
     //Ponteiro para o processo simulado atualmente na CPU.
     processo *processo_atual;
