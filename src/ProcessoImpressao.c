@@ -38,8 +38,6 @@ void Imprime(GerenciadorProcesso *gerenciadorProcesso, int opcao, int escFlag)
 
     printf(AZUL "----------------------------------------\n" RESET);
     printf("Fim da Impressao\n");
-    fflush(stdout);
-    _exit(0);
 }
 
 void ColetaInformacoes(Informacoes *info, GerenciadorProcesso *gerenciadorProcesso, int escFlag)

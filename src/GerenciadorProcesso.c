@@ -159,6 +159,7 @@ void* rodarGerenciador(void* arg)
             if (args != NULL) {
                 args->gerenciador = &gp;
                 args->opcao = msg.opcaoImpressao;
+                args->escFlag = escFlag;
                 
                 if (pthread_create(&t_impressao, NULL, rotinaImpressao, args) == 0) {
                     pthread_join(t_impressao, NULL); // espera a impressão acabar
@@ -177,6 +178,7 @@ void* rodarGerenciador(void* arg)
             if (args != NULL) {
                 args->gerenciador = &gp;
                 args->opcao = msg.opcaoImpressao;
+                args->escFlag = escFlag;
                 
                 if (pthread_create(&t_impressao, NULL, rotinaImpressao, args) == 0) {
                     pthread_join(t_impressao, NULL); // Espera a impressão acabar
@@ -314,7 +316,7 @@ void atualizarProcessosBloqueados(GerenciadorProcesso *gp, int escFlag) {
 
 void* rotinaImpressao(void* arg) {
     ArgsImpressao *args = (ArgsImpressao*) arg;
-    Imprime(args->gerenciador, args->opcao);
+    Imprime(args->gerenciador, args->opcao, args->escFlag);
     free(args);
     return NULL;
 }

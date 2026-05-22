@@ -31,6 +31,7 @@ typedef struct{
 typedef struct {
     GerenciadorProcesso *gerenciador;
     int opcao;
+    int escFlag;
 } ArgsImpressao;
 
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
