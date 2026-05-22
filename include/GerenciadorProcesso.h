@@ -21,15 +21,15 @@ typedef struct{
     TFila estadoEmExecucao;
     TFila finalizados;
     Tempo tempo;
-    cpu_s cpu;
+    cpu_s cpu[2];
     TabelaDeProcessos tabelaProcessos;
     int totalProcessosFinalizados;
     int somaTemposResposta;
 
 }GerenciadorProcesso;
 
-int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
-void rodarGerenciador(int fd_leitura, int escFlag);
+int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos, int cpuFlag);
+void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag);
 void atualizarProcessosBloqueados(GerenciadorProcesso *gerenciador, int escFlag);
 
 processo* clonaProcesso(cpu_s *cpu);

@@ -58,7 +58,7 @@ void ColetaInformacoes(Informacoes *info, GerenciadorProcesso *gerenciadorProces
 
     info->qtdProcessos = info->qtdProcessosBloqueados + info->qtdProcessosEmExecucao + info->qtdProcessosProntos;
 
-    info->processoAtual = info->gerenciadorProcesso->cpu.processo_atual;
+    info->processoAtual = info->gerenciadorProcesso->cpu[0].processo_atual;
     info->escFlag = escFlag;
 }
 
@@ -271,17 +271,20 @@ void ImprimeProcessosBloqueados(Informacoes *info)
 void ImprimeInformacoesGerais(Informacoes *info)
 {
 
-    printf(AZUL "Informacoes do Gerenciador de Processos:\n" RESET);
-    printf("%sTotal de processo finalizados:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->totalProcessosFinalizados, RESET);
-    printf("%sTempo:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->tempo.valor, RESET);
+        printf(AZUL "Informacoes do Gerenciador de Processos:\n" RESET);
+        printf("%sTotal de processo finalizados:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->totalProcessosFinalizados, RESET);
+        printf("%sTempo:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->tempo.valor, RESET);
 
-    printf("\n");
+        printf("\n");
 
-    printf(AZUL "Informacoes da CPU:\n" RESET);
-    printf("%sIndice da proxima instrucao (PC):  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->cpu.registradorPC, RESET);
-    printf("%sProcesso atual:  %s%d\n%s", AZUL, BRANCO, info->processoAtual->pid, RESET);
-    printf("%sQuantum alocado para o processo atual:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->cpu.quantum_total, RESET);
+    for(int i=0;i<2;i++){
 
-    printf("\n");
-    printf("\n");
+        printf(AZUL "Informacoes da CPU:\n" RESET);
+        printf("%sIndice da proxima instrucao (PC):  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->cpu[i].registradorPC, RESET);
+        printf("%sProcesso atual:  %s%d\n%s", AZUL, BRANCO, info->processoAtual->pid, RESET);
+        printf("%sQuantum alocado para o processo atual:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->cpu[i].quantum_total, RESET);
+
+        printf("\n");
+        printf("\n");
+    }
 }

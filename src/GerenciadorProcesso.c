@@ -13,7 +13,7 @@
 #include "../include/Escalonador.h"
 
 
-void rodarGerenciador(int fd_leitura, int escFlag)
+void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
 {   
     ComandoPipe msg;
     TItem novoItem;
@@ -21,7 +21,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
 
     int bytesLidos;
     GerenciadorProcesso gp;
-    inicializaGerenciadorProcessos(&gp);
+    inicializaGerenciadorProcessos(&gp,cpuFlag+1);
     processo init;
     leituraProcessoInit(&init);
 
@@ -48,113 +48,116 @@ void rodarGerenciador(int fd_leitura, int escFlag)
             atualizarProcessosBloqueados(&gp, escFlag);
 
             // escalonamento
-            if (!gp.cpu.emUso)
-            {
-                if (escFlag == MLFQ)
+            for (int k=0;k<(cpuFlag+1);k++){
+                if (!gp.cpu[k].emUso)
                 {
-
-                    int pidEscalonado = escalonadorMLFQ(&gp);
-                    if (pidEscalonado != -1)
+                    if (escFlag == MLFQ)
                     {
-                        gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
-                        // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
-                        AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
 
-                        novoItem.Chave = gp.cpu.processo_atual->pid;
-                        FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+                        int pidEscalonado = escalonadorMLFQ(&gp,k);
+                        if (pidEscalonado != -1)
+                        {
+                            gp.cpu[k].processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
+                            // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                            AtualizarRegistradorCPU(&gp.cpu[k], gp.cpu[k].processo_atual);
 
-                        printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
+                            novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                            FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+
+                            printf("[Gerenciador] Processo %d escalonado para execução na CPU %d.\n", pidEscalonado,k);
+                        }
+                    }
+                    else
+                    {
+
+                        int pidEscalonado = escalonadorFIFO(&gp,k);
+                        if (pidEscalonado != -1)
+                        {
+                            gp.cpu[k].processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
+                            // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                            AtualizarRegistradorCPU(&gp.cpu[k], gp.cpu[k].processo_atual);
+
+                            novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                            FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+                            
+                            printf("[Gerenciador] Processo %d escalonado para execução na CPU %d.\n", pidEscalonado,k);
+                        }
+                    }
+                }else if(gp.cpu[k].emUso)
+                {
+                // troca de contexto
+                    if (escFlag == MLFQ && gp.cpu[k].quantum_usado >= gp.cpu[k].quantum_total)
+                    {
+
+                        processo *procAtual = gp.cpu[k].processo_atual;
+
+                        quantumEsgotado(&gp.cpu[k]);
+
+                        TItem novoItem;
+                        novoItem.Chave = procAtual->pid;
+
+                        if (escFlag == FIFO) {
+                            FilaEnfileira(&gp.estadoPronto[0], &novoItem);
+                        }
+
+                        FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
+
+                        printf("[CPU %d] Quantum máximo atingido. Troca de contexto.\n",k);
                     }
                 }
-                else
+                // execução
+                if(gp.cpu[k].emUso)
                 {
+                    printf("[CPU %d] --- Executando %c...\n",k,gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo);
+                    executaInstrucoes(&gp.cpu[k]);
+                    IncrementarQuantum_usado(&gp.cpu[k]);
 
-                    int pidEscalonado = escalonadorFIFO(&gp);
-                    if (pidEscalonado != -1)
+                    if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'B')
                     {
-                        gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
-                        // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
-                        AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
+                        novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                        SalvarContextoCpu(&gp.cpu[k]);
 
-                        novoItem.Chave = gp.cpu.processo_atual->pid;
-                        FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+                        FilaEnfileira(&gp.estadoBloquado, &novoItem);
+                        FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
+
+                        imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
+                    }
+                    else if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'T')
+                    {
                         
-                        printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
+                        novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                        SalvarContextoCpu(&gp.cpu[k]);
+
+                        FilaEnfileira(&gp.finalizados, &novoItem);
+                        FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
+
+                        imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
+                        gp.totalProcessosFinalizados++;
+
+
                     }
-                }
-            }else if(gp.cpu.emUso)
-            {
-            // troca de contexto
-                if (escFlag == MLFQ && gp.cpu.quantum_usado >= gp.cpu.quantum_total)
-                {
+                    else if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'F')
+                    {
 
-                    processo *procAtual = gp.cpu.processo_atual;
-
-                    quantumEsgotado(&gp.cpu);
-
-                    TItem novoItem;
-                    novoItem.Chave = procAtual->pid;
-
-                    if (escFlag == FIFO) {
-                        FilaEnfileira(&gp.estadoPronto[0], &novoItem);
+                        processo *processoFilhinho = clonaProcesso(&gp.cpu[k]);
+                        
+                        inserirProcessoTabela(&gp.tabelaProcessos, processoFilhinho);
+                        novoItem.Chave = processoFilhinho->pid;
+                        
+                        if (escFlag == MLFQ){
+                            FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);//escalonador MLFQ
+                        }
+                        else if (escFlag == FIFO){
+                            FilaEnfileira(&gp.estadoPronto[0], &novoItem);
+                        }
+                        gp.cpu[k].registradorPC+=gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].n;
                     }
 
-                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
-
-                    printf("Quantum máximo atingido. Troca de contexto.\n");
+                    gp.cpu[k].registradorPC++;
                 }
+                IncrementaTempo(&gp.tempo);
+
             }
-            // execução
-            if(gp.cpu.emUso)
-            {
-                printf("--- Executando %c...\n",gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo);
-                executaInstrucoes(&gp.cpu);
-                IncrementarQuantum_usado(&gp.cpu);
-
-                if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
-                {
-                    novoItem.Chave = gp.cpu.processo_atual->pid;
-                    SalvarContextoCpu(&gp.cpu);
-
-                    FilaEnfileira(&gp.estadoBloquado, &novoItem);
-                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
-
-                    imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
-                }
-                else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
-                {
-                    
-                    novoItem.Chave = gp.cpu.processo_atual->pid;
-                    SalvarContextoCpu(&gp.cpu);
-
-                    FilaEnfileira(&gp.finalizados, &novoItem);
-                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
-
-                    imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
-
-
-                }
-                else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'F')
-                {
-
-                    processo *processoFilhinho = clonaProcesso(&gp.cpu);
-                    
-                    inserirProcessoTabela(&gp.tabelaProcessos, processoFilhinho);
-                    novoItem.Chave = processoFilhinho->pid;
-                    
-                    if (escFlag == MLFQ){
-                        FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);//escalonador MLFQ
-                    }
-                    else if (escFlag == FIFO){
-                        FilaEnfileira(&gp.estadoPronto[0], &novoItem);
-                    }
-                    gp.cpu.registradorPC+=gp.cpu.listaInstrucao[gp.cpu.registradorPC].n;
-                }
-
-                gp.cpu.registradorPC++;
-            }
-            IncrementaTempo(&gp.tempo);
-
         }
         else if (msg.tipo == 'I')
         {  
@@ -195,11 +198,13 @@ void rodarGerenciador(int fd_leitura, int escFlag)
     }
 }
 
-int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos)
+int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos,int cpuFlag)
 {
 
     inicializarTabelaProcessos(&gerenciadorProcessos->tabelaProcessos);
-    inicializarCPU(&gerenciadorProcessos->cpu);
+    for(int j=0;j<cpuFlag;j++){
+        inicializarCPU(&gerenciadorProcessos->cpu[j]);
+    }
     InicializaTempo(&gerenciadorProcessos->tempo);
     for (int i = 0; i < 4; i++)
     {
