@@ -53,7 +53,7 @@ void imprimirCPU(cpu_s *cpu){
 
     printf("\n========= REGISTRADORES =========\n");
 
-    for(int i=0;i<3;i++){
+    for(int i=0;i<cpu->processo_atual->nVariaveis;i++){
         printf("Registrador %d = %d\n",i, cpu->variaveis[i]);
     }
     printf(" ");
@@ -78,15 +78,15 @@ int AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     cpu->quantum_total = proc->quantum; // Atualiza o quantum total alocado
     cpu->quantum_usado = 0; // Reinicia o tempo executado neste quantum
     cpu->listaInstrucao = proc->listaInstrucoes;
-    // printf("IMPRESSAO lista da cpu:\n");
-    // imprimirInstrucoes(cpu->listaInstrucao, cpu->processo_atual->nInstrucoes);
-    // printf("IMPRESSAO LSITA DO PROCESSO:\n");
-    // imprimirInstrucoes(proc->listaInstrucoes, proc->nInstrucoes);
 
-    for(int i = 0; i<proc->nVariaveis; i++){
+    if(proc->nVariaveis>31){
+        printf("Número inválido de variaveis. Máximo=31.\n");
+    }
+    else{
+        for(int i = 0; i<proc->nVariaveis; i++){
 
-        cpu->variaveis[i] = proc->variaveis[i];
-        
+            cpu->variaveis[i] = proc->variaveis[i];  
+        }
     }
     return 1;
 }
