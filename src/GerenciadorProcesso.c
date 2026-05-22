@@ -36,7 +36,6 @@ void rodarGerenciador(int fd_leitura, int escFlag)
     }
 
     //init.quantum = quantumPorPrioridade[init.prioridade];
-    init.quantum=15;
 
 
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
@@ -91,7 +90,7 @@ void rodarGerenciador(int fd_leitura, int escFlag)
 
                     processo *procAtual = gp.cpu.processo_atual;
 
-                    SalvarContextoCpu(&gp.cpu);
+                    quantumEsgotado(&gp.cpu);
 
                     TItem novoItem;
                     novoItem.Chave = procAtual->pid;

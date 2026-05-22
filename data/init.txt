@@ -2,11 +2,17 @@ N 2
 D 0
 D 1
 V 0 1
+A 0 20
+B 2
+S 1 2
+A 0 50
+F 1
+R file_a
+S 0 10
+S 1 5
+B 3
+A 2 15
 V 1 500
 F 1
 R file_a
-F 1
-R file_b
-F 1
-R file_c
 T

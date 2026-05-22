@@ -101,19 +101,16 @@ void SalvarContextoCpu(cpu_s *cpu){
     processo* p = cpu->processo_atual;
     
     instrucao atual = p->listaInstrucoes[cpu->registradorPC];
-    
 
     p->pcCounter = cpu->registradorPC + 1; // Salva o PC do processo atual
     p->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
     
-    if(cpu->quantum_usado>=cpu->quantum_total){
-        p->estado = PRONTO; // Atualiza o estado do processo para pronto para reinserção na fila
-    }
-    else if(atual.tipo == 'B'){
+    if(atual.tipo == 'B'){
         p->tempoBloqueado=cpu->listaInstrucao[cpu->registradorPC].n;
+        //p->pcCounter+=1;
         p->estado = BLOQUEADO;
     }
-    else if(atual.tipo == 'T'){
+    if(atual.tipo == 'T'){
         p->estado = TERMINADO;
     }
 
@@ -123,6 +120,29 @@ void SalvarContextoCpu(cpu_s *cpu){
 
     esvaziaCpu(cpu); //indica que a CPU está livre
 
+}
+
+void quantumEsgotado(cpu_s *cpu){
+
+    if(cpu == NULL || cpu->processo_atual == NULL){
+        printf("Processo nulo OR cpu nula\n");
+        return;
+    }
+
+    processo* p = cpu->processo_atual;
+    
+    p->pcCounter = cpu->registradorPC; // Salva o PC do processo atual
+    p->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
+    
+    if(cpu->quantum_usado>=cpu->quantum_total){
+        p->estado = PRONTO; // Atualiza o estado do processo para pronto para reinserção na fila
+    }
+
+    for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
+        p->variaveis[i] = cpu->variaveis[i]; 
+    }
+
+    cpu->emUso = 0; //indica que a CPU está livre
 }
 
 
@@ -160,6 +180,7 @@ void executaInstrucoes(cpu_s* cpu){
         case 'R':
             printf("[Processo %d] --- Leu o arquivo %s e iniciou.\n", pid, instrucaoAtual.caminhoArquivo);
             leituraArquivoProcesso(instrucaoAtual.caminhoArquivo, cpu);
+            cpu->listaInstrucao=cpu->processo_atual->listaInstrucoes;
             cpu->registradorPC=-1;
             break;
 

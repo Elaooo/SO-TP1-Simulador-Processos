@@ -150,7 +150,7 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
         iterador++;
 }
     printf("--- Instruçoes guardadas.\n");
-    inicializarProcesso(cpu->processo_atual,listaInstrucoes,qntdInstrucoes);
+    inicializarProcesso(cpu->processo_atual,listaInstrucoes,iterador);
     //imprimirInstrucoes(cpu->processo_atual->listaInstrucoes,qntdInstrucoes);
     free(listaInstrucoes);
 
@@ -292,7 +292,7 @@ int leituraProcessoInit(processo *processo)
         iterador++;
     }
     // printf("Instruçoes guardadas\n");
-    inicializarProcessoInit(processo, listaInstrucoes, qntdInstrucoes);
+    inicializarProcessoInit(processo, listaInstrucoes, iterador);
 
     // imprimirInstrucoes(processo.listaInstrucoes,qntdInstrucoes);
     free(listaInstrucoes);
