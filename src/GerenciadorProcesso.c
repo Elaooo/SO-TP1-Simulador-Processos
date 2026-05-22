@@ -95,12 +95,10 @@ void rodarGerenciador(int fd_leitura, int escFlag)
                     TItem novoItem;
                     novoItem.Chave = procAtual->pid;
 
-                    if (escFlag == MLFQ) {
-                        FilaEnfileira(&gp.estadoPronto[procAtual->prioridade], &novoItem);
-                    } else if (escFlag == FIFO) {
+                    if (escFlag == FIFO) {
                         FilaEnfileira(&gp.estadoPronto[0], &novoItem);
                     }
-                    
+
                     FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
 
                     printf("Quantum máximo atingido. Troca de contexto.\n");
