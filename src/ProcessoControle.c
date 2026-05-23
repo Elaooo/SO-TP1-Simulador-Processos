@@ -18,6 +18,8 @@ int inicializaProcessoControle(int argc, char *argv[])
 
     char op = ' ';
     int opcaoEscolhida = -1;
+    char op2 = ' ';
+    int opcaoEscolhida2 = -1;
     do
     {
         printf("Escolha qual escalonador usar:\n");
@@ -32,6 +34,24 @@ int inicializaProcessoControle(int argc, char *argv[])
         opcaoEscolhida = 1;
     }else{
         opcaoEscolhida = 0;
+    }
+    do
+    {
+        printf("Escolha quantas CPUs utilizar:\n");
+        printf("1 - Uma CPU:\n");
+        printf("2 - Duas CPUs:\n");
+        printf("3 - Quatro CPUs:\n");
+        scanf(" %c", &op2);
+        if(op2 != '1' && op2 != '2' && op2 != '3'){
+            printf("Opcao invalida! Tente novamente.\n");
+        }
+    } while (op2 != '1' && op2 != '2' && op2 != '3');
+    if(op2 == '1'){
+        opcaoEscolhida2 = 0;
+    }else if (op2 == '2'){
+        opcaoEscolhida2 = 1;
+    }else{
+        opcaoEscolhida2 = 3;
     }
 
     if (pipe(fd) == -1)
@@ -57,7 +77,7 @@ int inicializaProcessoControle(int argc, char *argv[])
     {
         // Processo filho: gerenciador de processos
         close(fd[1]);                // filho não escreve no pipe
-        rodarGerenciador(fd[0], opcaoEscolhida); // receber do usuario
+        rodarGerenciador(fd[0], opcaoEscolhida,opcaoEscolhida2); // receber do usuario
     }
     else
     {
