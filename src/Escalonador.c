@@ -11,17 +11,17 @@ static int quantumPorPrioridade[NUM_PRIORIDADES] = {
 // retorna o pid do processo que vai entrar va cpu
 // troca de contexto responsavel por retirar o que esta na cpu(uma vez que ele que é responsavel por colocar o processo que esta la na fila)
 // e passar o que vai entrar
-int escalonadorMLFQ(GerenciadorProcesso *gerenciador)
+int escalonadorMLFQ(GerenciadorProcesso *gerenciador,int idCPU)
 {
 
     // PASSO 1 — Tratar o processo que estava na CPU
     // caso tenha
-    if (gerenciador->cpu.processo_atual != NULL)
+    if (gerenciador->cpu[idCPU].processo_atual != NULL)
     {
 
-        processo *procAtual = gerenciador->cpu.processo_atual;
-        int quantumUsado = gerenciador->cpu.quantum_usado;
-        int quantumTotal = gerenciador->cpu.quantum_total;
+        processo *procAtual = gerenciador->cpu[idCPU].processo_atual;
+        int quantumUsado = gerenciador->cpu[idCPU].quantum_usado;
+        int quantumTotal = gerenciador->cpu[idCPU].quantum_total;
 
         if (quantumUsado >= quantumTotal)
         {
@@ -38,10 +38,10 @@ int escalonadorMLFQ(GerenciadorProcesso *gerenciador)
 
             // Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
 
-            gerenciador->cpu.processo_atual = NULL;
-            gerenciador->cpu.registradorPC = 0;
-            gerenciador->cpu.quantum_total = 0;
-            gerenciador->cpu.quantum_usado = 0;
+            gerenciador->cpu[idCPU].processo_atual = NULL;
+            gerenciador->cpu[idCPU].registradorPC = 0;
+            gerenciador->cpu[idCPU].quantum_total = 0;
+            gerenciador->cpu[idCPU].quantum_usado = 0;
 
             // Reinsere na fila de prontos do novo nível de prioridade
             TItem item;
@@ -63,10 +63,10 @@ int escalonadorMLFQ(GerenciadorProcesso *gerenciador)
             procAtual->quantum_usado_CPUatual = 0;
 
             // Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
-            gerenciador->cpu.processo_atual = NULL;
-            gerenciador->cpu.registradorPC = 0;
-            gerenciador->cpu.quantum_total = 0;
-            gerenciador->cpu.quantum_usado = 0;
+            gerenciador->cpu[idCPU].processo_atual = NULL;
+            gerenciador->cpu[idCPU].registradorPC = 0;
+            gerenciador->cpu[idCPU].quantum_total = 0;
+            gerenciador->cpu[idCPU].quantum_usado = 0;
 
             // Insere na fila de bloqueados
             TItem item;
@@ -104,12 +104,13 @@ int escalonadorMLFQ(GerenciadorProcesso *gerenciador)
     if (proximoProcesso == NULL)
     {
         // Nenhum processo pronto: CPU ociosa
-        printf("[Escalonador] CPU ociosa — nenhum processo pronto.\n");
+        printf("[Escalonador] CPU %d ociosa — nenhum processo pronto.\n",idCPU);
         return -1;
     }
 
-    printf("[Escalonador] Processo %d escalonado (prioridade=%d, quantum=%d, PC=%d)\n",
+    printf("[Escalonador] Processo %d escalonado para CPU %d (prioridade=%d, quantum=%d, PC=%d)\n",
            proximoProcesso->pid,
+           idCPU,
            proximoProcesso->prioridade,
            quantumPorPrioridade[proximoProcesso->prioridade],
            proximoProcesso->pcCounter);
@@ -119,15 +120,15 @@ int escalonadorMLFQ(GerenciadorProcesso *gerenciador)
 // retorna o pid do processo que vai entrar na cpu
 // FIFO nao utiliza de quantum, quantum usado e nem de prioridade
 
-int escalonadorFIFO(GerenciadorProcesso *gerenciador)
+int escalonadorFIFO(GerenciadorProcesso *gerenciador,int idCPU)
 {
 
     // PASSO 1 — Tratar o processo que estava na CPU
     // se tiver processo na cpu
-    if (gerenciador->cpu.processo_atual != NULL)
+    if (gerenciador->cpu[idCPU].processo_atual != NULL)
     {
 
-        processo *procAtual = gerenciador->cpu.processo_atual;
+        processo *procAtual = gerenciador->cpu[idCPU].processo_atual;
         TItem item;
 
         if (procAtual->estado == BLOQUEADO)
@@ -150,8 +151,8 @@ int escalonadorFIFO(GerenciadorProcesso *gerenciador)
             printf("[FIFO] Processo %d inserido na fila de prontos\n", procAtual->pid);
         }
         // Reinicia a cpu para o processo novo(retira o que colocamos na fila no passo acima)
-        gerenciador->cpu.processo_atual = NULL;
-        gerenciador->cpu.registradorPC = 0;
+        gerenciador->cpu[idCPU].processo_atual = NULL;
+        gerenciador->cpu[idCPU].registradorPC = 0;
     }
     // PASSO 2 — Selecionar o próximo processo
     processo *proximoProcesso = NULL;
@@ -168,12 +169,13 @@ int escalonadorFIFO(GerenciadorProcesso *gerenciador)
     if (proximoProcesso == NULL)
     {
         // Nenhum processo pronto: CPU ociosa
-        printf("[FIFO] CPU ociosa — nenhum processo pronto.\n");
+        printf("[FIFO] CPU %d ociosa — nenhum processo pronto.\n",idCPU);
         return -1;
     }
 
-    printf("[FIFO] Processo %d escalonado .\n",
-           proximoProcesso->pid);
+    printf("[FIFO] Processo %d escalonado para CPU %d.\n",
+        proximoProcesso->pid,
+        idCPU);
 
     return proximoProcesso->pid;
 }
