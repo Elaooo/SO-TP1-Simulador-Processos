@@ -60,6 +60,7 @@ void* rodarGerenciador(void* arg)
 
         if (msg.tipo == 'U')
         {
+            TItem novoItem;
             //decrementa tempo dos processos bloqueados e move para pronto se zerar
             atualizarProcessosBloqueados(&gp, escFlag);
 
@@ -73,6 +74,10 @@ void* rodarGerenciador(void* arg)
                     {
                         gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
                         AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
+
+                        novoItem.Chave = gp.cpu.processo_atual->pid;
+                        FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+
                         printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
@@ -83,13 +88,17 @@ void* rodarGerenciador(void* arg)
                     {
                         gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
                         AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
+
+                        novoItem.Chave = gp.cpu.processo_atual->pid;
+                        FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+
                         printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
                     }
                 }
             }else if(gp.cpu.emUso)
             {
             // troca de contexto
-                if (gp.cpu.quantum_usado >= gp.cpu.quantum_total)
+                if (escFlag == MLFQ && gp.cpu.quantum_usado >= gp.cpu.quantum_total)
                 {
                     processo *procAtual = gp.cpu.processo_atual;
                     //mudança
@@ -98,11 +107,13 @@ void* rodarGerenciador(void* arg)
                     TItem novoItem;
                     novoItem.Chave = procAtual->pid;
 
-                    if (escFlag == MLFQ) {
-                        FilaEnfileira(&gp.estadoPronto[procAtual->prioridade], &novoItem);
-                    } else if (escFlag == FIFO) {
+                    if (escFlag == FIFO) {
                         FilaEnfileira(&gp.estadoPronto[0], &novoItem);
                     }
+
+                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
+
+                    printf("Quantum máximo atingido. Troca de contexto.\n");
                 }
             }
             
@@ -113,14 +124,14 @@ void* rodarGerenciador(void* arg)
                 executaInstrucoes(&gp.cpu);
                 IncrementarQuantum_usado(&gp.cpu);
 
-                TItem novoItem;
-
                 if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
                 {
                     novoItem.Chave = gp.cpu.processo_atual->pid;
                     SalvarContextoCpu(&gp.cpu); 
 
                     FilaEnfileira(&gp.estadoBloquado, &novoItem);
+                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
+
                     imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
@@ -129,6 +140,8 @@ void* rodarGerenciador(void* arg)
                     SalvarContextoCpu(&gp.cpu);
 
                     FilaEnfileira(&gp.finalizados, &novoItem);
+                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
+
                     imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
                 }
                 else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'F')
@@ -199,7 +212,6 @@ void* rodarGerenciador(void* arg)
     
     return NULL;
 }
-
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos)
 {
 
