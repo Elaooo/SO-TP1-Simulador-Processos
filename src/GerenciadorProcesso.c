@@ -18,7 +18,6 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
     ComandoPipe msg;
     TItem novoItem;
 
-
     int bytesLidos;
     GerenciadorProcesso gp;
     inicializaGerenciadorProcessos(&gp,cpuFlag+1);
@@ -27,6 +26,9 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
 
     inserirProcessoTabela(&gp.tabelaProcessos,&init);
     novoItem.Chave=init.pid;
+
+    TFila processosCriados;
+    FazFilaVazia(&processosCriados);
     
     if (escFlag == MLFQ){
         FilaEnfileira(&gp.estadoPronto[init.prioridade],&novoItem);//escalonador MLFQ
@@ -100,7 +102,7 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                             FilaEnfileira(&gp.estadoPronto[0], &novoItem);
                         }
 
-                        FilaDesenfileira(&gp.estadoEmExecucao,&(TItem){0});
+                        FilaRemovePorChave(&gp.estadoEmExecucao,novoItem.Chave);
 
                         printf("[CPU %d] Quantum máximo atingido. Troca de contexto.\n",k);
                     }
@@ -119,8 +121,7 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                         SalvarContextoCpu(&gp.cpu[k]);
 
                         FilaEnfileira(&gp.estadoBloquado, &novoItem);
-                        TItem itemDescartado;
-                        FilaDesenfileira(&gp.estadoEmExecucao,&itemDescartado);
+                        FilaRemovePorChave(&gp.estadoEmExecucao,pidSalvo);
 
                         imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,pidSalvo));
                     }
@@ -132,8 +133,7 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                         SalvarContextoCpu(&gp.cpu[k]);
 
                         FilaEnfileira(&gp.finalizados, &novoItem);
-                        TItem itemDescartado;
-                        FilaDesenfileira(&gp.estadoEmExecucao,&itemDescartado);
+                        FilaRemovePorChave(&gp.estadoEmExecucao,pidSalvo);
 
                         imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,pidSalvo));
                         gp.totalProcessosFinalizados++;
@@ -147,21 +147,19 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                         
                         inserirProcessoTabela(&gp.tabelaProcessos, processoFilhinho);
                         novoItem.Chave = processoFilhinho->pid;
+
+                        FilaEnfileira(&processosCriados,&novoItem);
                         
-                        if (escFlag == MLFQ){
-                            FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);//escalonador MLFQ
-                        }
-                        else if (escFlag == FIFO){
-                            FilaEnfileira(&gp.estadoPronto[0], &novoItem);
-                        }
                         gp.cpu[k].registradorPC+=gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].n;
                     }
 
                     gp.cpu[k].registradorPC++;
                 }
-                IncrementaTempo(&gp.tempo);
 
             }
+
+            computaProcessosCriados(&gp,&processosCriados,escFlag);
+            IncrementaTempo(&gp.tempo);
         }
         else if (msg.tipo == 'I')
         {  
@@ -315,6 +313,32 @@ void atualizarProcessosBloqueados(GerenciadorProcesso *gp, int escFlag) {
                     // é inserido novamente no fim da fila de bloqueados
                     FilaEnfileira(&gp->estadoBloquado, &itemRetirado);
                 }
+            }
+        }
+    }
+}
+
+void computaProcessosCriados(GerenciadorProcesso* gp, TFila* processosCriados, int escFlag){
+    TItem criado;
+    while (!FilaEhVazia(processosCriados)) {
+
+        if (FilaDesenfileira(processosCriados, &criado)) {
+
+            processo* processoFilhinho = buscarProcessoTabela(&gp->tabelaProcessos,criado.Chave);
+
+            if (processoFilhinho != NULL) {
+
+                TItem novoItem;
+                novoItem.Chave = processoFilhinho->pid;
+
+                if (escFlag == MLFQ) {
+                    FilaEnfileira(&gp->estadoPronto[processoFilhinho->prioridade],&novoItem);
+                }
+                else if (escFlag == FIFO) {
+                    FilaEnfileira(&gp->estadoPronto[0],&novoItem);
+                }
+
+                processoFilhinho->estado = PRONTO;
             }
         }
     }

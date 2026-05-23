@@ -40,15 +40,18 @@ int inicializaProcessoControle(int argc, char *argv[])
         printf("Escolha quantas CPUs utilizar:\n");
         printf("1 - Uma CPU:\n");
         printf("2 - Duas CPUs:\n");
+        printf("3 - Quatro CPUs:\n");
         scanf(" %c", &op2);
-        if(op2 != '1' && op2 != '2'){
+        if(op2 != '1' && op2 != '2' && op2 != '3'){
             printf("Opcao invalida! Tente novamente.\n");
         }
-    } while (op2 != '1' && op2 != '2');
+    } while (op2 != '1' && op2 != '2' && op2 != '3');
     if(op2 == '1'){
         opcaoEscolhida2 = 0;
-    }else{
+    }else if (op2 == '2'){
         opcaoEscolhida2 = 1;
+    }else{
+        opcaoEscolhida2 = 3;
     }
 
     if (pipe(fd) == -1)
