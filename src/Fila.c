@@ -57,3 +57,31 @@ void ImprimeFila(TFila* pFila){
   
     return;
 }
+int FilaRemovePorChave(TFila* pFila, TipoChave chave) {
+    if (FilaEhVazia(pFila)) {
+        return 0;
+    }
+
+    Celula* anterior = pFila->pFrente;
+    Celula* atual = pFila->pFrente->pProx;
+
+    while (atual != NULL) {
+        if (atual->Item.Chave == chave) {
+            anterior->pProx = atual->pProx;
+
+            if (atual == pFila->pTras) {
+                pFila->pTras = anterior;
+            }
+
+            free(atual);
+            pFila->tam--;
+
+            return 1;
+        }
+
+        anterior = atual;
+        atual = atual->pProx;
+    }
+
+    return 0;
+}
