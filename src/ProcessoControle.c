@@ -46,8 +46,13 @@ void *threadControle(void *arg)
             continue;
         }
         msg.tipo = comando;
-        if (comando == 'I' || comando == 'M'){
-            msg.opcaoImpressao = lerOpcaoImpressao();
+        if (comando == 'I' || comando == 'M')
+            {
+                if(argc > 1){
+                    fscanf(entrada, " %d", &msg.opcaoImpressao);
+                }else{
+                    msg.opcaoImpressao = lerOpcaoImpressao();
+                }
         }
         enfileiraComando(&filaComandos, msg);
         //pthread_mutex_lock(&filaComandos.mutex);
