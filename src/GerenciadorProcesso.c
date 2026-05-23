@@ -100,7 +100,7 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                             FilaEnfileira(&gp.estadoPronto[0], &novoItem);
                         }
 
-                        FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
+                        FilaDesenfileira(&gp.estadoEmExecucao,&(TItem){0});
 
                         printf("[CPU %d] Quantum máximo atingido. Troca de contexto.\n",k);
                     }
@@ -115,23 +115,27 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                     if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'B')
                     {
                         novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                        int pidSalvo = novoItem.Chave;
                         SalvarContextoCpu(&gp.cpu[k]);
 
                         FilaEnfileira(&gp.estadoBloquado, &novoItem);
-                        FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
+                        TItem itemDescartado;
+                        FilaDesenfileira(&gp.estadoEmExecucao,&itemDescartado);
 
-                        imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
+                        imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,pidSalvo));
                     }
                     else if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'T')
                     {
                         
                         novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                        int pidSalvo = novoItem.Chave;
                         SalvarContextoCpu(&gp.cpu[k]);
 
                         FilaEnfileira(&gp.finalizados, &novoItem);
-                        FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
+                        TItem itemDescartado;
+                        FilaDesenfileira(&gp.estadoEmExecucao,&itemDescartado);
 
-                        imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
+                        imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,pidSalvo));
                         gp.totalProcessosFinalizados++;
 
 
