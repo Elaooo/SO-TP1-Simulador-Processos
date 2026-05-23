@@ -17,7 +17,7 @@ void* rodarGerenciador(void* arg)
 {   
     // extrai a flag do escalonador passada pela thread principal
     int escFlag = *(int*)arg; 
-    printf("DEBUG escFlag= %d",escFlag);
+
     Comando msg;
     TItem novoItem;
 
@@ -39,7 +39,7 @@ void* rodarGerenciador(void* arg)
     }
 
     //init.quantum = quantumPorPrioridade[init.prioridade];
-    init.quantum=15;
+
 
     printf("[Gerenciador] Iniciado como Thread. A aguardar comandos (U, I, M)...\n");
     
@@ -92,7 +92,8 @@ void* rodarGerenciador(void* arg)
                 if (gp.cpu.quantum_usado >= gp.cpu.quantum_total)
                 {
                     processo *procAtual = gp.cpu.processo_atual;
-                    SalvarContextoCpu(&gp.cpu); // Nota: Confirme se essa função está no seu TAD_CPU
+                    //mudança
+                    quantumEsgotado(&gp.cpu);
 
                     TItem novoItem;
                     novoItem.Chave = procAtual->pid;

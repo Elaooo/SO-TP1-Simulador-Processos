@@ -37,7 +37,7 @@ void imprimirCPU(cpu_s *cpu);
 void executaInstrucoes(cpu_s *cpu);
 //salva contexto da cpu em cada caso
 void SalvarContextoCpu(cpu_s *cpu);
-
+void quantumEsgotado(cpu_s *cpu);
 void esvaziaCpu(cpu_s *cpu);
 
 #endif
