@@ -26,6 +26,7 @@ int FilaEhVazia(TFila* pFila);
 int FilaEnfileira(TFila* pFila,TItem* pItem);
 
 int FilaDesenfileira(TFila* pFila,TItem* pItem);
+int FilaRemovePorChave(TFila* pFila, TipoChave chave);
 void ImprimeFila(TFila* pFila);
 
 #endif
