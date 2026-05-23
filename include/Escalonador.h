@@ -11,6 +11,6 @@
 #include "../include/GerenciadorProcesso.h"
 
 
-int escalonadorMLFQ(GerenciadorProcesso *gerenciador);
-int escalonadorFIFO(GerenciadorProcesso *gerenciador);
+int escalonadorMLFQ(GerenciadorProcesso *gerenciador,int idCPU);
+int escalonadorFIFO(GerenciadorProcesso *gerenciador, int idCPU);
 #endif
