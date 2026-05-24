@@ -173,6 +173,7 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                         novoItem.Chave = processoFilhinho->pid;
 
                         FilaEnfileira(&processosCriados,&novoItem);
+                        gp.cpu[k].registradorPC+=gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].n;
                         
                     }
 
@@ -301,6 +302,39 @@ processo *clonaProcesso(cpu_s *cpu)
     }
 
     return procFilho;
+}
+
+//Reinicia a iamgem do processo filho
+void substituirImagem(processo* proc, instrucao* listaInstrucoes, int nInstrucao){
+
+    proc->nInstrucoes=nInstrucao;
+    proc->pcCounter=0;
+
+    if (proc->listaInstrucoes != NULL){
+        free(proc->listaInstrucoes);
+    }
+
+    proc->listaInstrucoes = (instrucao*) malloc(sizeof(instrucao) * nInstrucao);
+    
+    if (proc->listaInstrucoes != NULL) {
+        for (int i = 0; i < nInstrucao; i++) {
+            proc->listaInstrucoes[i] = listaInstrucoes[i];
+        }
+    }
+
+    if (proc->variaveis != NULL) {
+        free(proc->variaveis);
+    }
+
+    if((proc->listaInstrucoes[0].tipo == 'N')){
+
+        proc->variaveis = (int*) malloc(sizeof(int) * proc->listaInstrucoes[0].n);
+        
+    } else{
+        
+        printf("Alocacao de memoria do Falhou\n ");
+    }
+
 }
 
 void atualizarProcessosBloqueados(GerenciadorProcesso *gp, int escFlag) {

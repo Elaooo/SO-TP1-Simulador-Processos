@@ -40,7 +40,6 @@ typedef struct{
 
 //void inicializarProcesso(processo* proc, int nVar, int nInstrucao, int* variaveisIniciais, enum estado estadoInicial, int prioridade, instrucao* listaInstrucoes);
 //void salvaEstado(processo* proc, int pcAtual, int* variaveisAtuais, int quantumAtual, int nVar);
-void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstrucao);
 void inicializarProcessoInit(processo* proc, instrucao* listaInstrucoes, int nInstrucao);
 void imprimirInstrucoes(instrucao *lista, int tamanho);
 void imprimirProcesso(processo *p);

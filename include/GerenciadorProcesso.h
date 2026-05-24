@@ -42,6 +42,9 @@ void atualizarProcessosBloqueados(GerenciadorProcesso *gerenciador, int escFlag)
 // Cria um processo filho idêntico ao pai
 processo* clonaProcesso(cpu_s *cpu);
 
+//Substitui a imagem do processo filho de acordo com um novo arquivo de entrada
+void substituirImagem(processo* proc, instrucao* listaInstrucoes, int nInstrucao);
+
 //Registra processos filhos na lista de processos prontos
 void computaProcessosCriados(GerenciadorProcesso* gp, TFila* processosCriados, int escFlag);
 

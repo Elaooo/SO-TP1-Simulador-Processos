@@ -208,7 +208,7 @@ void executaInstrucoes(cpu_s* cpu){
                   // e salta o contador de programa em n posições
             
             printf("[Processo %d] --- Criação de processo filho.\n",pid);
-            cpu->registradorPC+=instrucaoAtual.n;
+            
 
             break;
 

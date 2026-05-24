@@ -52,42 +52,6 @@ void inicializarProcessoInit(processo* proc, instrucao* listaInstrucoes, int nIn
     }
 }
 
-//Iicia o processo filho clonado
-void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstrucao){
-
-    proc->nInstrucoes=nInstrucao;
-    proc->pcCounter=0;
-
-
-
-    if (proc->listaInstrucoes != NULL){
-        free(proc->listaInstrucoes);
-    }
-
-    proc->listaInstrucoes = (instrucao*) malloc(sizeof(instrucao) * nInstrucao);
-    
-    if (proc->listaInstrucoes != NULL) {
-        for (int i = 0; i < nInstrucao; i++) {
-            proc->listaInstrucoes[i] = listaInstrucoes[i];
-        }
-    }
-
-    if (proc->variaveis != NULL) {
-        free(proc->variaveis);
-    }
-
-    if((proc->listaInstrucoes[0].tipo == 'N')){
-
-        proc->variaveis = (int*) malloc(sizeof(int) * proc->listaInstrucoes[0].n);
-        
-    } else{
-        
-        printf("Alocacao de memoria do Falhou\n ");
-    }
-
-
-}
-
 
 //debug
 void imprimirInstrucoes(instrucao *lista, int tamanho) {

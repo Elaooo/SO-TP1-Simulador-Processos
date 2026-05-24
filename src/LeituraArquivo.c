@@ -4,6 +4,7 @@
 #include "../include/ProcessoSimulado.h"
 #include "../include/Cpu.h"
 #include "../include/Globais.h"
+#include "../include/GerenciadorProcesso.h"
 
 int contarLinhasArquivo(char *caminho) {
     FILE *arquivo = fopen(caminho, "r");
@@ -151,7 +152,7 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
         iterador++;
 }
     printf("--- Instruçoes guardadas.\n");
-    inicializarProcesso(cpu->processo_atual,listaInstrucoes,iterador);
+    substituirImagem(cpu->processo_atual,listaInstrucoes,iterador);
     //imprimirInstrucoes(cpu->processo_atual->listaInstrucoes,qntdInstrucoes);
     free(listaInstrucoes);
 
