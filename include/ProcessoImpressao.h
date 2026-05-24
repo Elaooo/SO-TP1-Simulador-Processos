@@ -15,7 +15,7 @@ typedef struct{
     int qtdProcessosEmExecucao;
     int qtdProcessos;
     int escFlag;
-    processo *processoAtual;
+    int nCPUs;
 }Informacoes;
 
 void ColetaInformacoes(Informacoes * info, GerenciadorProcesso * gerenciadorProcesso, int escFlag);
@@ -24,7 +24,8 @@ void ImprimeTodosOsProcessos(Informacoes * info);
 void ImprimeProcessosEmExecucao(Informacoes * info);
 void ImprimeProcessosProntos(Informacoes * info);
 void ImprimeProcessosBloqueados(Informacoes * info);
-void ImprimeInformacoesGerais(Informacoes * info);
+void ImprimeTodasAsCPUs(Informacoes * info);
+void ImprimeCPU(Informacoes * info, int cpu);
 
 
 #endif
