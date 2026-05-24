@@ -103,9 +103,6 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                         //Salva as infos da cpu de volta ao processo
                         quantumEsgotado(&gp.cpu[k]);
 
-                        if (escFlag == FIFO) {
-                            FilaEnfileira(&gp.estadoPronto[0], &novoItem);
-                        }
                         // Remove da fila de em execução
                         FilaRemovePorChave(&gp.estadoEmExecucao, procAtual->pid);
 
@@ -122,6 +119,8 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
 
                     executaInstrucoes(&gp.cpu[k]);          //Executa a instrução ref ao contador de programa atual
                     IncrementarQuantum_usado(&gp.cpu[k]);   //Contabiliza a utilização de qunatum
+
+
 
                     if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'B')
                     {
@@ -175,7 +174,6 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
 
                         FilaEnfileira(&processosCriados,&novoItem);
                         
-                        gp.cpu[k].registradorPC+=gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].n;
                     }
 
                     gp.cpu[k].registradorPC++;

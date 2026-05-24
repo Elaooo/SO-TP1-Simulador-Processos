@@ -205,8 +205,10 @@ void executaInstrucoes(cpu_s* cpu){
             break;
 
         case 'F': //A instrução F indica ao gerenciador a necessidade de criar um processo filho
+                  // e salta o contador de programa em n posições
             
             printf("[Processo %d] --- Criação de processo filho.\n",pid);
+            cpu->registradorPC+=instrucaoAtual.n;
 
             break;
 
