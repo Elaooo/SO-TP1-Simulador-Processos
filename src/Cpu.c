@@ -8,6 +8,7 @@
 
 void inicializarCPU(cpu_s *cpu)
 {
+    //Inicialização das estruturas
     if (cpu == NULL) {
         return;
     }
@@ -67,6 +68,7 @@ void IncrementarQuantum_usado(cpu_s *cpu){
     cpu->quantum_usado++; // Incrementa o tempo executado neste quantum
 }
 
+//Copia as informações do processo recém chegado para a CPU
 int AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     if(proc == NULL){
         printf("Processo nulo\n");
@@ -77,7 +79,7 @@ int AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     cpu->registradorPC = proc->pcCounter; // Atualiza o PC com o valor do processo
     cpu->quantum_total = proc->quantum; // Atualiza o quantum total alocado
     cpu->quantum_usado = 0; // Reinicia o tempo executado neste quantum
-    cpu->listaInstrucao = proc->listaInstrucoes;
+    cpu->listaInstrucao = proc->listaInstrucoes; //Recebe a lista de instruções
 
     if(proc->nVariaveis>31){
         printf("Número inválido de variaveis. Máximo=31.\n");
@@ -85,12 +87,13 @@ int AtualizarRegistradorCPU(cpu_s*cpu,processo* proc){
     else{
         for(int i = 0; i<proc->nVariaveis; i++){
 
-            cpu->variaveis[i] = proc->variaveis[i];  
+            cpu->variaveis[i] = proc->variaveis[i];  //Recebe a lista de variáveis
         }
     }
     return 1;
 }
 
+//É usada para a troca de contexto, salvando as infos de volta ao processo quando ele deixa a CPU em caso de bloqueio e término
 void SalvarContextoCpu(cpu_s *cpu){
 
     if(cpu->processo_atual == NULL || cpu == NULL){
@@ -105,15 +108,15 @@ void SalvarContextoCpu(cpu_s *cpu){
     p->pcCounter = cpu->registradorPC + 1; // Salva o PC do processo atual
     p->quantum_usado_CPUatual = cpu->quantum_usado; // Salva o tempo usado no quantum atual
     
+    //Define o nove estado
     if(atual.tipo == 'B'){
-        p->tempoBloqueado=cpu->listaInstrucao[cpu->registradorPC].n;
-        //p->pcCounter+=1;
         p->estado = BLOQUEADO;
     }
     if(atual.tipo == 'T'){
         p->estado = TERMINADO;
     }
 
+    //Guarda as variáveis atualizadas
     for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
         p->variaveis[i] = cpu->variaveis[i]; 
     }
@@ -122,6 +125,7 @@ void SalvarContextoCpu(cpu_s *cpu){
 
 }
 
+//É usada para a troca de contexto, salvando as infos de volta ao processo quando ele deixa a CPU em caso de quantum esgotado
 void quantumEsgotado(cpu_s *cpu){
 
     if(cpu == NULL || cpu->processo_atual == NULL){
@@ -138,6 +142,7 @@ void quantumEsgotado(cpu_s *cpu){
         p->estado = PRONTO; // Atualiza o estado do processo para pronto para reinserção na fila
     }
 
+    //Guarda as variáveis atualizadas
     for(int i = 0; i<cpu->processo_atual->nVariaveis; i++){
         p->variaveis[i] = cpu->variaveis[i]; 
     }
@@ -154,44 +159,59 @@ void executaInstrucoes(cpu_s* cpu){
     
     switch (comando) {
 
-        case 'N':
+        case 'N': //A instrução N define a quantidade de variáveis que o processo possui
+
             printf("[Processo %d]--- %d variáveis definidas.\n",pid, instrucaoAtual.n);
             cpu->processo_atual->nVariaveis=instrucaoAtual.n;
             break;
-        case 'D':
+
+        case 'D': //A instrução D define o valor da variável indicada como zero
+
             cpu->variaveis[instrucaoAtual.x] = 0;
             printf("[Processo %d]--- Registrador (%d) definido para (0).\n",pid, instrucaoAtual.x);
             break;
-        case 'V':
+
+        case 'V': //A instrução V atribui um valor determinado à uma variável indicada
+
             cpu->variaveis[instrucaoAtual.x]=instrucaoAtual.n;
             printf("[Processo %d]--- Registrador %d definido para %d.\n",pid, instrucaoAtual.x, instrucaoAtual.n);
             break;
-        case 'A':
+
+        case 'A': //A instrução A soma um valor determinado à uma variável indicada
+
             cpu->variaveis[instrucaoAtual.x] = cpu->variaveis[instrucaoAtual.x] + instrucaoAtual.n;
             printf("[Processo %d]--- Somou %d ao registrador %d.\n",pid, instrucaoAtual.n,instrucaoAtual.x);
             break;
-        case 'S':
+
+        case 'S': //A instrução A subtrai um valor determinado à uma variável indicada
+
             cpu->variaveis[instrucaoAtual.x] = cpu->variaveis[instrucaoAtual.x] - instrucaoAtual.n;
             printf("[Processo %d]--- Subtraiu %d no registrador %d.\n",pid, instrucaoAtual.n,instrucaoAtual.x);
             break;
-        case 'B':
+
+        case 'B': //A instrução B bloqueia o processo por uma determinda quantidade de tempo 
+                  //e indica ao gerenciador a necessidade de troca de contexto
+
+            cpu->processo_atual->tempoBloqueado=cpu->listaInstrucao[cpu->registradorPC].n;
             printf("[Processo %d]--- Bloqueado por %d unidades de tempo. CPU disponivel.\n",pid, instrucaoAtual.n);
             break;
-        case 'R':
+
+        case 'R': //A instrução R  substitui as infos do proc simulado pelas informações do arquivo informado e pccounter é reiniciado
+
             printf("[Processo %d] --- Leu o arquivo %s e iniciou.\n", pid, instrucaoAtual.caminhoArquivo);
             leituraArquivoProcesso(instrucaoAtual.caminhoArquivo, cpu);
             cpu->listaInstrucao=cpu->processo_atual->listaInstrucoes;
             cpu->registradorPC=-1;
             break;
 
-        case 'F':
-            // processo* processoFilhinho = clonaProcesso(cpu); // lembrar que o f pula o pcCounter = pcCounter + n + 1
-            // imprimirProcesso(processoFilhinho);
-            printf("[Processo %d] --- Criação de processo filho.\n",pid);
+        case 'F': //A instrução F indica ao gerenciador a necessidade de criar um processo filho
             
-            //cpu->registradorPC += instrucaoAtual.n;
+            printf("[Processo %d] --- Criação de processo filho.\n",pid);
+
             break;
-        case 'T':
+
+        case 'T': //A instrução T indica ao gerenciador que o precesso terminou sua execução
+
             printf("\n--- O processo finalizou sua execução.\n");
             break;
 
@@ -199,11 +219,10 @@ void executaInstrucoes(cpu_s* cpu){
             printf("Comando desconhecido: %c\n\n", comando);
             break;
         }
-    //cpu->registradorPC++;
 }
 
 
-
+//Retira o processo e indica que esta livre para uso
 void esvaziaCpu(cpu_s *cpu){
     cpu->processo_atual = NULL; 
     cpu->emUso = 0;

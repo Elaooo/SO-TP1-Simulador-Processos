@@ -17,18 +17,18 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
 {   
     ComandoPipe msg;
     TItem novoItem;
-
     int bytesLidos;
+
+    //Inicialização do gerenciador
     GerenciadorProcesso gp;
     inicializaGerenciadorProcessos(&gp,cpuFlag+1);
+
+    //Criação do processso Init e inserção na tabela e fila de prontos
     processo init;
     leituraProcessoInit(&init);
 
     inserirProcessoTabela(&gp.tabelaProcessos,&init);
     novoItem.Chave=init.pid;
-
-    TFila processosCriados;
-    FazFilaVazia(&processosCriados);
     
     if (escFlag == MLFQ){
         FilaEnfileira(&gp.estadoPronto[init.prioridade],&novoItem);//escalonador MLFQ
@@ -36,10 +36,13 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
     else if (escFlag == FIFO){
         FilaEnfileira(&gp.estadoPronto[0], &novoItem);
     }
+    ///////////////////////////////////////////////////////////////////////////
 
-    //init.quantum = quantumPorPrioridade[init.prioridade];
+    TFila processosCriados;
+    FazFilaVazia(&processosCriados);
 
 
+    //Leitura da operação U,M,I
     printf("[Gerenciador] Iniciado. A aguardar comandos (U, I, M) do pipe...\n");
     while ((bytesLidos = read(fd_leitura, &msg, sizeof(ComandoPipe))) > 0)
     {
@@ -49,8 +52,10 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
             //decrementa tempo dos processos bloqueados e move para pronto se zerar
             atualizarProcessosBloqueados(&gp, escFlag);
 
-            // escalonamento
+            // Executa a operação U para a quantidade de CPUS selecionada
             for (int k=0;k<(cpuFlag+1);k++){
+
+                //Se a CPU é identificada como vazia, o escalonador escolhido é acionado para trazer um processo, se possível
                 if (!gp.cpu[k].emUso)
                 {
                     if (escFlag == MLFQ)
@@ -85,13 +90,17 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                             printf("[Gerenciador] Processo %d escalonado para execução na CPU %d.\n", pidEscalonado,k);
                         }
                     }
-                }else if(gp.cpu[k].emUso)
+                }
+                
+                //Se já existe um processo na CPU, é verificado se 
+                //o processo possui quantum suficiente para utilizá-la ou realiza a troca de contexto, caso contrário
+                else if(gp.cpu[k].emUso)
                 {
-                // troca de contexto
                     if (escFlag == MLFQ && gp.cpu[k].quantum_usado >= gp.cpu[k].quantum_total)
                     {
                         processo *procAtual = gp.cpu[k].processo_atual;
 
+                        //Salva as infos da cpu de volta ao processo
                         quantumEsgotado(&gp.cpu[k]);
 
                         if (escFlag == FIFO) {
@@ -106,19 +115,25 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                         printf("[CPU %d] Quantum máximo atingido. Troca de contexto.\n", k);
                     }
                 }
-                // execução
+                // Realiza a execução de instruções e as trocas de contexto, se necessário
                 if(gp.cpu[k].emUso)
                 {
                     printf("[CPU %d] --- Executando %c...\n",k,gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo);
-                    executaInstrucoes(&gp.cpu[k]);
-                    IncrementarQuantum_usado(&gp.cpu[k]);
+
+                    executaInstrucoes(&gp.cpu[k]);          //Executa a instrução ref ao contador de programa atual
+                    IncrementarQuantum_usado(&gp.cpu[k]);   //Contabiliza a utilização de qunatum
 
                     if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'B')
                     {
                         novoItem.Chave = gp.cpu[k].processo_atual->pid;
                         int pidSalvo = novoItem.Chave;
-                        SalvarContextoCpu(&gp.cpu[k]);
 
+                        //Se um instrução B é executada, acontece troca de contexto
+
+                        //As infos da cpu são guardadas no processo
+                        //O processo deixa a cpu e a fila de processos em execução 
+                        //e é inserido na lista de processos bloqueados
+                        SalvarContextoCpu(&gp.cpu[k]);
                         FilaEnfileira(&gp.estadoBloquado, &novoItem);
                         FilaRemovePorChave(&gp.estadoEmExecucao,pidSalvo);
 
@@ -129,18 +144,29 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                         
                         novoItem.Chave = gp.cpu[k].processo_atual->pid;
                         int pidSalvo = novoItem.Chave;
-                        SalvarContextoCpu(&gp.cpu[k]);
 
+                        //Se um instrução T é executada, o processo termina 
+
+                        //As infos da cpu são guardadas no processo
+                        //O processo deixa a cpu e a fila de processos em execução 
+                        //e é inserido na lista de processos finalizados
+                        SalvarContextoCpu(&gp.cpu[k]);
                         FilaEnfileira(&gp.finalizados, &novoItem);
                         FilaRemovePorChave(&gp.estadoEmExecucao,pidSalvo);
 
                         imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,pidSalvo));
+
+                        //O processo é removido da tabela de processos pois finalizou a execução
+                        removerProcessoTabela(&gp.tabelaProcessos,pidSalvo);
                         gp.totalProcessosFinalizados++;
 
 
                     }
                     else if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'F')
                     {
+
+                        //Se um instrução F é executada, um processo filho idêntico ao pai é criado 
+                        //e inserido na tabela de processos
 
                         processo *processoFilhinho = clonaProcesso(&gp.cpu[k]);
                         
@@ -156,10 +182,12 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                 }
 
             }
-
+            //Se processos filhos foram criados nessa unidade de tempo, são inseridos na lista de prontos
             computaProcessosCriados(&gp,&processosCriados,escFlag);
+            //Contabiliza a passagem da unidade de tempo
             IncrementaTempo(&gp.tempo);
         }
+        //Chama o processo impressão
         else if (msg.tipo == 'I')
         {  
             pid_t pid = fork();
@@ -175,6 +203,7 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                 waitpid(pid, NULL, 0);
             }
         }
+        // Chama o processo impressão e encerra o programa
         else if (msg.tipo == 'M')
         {
             pid_t pid = fork();
@@ -199,6 +228,7 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
     }
 }
 
+//Inicializa todas estruturas do gerenciador
 int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos,int cpuFlag)
 {
 
@@ -227,25 +257,26 @@ int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos,int
     }
 }
 
+//Cria um processo filho idêntido ao pai
 processo *clonaProcesso(cpu_s *cpu)
 {
 
     processo *procFilho = (processo *)malloc(sizeof(processo));
     processo *procPai = cpu->processo_atual;
 
-    procFilho->pid = proximoPidDisponivel;
+    procFilho->pid = proximoPidDisponivel;          // Recebe um novo ID
     proximoPidDisponivel++;
     procFilho->pidPai=procPai->pid;
 
-    procFilho->pcCounter = cpu->registradorPC + 1;
+    procFilho->pcCounter = cpu->registradorPC + 1;  //Pc counter é definido para a instrução seguinte
     procFilho->estado = PRONTO;
 
     procFilho->quantum = procPai->quantum;
-    procFilho->quantum_usado_CPUatual = 0;
+    procFilho->quantum_usado_CPUatual = 0;          //Reinicia tempo de cpu usado
 
     procFilho->tempoBloqueado = 0;
 
-    procFilho->prioridade = procPai->prioridade;
+    procFilho->prioridade = procPai->prioridade;    //Recebe a mesma prioridade do pai
     
     procFilho->nInstrucoes = procPai->nInstrucoes;
     procFilho->listaInstrucoes = (instrucao *)malloc(sizeof(instrucao) * procFilho->nInstrucoes);
@@ -254,7 +285,7 @@ processo *clonaProcesso(cpu_s *cpu)
     {
         for (int i = 0; i < procPai->nInstrucoes; i++)
         {
-            procFilho->listaInstrucoes[i] = procPai->listaInstrucoes[i];
+            procFilho->listaInstrucoes[i] = procPai->listaInstrucoes[i]; //Copia a lista de instruções
         }
     }else{
         printf("Falha ao copiar instruções do processo pai");
@@ -265,7 +296,7 @@ processo *clonaProcesso(cpu_s *cpu)
 
     if(procFilho->variaveis != NULL){
         for(int j = 0; j < procFilho->nVariaveis; j++){
-            procFilho->variaveis[j]=procPai->variaveis[j];
+            procFilho->variaveis[j]=procPai->variaveis[j];  //Copia a lista de variáveis
         }
     }else{
         printf("Falha ao copiar variáveis do processo pai");
@@ -318,8 +349,10 @@ void atualizarProcessosBloqueados(GerenciadorProcesso *gp, int escFlag) {
     }
 }
 
+//Adiona processos filhos à lista de prontos
 void computaProcessosCriados(GerenciadorProcesso* gp, TFila* processosCriados, int escFlag){
     TItem criado;
+    //Se foram criados processos, são inseridos em prontos
     while (!FilaEhVazia(processosCriados)) {
 
         if (FilaDesenfileira(processosCriados, &criado)) {

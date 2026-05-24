@@ -5,9 +5,9 @@
 #include "../include/Globais.h"
 
 
+//Inicia o processo init a partir do arquivo init
 void inicializarProcessoInit(processo* proc, instrucao* listaInstrucoes, int nInstrucao){
 
-    //definir depois valor que não represente nada
     proc->pid=proximoPidDisponivel;
     proximoPidDisponivel++;
     proc->nInstrucoes=nInstrucao;
@@ -51,6 +51,7 @@ void inicializarProcessoInit(processo* proc, instrucao* listaInstrucoes, int nIn
     }
 }
 
+//Iicia o processo filho clonado
 void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstrucao){
 
     proc->nInstrucoes=nInstrucao;
