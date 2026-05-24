@@ -2,8 +2,7 @@
 #define GLOBAIS_H
 
 #include <pthread.h>
-#include "ProcessoControle.h"
-#include "../include/FilaComandos.h"
+#include "FilaComandos.h"
 
 
 // Flags do escalonador

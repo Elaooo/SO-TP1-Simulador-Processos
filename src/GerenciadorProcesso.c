@@ -15,22 +15,26 @@
 
 void* rodarGerenciador(void* arg)
 {   
-    // extrai a flag do escalonador passada pela thread principal
-    int escFlag = *(int*)arg; 
+    // extrai as flag do escalonador e multiplas cpu's passada pela thread principal
+    ArgsGerenciador *args = (ArgsGerenciador *)arg;
+    int cpuFlag = args->qtdCPU;
+    int escFlag = args->tipoEscalonador;
 
     Comando msg;
     TItem novoItem;
 
     GerenciadorProcesso gp;
-    inicializaGerenciadorProcessos(&gp);
+    inicializaGerenciadorProcessos(&gp,cpuFlag);
     processo init;
     leituraProcessoInit(&init);
-    printf("PID init: %d, nInstrucoes: %d\n", init.pid, init.nInstrucoes);
-
+    //printf("PID init: %d, nInstrucoes: %d\n", init.pid, init.nInstrucoes);
 
     inserirProcessoTabela(&gp.tabelaProcessos,&init);
     novoItem.Chave=init.pid;
-    
+
+    TFila processosCriados;
+    FazFilaVazia(&processosCriados);
+
     if (escFlag == MLFQ){
         FilaEnfileira(&gp.estadoPronto[init.prioridade],&novoItem);//escalonador MLFQ
     }
@@ -46,17 +50,8 @@ void* rodarGerenciador(void* arg)
     //loop infinito baseado nas variáveis de condição do pthreads
     while (1)
     {
+        //pega um comando da fila
         msg = desenfileiraComando(&filaComandos);
-        // tranca para ler a memória compartilhada de forma segura
-        //pthread_mutex_lock(&mutex_comando);
-        // espera até que haja um comando novo
-        //while (tem_novo_comando == 0) {
-            //pthread_cond_wait(&cond_comando, &mutex_comando);
-        //}
-        //msg = msg_compartilhada;
-        //tem_novo_comando = 0;
-        //libera
-        //pthread_mutex_unlock(&mutex_comando);
 
         if (msg.tipo == 'U')
         {
@@ -65,103 +60,114 @@ void* rodarGerenciador(void* arg)
             atualizarProcessosBloqueados(&gp, escFlag);
 
             // escalonamento
-            if (!gp.cpu.emUso)
-            {
-                if (escFlag == MLFQ)
+            for (int k=0;k<(cpuFlag+1);k++){
+                if (!gp.cpu[k].emUso)
                 {
-                    int pidEscalonado = escalonadorMLFQ(&gp);
-                    if (pidEscalonado != -1)
+                    if (escFlag == MLFQ)
                     {
-                        gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
-                        AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
 
-                        novoItem.Chave = gp.cpu.processo_atual->pid;
-                        FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+                        int pidEscalonado = escalonadorMLFQ(&gp,k);
+                        if (pidEscalonado != -1)
+                        {
+                            gp.cpu[k].processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
+                            // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                            AtualizarRegistradorCPU(&gp.cpu[k], gp.cpu[k].processo_atual);
 
-                        printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
+                            novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                            FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+
+                            printf("[Gerenciador] Processo %d escalonado para execução na CPU %d.\n", pidEscalonado,k);
+                        }
                     }
-                }
-                else
-                {
-                    int pidEscalonado = escalonadorFIFO(&gp);
-                    if (pidEscalonado != -1)
+                    else
                     {
-                        gp.cpu.processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
-                        AtualizarRegistradorCPU(&gp.cpu, gp.cpu.processo_atual);
 
-                        novoItem.Chave = gp.cpu.processo_atual->pid;
-                        FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+                        int pidEscalonado = escalonadorFIFO(&gp,k);
+                        if (pidEscalonado != -1)
+                        {
+                            gp.cpu[k].processo_atual = buscarProcessoTabela(&gp.tabelaProcessos, pidEscalonado);
+                            // gp.indiceEstadoExecucao = 0; // CPU agora tem um processo
+                            AtualizarRegistradorCPU(&gp.cpu[k], gp.cpu[k].processo_atual);
 
-                        printf("[Gerenciador] Processo %d escalonado para execução.\n", pidEscalonado);
+                            novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                            FilaEnfileira(&gp.estadoEmExecucao,&novoItem);
+
+                            printf("[Gerenciador] Processo %d escalonado para execução na CPU %d.\n", pidEscalonado,k);
+                        }
                     }
-                }
-            }else if(gp.cpu.emUso)
-            {
-            // troca de contexto
-                if (escFlag == MLFQ && gp.cpu.quantum_usado >= gp.cpu.quantum_total)
+                }else if(gp.cpu[k].emUso)
                 {
-                    processo *procAtual = gp.cpu.processo_atual;
-                    //mudança
-                    quantumEsgotado(&gp.cpu);
+                // troca de contexto
+                    if (escFlag == MLFQ && gp.cpu[k].quantum_usado >= gp.cpu[k].quantum_total)
+                    {
+                        processo *procAtual = gp.cpu[k].processo_atual;
 
-                    TItem novoItem;
-                    novoItem.Chave = procAtual->pid;
+                        quantumEsgotado(&gp.cpu[k]);
 
-                    if (escFlag == FIFO) {
-                        FilaEnfileira(&gp.estadoPronto[0], &novoItem);
+                        if (escFlag == FIFO) {
+                            FilaEnfileira(&gp.estadoPronto[0], &novoItem);
+                        }
+                        // Remove da fila de em execução
+                        FilaRemovePorChave(&gp.estadoEmExecucao, procAtual->pid);
+
+                        // Recalcula prioridade correta, sem esperar o próximo ciclo U.
+                        mlfqReinserirProcesso(&gp, procAtual);
+
+                        printf("[CPU %d] Quantum máximo atingido. Troca de contexto.\n", k);
+                    }
+                }
+                // execução
+                if(gp.cpu[k].emUso)
+                {
+                    printf("[CPU %d] --- Executando %c...\n",k,gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo);
+                    executaInstrucoes(&gp.cpu[k]);
+                    IncrementarQuantum_usado(&gp.cpu[k]);
+
+                    if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'B')
+                    {
+                        novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                        int pidSalvo = novoItem.Chave;
+                        SalvarContextoCpu(&gp.cpu[k]);
+
+                        FilaEnfileira(&gp.estadoBloquado, &novoItem);
+                        FilaRemovePorChave(&gp.estadoEmExecucao,pidSalvo);
+
+                        imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,pidSalvo));
+                    }
+                    else if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'T')
+                    {
+
+                        novoItem.Chave = gp.cpu[k].processo_atual->pid;
+                        int pidSalvo = novoItem.Chave;
+                        SalvarContextoCpu(&gp.cpu[k]);
+
+                        FilaEnfileira(&gp.finalizados, &novoItem);
+                        FilaRemovePorChave(&gp.estadoEmExecucao,pidSalvo);
+
+                        imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,pidSalvo));
+                        gp.totalProcessosFinalizados++;
+
+
+                    }
+                    else if (gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].tipo == 'F')
+                    {
+
+                        processo *processoFilhinho = clonaProcesso(&gp.cpu[k]);
+
+                        inserirProcessoTabela(&gp.tabelaProcessos, processoFilhinho);
+                        novoItem.Chave = processoFilhinho->pid;
+
+                        FilaEnfileira(&processosCriados,&novoItem);
+
+                        gp.cpu[k].registradorPC+=gp.cpu[k].listaInstrucao[gp.cpu[k].registradorPC].n;
                     }
 
-                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
-
-                    printf("Quantum máximo atingido. Troca de contexto.\n");
+                    gp.cpu[k].registradorPC++;
                 }
+
             }
-            
-            // execução
-            if(gp.cpu.emUso)
-            {
-                printf("--- Executando %c...\n",gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo);
-                executaInstrucoes(&gp.cpu);
-                IncrementarQuantum_usado(&gp.cpu);
 
-                if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'B')
-                {
-                    novoItem.Chave = gp.cpu.processo_atual->pid;
-                    SalvarContextoCpu(&gp.cpu); 
-
-                    FilaEnfileira(&gp.estadoBloquado, &novoItem);
-                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
-
-                    imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
-                }
-                else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'T')
-                {
-                    novoItem.Chave = gp.cpu.processo_atual->pid;
-                    SalvarContextoCpu(&gp.cpu);
-
-                    FilaEnfileira(&gp.finalizados, &novoItem);
-                    FilaDesenfileira(&gp.estadoEmExecucao,&novoItem);
-
-                    imprimirProcesso(buscarProcessoTabela(&gp.tabelaProcessos,novoItem.Chave));
-                }
-                else if (gp.cpu.listaInstrucao[gp.cpu.registradorPC].tipo == 'F')
-                {
-                    processo *processoFilhinho = clonaProcesso(&gp.cpu);
-                    
-                    inserirProcessoTabela(&gp.tabelaProcessos, processoFilhinho);
-                    novoItem.Chave = processoFilhinho->pid;
-                    
-                    if (escFlag == MLFQ){
-                        FilaEnfileira(&gp.estadoPronto[processoFilhinho->prioridade],&novoItem);
-                    }
-                    else if (escFlag == FIFO){
-                        FilaEnfileira(&gp.estadoPronto[0], &novoItem);
-                    }
-                    gp.cpu.registradorPC+=gp.cpu.listaInstrucao[gp.cpu.registradorPC].n;
-                }
-
-                gp.cpu.registradorPC++;
-            }
+            computaProcessosCriados(&gp,&processosCriados,escFlag);
             IncrementaTempo(&gp.tempo);
         }
         else if (msg.tipo == 'I')
@@ -212,11 +218,13 @@ void* rodarGerenciador(void* arg)
     
     return NULL;
 }
-int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos)
+int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos, int cpuFlag)
 {
 
     inicializarTabelaProcessos(&gerenciadorProcessos->tabelaProcessos);
-    inicializarCPU(&gerenciadorProcessos->cpu);
+    for(int j=0;j<cpuFlag;j++){
+        inicializarCPU(&gerenciadorProcessos->cpu[j]);
+    }
     InicializaTempo(&gerenciadorProcessos->tempo);
     for (int i = 0; i < 4; i++)
     {
@@ -226,6 +234,7 @@ int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos)
     FazFilaVazia(&gerenciadorProcessos->estadoBloquado);
     FazFilaVazia(&gerenciadorProcessos->finalizados);
     gerenciadorProcessos->totalProcessosFinalizados = 0;
+    gerenciadorProcessos->nCPUs=cpuFlag;
 
     if (gerenciadorProcessos == NULL)
     {
@@ -245,11 +254,12 @@ processo *clonaProcesso(cpu_s *cpu)
 
     procFilho->pid = proximoPidDisponivel;
     proximoPidDisponivel++;
+    procFilho->pidPai=procPai->pid;
 
     procFilho->pcCounter = cpu->registradorPC + 1;
     procFilho->estado = PRONTO;
 
-    procFilho->quantum = cpu->processo_atual->quantum;
+    procFilho->quantum = procPai->quantum;
     procFilho->quantum_usado_CPUatual = 0;
 
     procFilho->tempoBloqueado = 0;
@@ -322,6 +332,32 @@ void atualizarProcessosBloqueados(GerenciadorProcesso *gp, int escFlag) {
                     // é inserido novamente no fim da fila de bloqueados
                     FilaEnfileira(&gp->estadoBloquado, &itemRetirado);
                 }
+            }
+        }
+    }
+}
+
+void computaProcessosCriados(GerenciadorProcesso* gp, TFila* processosCriados, int escFlag){
+    TItem criado;
+    while (!FilaEhVazia(processosCriados)) {
+
+        if (FilaDesenfileira(processosCriados, &criado)) {
+
+            processo* processoFilhinho = buscarProcessoTabela(&gp->tabelaProcessos,criado.Chave);
+
+            if (processoFilhinho != NULL) {
+
+                TItem novoItem;
+                novoItem.Chave = processoFilhinho->pid;
+
+                if (escFlag == MLFQ) {
+                    FilaEnfileira(&gp->estadoPronto[processoFilhinho->prioridade],&novoItem);
+                }
+                else if (escFlag == FIFO) {
+                    FilaEnfileira(&gp->estadoPronto[0],&novoItem);
+                }
+
+                processoFilhinho->estado = PRONTO;
             }
         }
     }

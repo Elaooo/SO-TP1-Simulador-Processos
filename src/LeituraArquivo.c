@@ -40,9 +40,10 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
     if(!arquivo){
         
         printf("Falha ao abrir arquivo, não existe %s em data\n", caminho);
+        exit(0);
         return 0;
     }
-    
+
     //variaveis processo
     int qntdInstrucoes = contarLinhasArquivo(caminho);
     instrucao *listaInstrucoes = malloc(qntdInstrucoes * sizeof(instrucao));
@@ -59,7 +60,7 @@ int leituraArquivoProcesso(char *caminho, cpu_s *cpu){
         n = 0;
         x = 0;
 
-        if (sscanf(linha, " %c", &comando) != 1) 
+        if (sscanf(linha, " %c", &comando) != 1)
             continue;
 
         switch (comando) {
@@ -174,6 +175,7 @@ int leituraProcessoInit(processo *processo)
     {
 
         printf("Falha ao abrir arquivo, necessita arquivo init.txt em /data/\n");
+        exit(0);
         return 0;
     }
 

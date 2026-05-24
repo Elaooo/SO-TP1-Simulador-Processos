@@ -24,6 +24,7 @@ typedef struct{
 typedef struct{
     
     int pid; //process id
+    int pidPai;
     int nVariaveis;
     int *variaveis;
     int pcCounter;
@@ -31,11 +32,12 @@ typedef struct{
     int quantum;
     int quantum_usado_CPUatual;
     int prioridade;
-    int nInstrucoes; 
+    int nInstrucoes;
     instrucao *listaInstrucoes;
     int tempoBloqueado;
- 
+
 }processo;
+
 
 //void inicializarProcesso(processo* proc, int nVar, int nInstrucao, int* variaveisIniciais, enum estado estadoInicial, int prioridade, instrucao* listaInstrucoes);
 //void salvaEstado(processo* proc, int pcAtual, int* variaveisAtuais, int quantumAtual, int nVar);

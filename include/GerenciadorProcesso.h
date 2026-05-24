@@ -22,10 +22,11 @@ typedef struct{
     TFila estadoEmExecucao;
     TFila finalizados;
     Tempo tempo;
-    cpu_s cpu;
+    cpu_s cpu[4];
     TabelaDeProcessos tabelaProcessos;
     int totalProcessosFinalizados;
     int somaTemposResposta;
+    int nCPUs;
 
 }GerenciadorProcesso;
 
@@ -35,13 +36,13 @@ typedef struct {
     int escFlag;
 } ArgsImpressao;
 
-int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos);
+int inicializaGerenciadorProcessos(GerenciadorProcesso *gerenciadorProcessos,int cpuFlag);
 void* rodarGerenciador(void* arg);
 void atualizarProcessosBloqueados(GerenciadorProcesso *gerenciador, int escFlag);
-void* rotinaImpressao(void* arg);
-
+void computaProcessosCriados(GerenciadorProcesso* gp, TFila* processosCriados, int escFlag);
 processo* clonaProcesso(cpu_s *cpu);
 
+void* rotinaImpressao(void* arg);
 
 
 
