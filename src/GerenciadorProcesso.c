@@ -90,21 +90,20 @@ void rodarGerenciador(int fd_leitura, int escFlag, int cpuFlag)
                 // troca de contexto
                     if (escFlag == MLFQ && gp.cpu[k].quantum_usado >= gp.cpu[k].quantum_total)
                     {
-
                         processo *procAtual = gp.cpu[k].processo_atual;
 
                         quantumEsgotado(&gp.cpu[k]);
 
-                        TItem novoItem;
-                        novoItem.Chave = procAtual->pid;
-
                         if (escFlag == FIFO) {
                             FilaEnfileira(&gp.estadoPronto[0], &novoItem);
                         }
+                        // Remove da fila de em execução
+                        FilaRemovePorChave(&gp.estadoEmExecucao, procAtual->pid);
 
-                        FilaRemovePorChave(&gp.estadoEmExecucao,novoItem.Chave);
-
-                        printf("[CPU %d] Quantum máximo atingido. Troca de contexto.\n",k);
+                        // Recalcula prioridade correta, sem esperar o próximo ciclo U.
+                        mlfqReinserirProcesso(&gp, procAtual);
+                        
+                        printf("[CPU %d] Quantum máximo atingido. Troca de contexto.\n", k);
                     }
                 }
                 // execução
