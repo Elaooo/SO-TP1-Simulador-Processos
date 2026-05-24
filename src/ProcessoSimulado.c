@@ -10,6 +10,7 @@ void inicializarProcessoInit(processo* proc, instrucao* listaInstrucoes, int nIn
 
     proc->pid=proximoPidDisponivel;
     proximoPidDisponivel++;
+    proc->pidPai=0;
     proc->nInstrucoes=nInstrucao;
 
     proc->listaInstrucoes=NULL;
@@ -165,6 +166,8 @@ void imprimirProcesso(processo *p){
     printf("\n========= PROCESSO =========\n");
 
     printf("PID: %d\n", p->pid);
+    
+    if(p->pid!=0){printf("PID Pai: %d\n",p->pidPai);}
 
     printf("Estado: %s\n",
            estadoParaString(p->estado));
