@@ -1,5 +1,5 @@
-#ifndef TAD_TABELAPROCESSOS_H
-#define TAD_TABELAPROCESSOS_H
+#ifndef TABELAPROCESSOS_H
+#define TABELAPROCESSOS_H
 
 #include "ProcessoSimulado.h"
 
