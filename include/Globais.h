@@ -23,4 +23,9 @@ typedef struct {
     char *argv[];
 }ArgsControle;
 
+typedef struct {
+    int qtdCPU;
+    char tipoEscalonador;
+}ArgsGerenciador;
+
 #endif

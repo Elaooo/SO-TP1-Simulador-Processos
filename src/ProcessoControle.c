@@ -77,9 +77,11 @@ void *threadControle(void *arg)
     return NULL;
 }
 
-int escolherEscalonador() {
+void escolherEscalonador(ArgsGerenciador * aux) {
     char op = ' ';
-    int opcaoEscolhida = -1;
+    char op2 = ' ';
+    aux->tipoEscalonador = -1;
+    aux->qtdCPU = -1;
     do {
         printf("Escolha qual escalonador usar:\n");
         printf("0 - Escalonador MLFQ:\n");
@@ -91,12 +93,29 @@ int escolherEscalonador() {
     } while (op != '1' && op != '0');
 
     if (op == '1') {
-        opcaoEscolhida = FIFO;
+        aux->tipoEscalonador = FIFO;
     } else {
-        opcaoEscolhida = MLFQ;
+        aux->tipoEscalonador = MLFQ;
     }
-
-    return opcaoEscolhida;
+    do
+    {
+        printf("Escolha quantas CPUs utilizar:\n");
+        printf("1 - Uma CPU:\n");
+        printf("2 - Duas CPUs:\n");
+        printf("3 - Quatro CPUs:\n");
+        scanf(" %c", &op2);
+        if(op2 != '1' && op2 != '2' && op2 != '3'){
+            printf("Opcao invalida! Tente novamente.\n");
+        }
+    } while (op2 != '1' && op2 != '2' && op2 != '3');
+    if(op2 == '1'){
+        aux->qtdCPU = 0;
+    }else if (op2 == '2'){
+        aux->qtdCPU = 1;
+    }else{
+        aux->qtdCPU = 3;
+    }
+    return;
 }
 
 int lerOpcaoImpressao()

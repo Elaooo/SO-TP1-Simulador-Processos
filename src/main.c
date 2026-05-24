@@ -10,8 +10,8 @@
 int main(int argc, char *argv[]) {
 
     printf("\n===== Simulador de Gerenciamento de Processos com threads =====\n\n");
-
-    int escFlag = escolherEscalonador(); // escolhe antes de tudo
+    ArgsGerenciador argsGer;
+    escolherEscalonador(&argsGer); // escolhe antes de tudo
 
     pthread_t tidControle;
     pthread_t tidGerenciador;
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     /*
         Cria thread gerenciador
     */
-    if (pthread_create(&tidGerenciador, NULL, rodarGerenciador, &escFlag) != 0) {
+    if (pthread_create(&tidGerenciador, NULL, rodarGerenciador, &argsGer) != 0) {
         perror("Erro ao criar thread gerenciador");
         exit(1);
     }
