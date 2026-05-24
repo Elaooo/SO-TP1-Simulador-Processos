@@ -24,6 +24,7 @@ typedef struct{
 typedef struct{
     
     int pid; //process id
+    int pidPai;
     int nVariaveis;
     int *variaveis;
     int pcCounter;

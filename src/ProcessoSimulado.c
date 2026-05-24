@@ -55,11 +55,7 @@ void inicializarProcesso(processo* proc, instrucao* listaInstrucoes, int nInstru
 
     proc->nInstrucoes=nInstrucao;
     proc->pcCounter=0;
-    proc->estado=PRONTO;
 
-    proc->quantum_usado_CPUatual=0;
-
-    proc->tempoBloqueado=0;
 
 
     if (proc->listaInstrucoes != NULL){

@@ -235,11 +235,12 @@ processo *clonaProcesso(cpu_s *cpu)
 
     procFilho->pid = proximoPidDisponivel;
     proximoPidDisponivel++;
+    procFilho->pidPai=procPai->pid;
 
     procFilho->pcCounter = cpu->registradorPC + 1;
     procFilho->estado = PRONTO;
 
-    procFilho->quantum = cpu->processo_atual->quantum;
+    procFilho->quantum = procPai->quantum;
     procFilho->quantum_usado_CPUatual = 0;
 
     procFilho->tempoBloqueado = 0;
