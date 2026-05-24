@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
     ArgsControle *args = malloc(sizeof(ArgsControle) + argc * sizeof(char *));
 
     args->argc = argc;
+    args->nCPUs = argsGer.qtdCPU + 1;
     for (int i = 0; i < argc; i++) {
     args->argv[i] = argv[i];
     }

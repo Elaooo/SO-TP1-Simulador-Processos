@@ -18,6 +18,7 @@ void *threadControle(void *arg)
 {
     ArgsControle *args = (ArgsControle *) arg;
     int argc = args->argc;
+    int nCPUs = args->nCPUs;
     char **argv = args->argv;
 
 
@@ -51,7 +52,7 @@ void *threadControle(void *arg)
                 if(argc > 1){
                     fscanf(entrada, " %d", &msg.opcaoImpressao);
                 }else{
-                    msg.opcaoImpressao = lerOpcaoImpressao();
+                    msg.opcaoImpressao = lerOpcaoImpressao(nCPUs);
                 }
         }
         enfileiraComando(&filaComandos, msg);

@@ -19,6 +19,7 @@ extern pthread_cond_t cond_comando;
 
 typedef struct {
     int argc;
+    int nCPUs;
     char *argv[];
 }ArgsControle;
 

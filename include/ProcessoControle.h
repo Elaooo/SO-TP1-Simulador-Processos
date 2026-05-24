@@ -5,5 +5,5 @@
 
 void *threadControle(void *arg);
 void escolherArgsGerenciador(ArgsGerenciador * aux);
-int lerOpcaoImpressao();
+int lerOpcaoImpressao(int nCPUs);
 #endif
