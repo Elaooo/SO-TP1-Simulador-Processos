@@ -7,5 +7,5 @@ typedef struct {
 } ComandoPipe;
 
 int inicializaProcessoControle(int argc, char *argv[]);
-int lerOpcaoImpressao();
+int lerOpcaoImpressao(int nCPUs);
 #endif

@@ -115,7 +115,7 @@ int inicializaProcessoControle(int argc, char *argv[])
                 if(argc > 1){
                     fscanf(entrada, " %d", &msg.opcaoImpressao);
                 }else{
-                    msg.opcaoImpressao = lerOpcaoImpressao();
+                    msg.opcaoImpressao = lerOpcaoImpressao(opcaoEscolhida2+1);
                 }
             }
 
@@ -140,7 +140,7 @@ int inicializaProcessoControle(int argc, char *argv[])
     return 0;
 }
 
-int lerOpcaoImpressao()
+int lerOpcaoImpressao(int nCPUs)
 {
     char opcao = ' ';
     int opcaoEscolhida = -1;
@@ -148,25 +148,53 @@ int lerOpcaoImpressao()
     printf(AZUL "----------------------------------------------------------\n" RESET);
     printf(AZUL "Bem vindo ao menu de impressao do seu sistema operacional!\n" RESET);
     printf(AZUL "----------------------------------------------------------\n" RESET);
-
+    int flag = 0;
     do
     {
+        flag = 0;
         printf(AZUL "O que deseja visualizar?\n" RESET);
         printf(AZUL "1-" BRANCO " Todos os processos\n" RESET);
         printf(AZUL "2-" BRANCO " Processos em execucao\n" RESET);
         printf(AZUL "3-" BRANCO " Processos prontos para executar\n" RESET);
         printf(AZUL "4-" BRANCO " Processos bloqueados\n" RESET);
-        printf(AZUL "5-" BRANCO " Informacoes gerais\n" RESET);
-        printf(AZUL "Opcao: " RESET);
-        fflush(stdin);
-        scanf(" %c", &opcao);
+        printf(AZUL "5-" BRANCO " Informacoes de todas as CPUs\n" RESET);
+        for(int i = 0;i<nCPUs;i++){
 
-        if (opcao != '1' && opcao != '2' && opcao != '3' && opcao != '4' && opcao != '5')
-        {
-            printf(VERMELHO "Opcao invalida! Tente novamente\n" RESET);
+            printf("%s%d-%s Informacoes CPU numero %d%s\n", AZUL, 6+i, BRANCO, i+1, RESET);
+
         }
+        printf(AZUL "Opcao: " RESET);
+        scanf(" %c", &opcao);
+        
+        switch (nCPUs)
+        {
+        case 1:
+            if (opcao != '1' && opcao != '2' && opcao != '3' && opcao != '4' && opcao != '5' && opcao != '6')
+                {
+                    printf(VERMELHO "Opcao invalida! Tente novamente\n" RESET);
+                    flag = 1;
+                }
+            break;
+        case 2:
+            if (opcao != '1' && opcao != '2' && opcao != '3' && opcao != '4' && opcao != '5' && opcao != '6' && opcao != '7')
+                {
+                    printf(VERMELHO "Opcao invalida! Tente novamente\n" RESET);
+                    flag = 1;
+                }
+            break;
+        case 4:
+            if (opcao != '1' && opcao != '2' && opcao != '3' && opcao != '4' && opcao != '5' && opcao != '6' && opcao != '7' && opcao != '8' && opcao != '9')
+                {
+                    printf(VERMELHO "Opcao invalida! Tente novamente\n" RESET);
+                    flag = 1;
+                }
+            break;
+        default:
+            break;
+        }
+        
 
-    } while (opcao != '1' && opcao != '2' && opcao != '3' && opcao != '4' && opcao != '5');
+    } while (flag == 1);
     fflush(stdin);
     switch (opcao)
     {
@@ -184,6 +212,18 @@ int lerOpcaoImpressao()
         break;
     case '5':
         opcaoEscolhida = 5;
+        break;
+    case '6':
+        opcaoEscolhida = 6;
+        break;
+    case '7':
+        opcaoEscolhida = 7;
+        break;
+    case '8':
+        opcaoEscolhida = 8;
+        break;
+    case '9':
+        opcaoEscolhida = 9;
         break;
     default:
         break;

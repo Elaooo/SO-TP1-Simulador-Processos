@@ -30,7 +30,19 @@ void Imprime(GerenciadorProcesso *gerenciadorProcesso, int opcao, int escFlag)
         ImprimeProcessosBloqueados(&info);
         break;
     case 5:
-        ImprimeInformacoesGerais(&info);
+        ImprimeTodasAsCPUs(&info);
+        break;
+    case 6:
+        ImprimeCPU(&info, 1);
+        break;
+    case 7:
+        ImprimeCPU(&info, 2);
+        break;
+    case 8:
+        ImprimeCPU(&info, 3);
+        break;
+    case 9:
+        ImprimeCPU(&info, 4);
         break;
     default:
         break;
@@ -58,8 +70,8 @@ void ColetaInformacoes(Informacoes *info, GerenciadorProcesso *gerenciadorProces
 
     info->qtdProcessos = info->qtdProcessosBloqueados + info->qtdProcessosEmExecucao + info->qtdProcessosProntos;
 
-    info->processoAtual = info->gerenciadorProcesso->cpu[0].processo_atual;
     info->escFlag = escFlag;
+    info->nCPUs = info->gerenciadorProcesso->nCPUs;
 }
 
 void ImprimeTodosOsProcessos(Informacoes *info)
@@ -145,18 +157,18 @@ void ImprimeTodosOsProcessos(Informacoes *info)
     printf("%squantidade de processos em execucao: %s%d\n%s", AZUL, BRANCO, info->qtdProcessosEmExecucao, RESET);
     printf(AZUL "Fila de processos em execucao: \n\n" RESET);
 
-    Celula *celulaEmExecucao = info->gerenciadorProcesso->estadoEmExecucao.pFrente->pProx;
+    
     processo *processoEmExecucao;
-    printf(AZUL "  ID  |" BRANCO "  pcCounter  " AZUL "|  prioridade  |" BRANCO "  quantum  " AZUL "|\n" RESET);
-    for (int i = 0; i < info->qtdProcessosEmExecucao; i++)
+    printf(BRANCO "  CPU  " AZUL "|  ID  |" BRANCO "  pcCounter  " AZUL "|  prioridade  |" BRANCO "  quantum  " AZUL "|\n" RESET);
+    for (int i = 0; i < info->nCPUs; i++)
     {
-        processoEmExecucao = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaEmExecucao->Item.Chave);
-
-        printf("%s  %d     %s     %d       %s      %d      %s       %d\n%s", AZUL,
-               processoEmExecucao->pid, BRANCO, processoEmExecucao->pcCounter, AZUL,
-               processoEmExecucao->prioridade, BRANCO, processoEmExecucao->quantum, RESET);
-
-        celulaEmExecucao = celulaEmExecucao->pProx;
+        if(info->gerenciadorProcesso->cpu[i].emUso){
+        processoEmExecucao = info->gerenciadorProcesso->cpu[i].processo_atual;
+            printf("%s   %d   %s  %d     %s     %d       %s      %d      %s       %d\n%s", BRANCO, i+1 ,AZUL,
+                   processoEmExecucao->pid, BRANCO, processoEmExecucao->pcCounter, AZUL,
+                   processoEmExecucao->prioridade, BRANCO, processoEmExecucao->quantum, RESET);
+        }
+        
     }
 
     printf("\n");
@@ -170,18 +182,18 @@ void ImprimeProcessosEmExecucao(Informacoes *info)
     printf("%squantidade de processos em execucao: %s%d\n%s", AZUL, BRANCO, info->qtdProcessosEmExecucao, RESET);
     printf(AZUL "Fila de processos em execucao: \n\n" RESET);
 
-    Celula *celulaEmExecucao = info->gerenciadorProcesso->estadoEmExecucao.pFrente->pProx;
+    
     processo *processoEmExecucao;
-    printf(AZUL "  ID  |" BRANCO "  pcCounter  " AZUL "|  prioridade  |" BRANCO "  quantum  " AZUL "|\n" RESET);
-    for (int i = 0; i < info->qtdProcessosEmExecucao; i++)
+    printf(BRANCO "  CPU  " AZUL "|  ID  |" BRANCO "  pcCounter  " AZUL "|  prioridade  |" BRANCO "  quantum  " AZUL "|\n" RESET);
+    for (int i = 0; i < info->nCPUs; i++)
     {
-        processoEmExecucao = buscarProcessoTabela(&info->gerenciadorProcesso->tabelaProcessos, celulaEmExecucao->Item.Chave);
-
-        printf("%s  %d     %s     %d       %s      %d      %s       %d\n%s", AZUL,
-               processoEmExecucao->pid, BRANCO, processoEmExecucao->pcCounter, AZUL,
-               processoEmExecucao->prioridade, BRANCO, processoEmExecucao->quantum, RESET);
-
-        celulaEmExecucao = celulaEmExecucao->pProx;
+        if(info->gerenciadorProcesso->cpu[i].emUso){
+        processoEmExecucao = info->gerenciadorProcesso->cpu[i].processo_atual;
+            printf("%s   %d   %s  %d     %s     %d       %s      %d      %s       %d\n%s", BRANCO, i+1 ,AZUL,
+                   processoEmExecucao->pid, BRANCO, processoEmExecucao->pcCounter, AZUL,
+                   processoEmExecucao->prioridade, BRANCO, processoEmExecucao->quantum, RESET);
+        }
+        
     }
 
     printf("\n");
@@ -268,23 +280,51 @@ void ImprimeProcessosBloqueados(Informacoes *info)
     printf("\n");
 }
 
-void ImprimeInformacoesGerais(Informacoes *info)
+void ImprimeTodasAsCPUs(Informacoes *info)
 {
 
-        printf(AZUL "Informacoes do Gerenciador de Processos:\n" RESET);
-        printf("%sTotal de processo finalizados:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->totalProcessosFinalizados, RESET);
-        printf("%sTempo:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->tempo.valor, RESET);
+    printf(AZUL "Informacoes do Gerenciador de Processos:\n" RESET);
+    printf("%sTotal de processo finalizados:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->totalProcessosFinalizados, RESET);
+    printf("%sTempo:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->tempo.valor, RESET);
 
-        printf("\n");
-
-    for(int i=0;i<2;i++){
-
-        printf(AZUL "Informacoes da CPU:\n" RESET);
+    printf("\n");
+    printf(AZUL "Informacoes das CPUs:\n" RESET);
+  
+    for(int i = 0; i< info->nCPUs; i++){
+        
+        processo * processoAtual = info->gerenciadorProcesso->cpu[i].processo_atual;
+        if (processoAtual != NULL){
+            printf("%sCPU numero: %s%d%s\n", AZUL,BRANCO,i+1,RESET);
+        printf(AZUL "----------------------------------------\n" RESET);
         printf("%sIndice da proxima instrucao (PC):  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->cpu[i].registradorPC, RESET);
-        printf("%sProcesso atual:  %s%d\n%s", AZUL, BRANCO, info->processoAtual->pid, RESET);
+        printf("%sProcesso atual:  %s%d\n%s", AZUL, BRANCO, processoAtual->pid, RESET);
         printf("%sQuantum alocado para o processo atual:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->cpu[i].quantum_total, RESET);
+        printf(AZUL "----------------------------------------\n" RESET);
+        }else{
+            printf("%sCPU %s%d%s ociosa!%s\n", AZUL,BRANCO,i+1,AZUL,RESET);
+        }
 
+        
+
+    }
+        
+    printf("\n");
+    printf("\n");
+    
+}
+
+void ImprimeCPU(Informacoes * info, int cpu){
+
+    processo * processoAtual = info->gerenciadorProcesso->cpu[cpu-1].processo_atual;
+    if (processoAtual != NULL){
+        printf("%sCPU numero: %s%d%s\n", AZUL,BRANCO,cpu,RESET);
+        printf(AZUL "----------------------------------------\n" RESET);
+        printf("%sIndice da proxima instrucao (PC):  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->cpu[cpu-1].registradorPC, RESET);
+        printf("%sProcesso atual:  %s%d\n%s", AZUL, BRANCO, processoAtual->pid, RESET);
+        printf("%sQuantum alocado para o processo atual:  %s%d\n%s", AZUL, BRANCO, info->gerenciadorProcesso->cpu[cpu-1].quantum_total, RESET);
+        printf(AZUL "----------------------------------------\n" RESET);
         printf("\n");
-        printf("\n");
+    }else{
+        printf("%sCPU %s%d%s ociosa!%s\n", AZUL,BRANCO,cpu,AZUL,RESET);
     }
 }
