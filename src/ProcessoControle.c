@@ -77,7 +77,7 @@ void *threadControle(void *arg)
     return NULL;
 }
 
-void escolherEscalonador(ArgsGerenciador * aux) {
+void escolherArgsGerenciador(ArgsGerenciador * aux) {
     char op = ' ';
     char op2 = ' ';
     aux->tipoEscalonador = -1;

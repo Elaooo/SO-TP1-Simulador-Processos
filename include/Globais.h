@@ -25,7 +25,7 @@ typedef struct {
 
 typedef struct {
     int qtdCPU;
-    char tipoEscalonador;
+    int tipoEscalonador;
 }ArgsGerenciador;
 
 #endif

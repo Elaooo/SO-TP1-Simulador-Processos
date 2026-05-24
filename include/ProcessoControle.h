@@ -4,6 +4,6 @@
 
 
 void *threadControle(void *arg);
-int escolherEscalonador();
+void escolherArgsGerenciador(ArgsGerenciador * aux);
 int lerOpcaoImpressao();
 #endif

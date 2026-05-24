@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 
     printf("\n===== Simulador de Gerenciamento de Processos com threads =====\n\n");
     ArgsGerenciador argsGer;
-    escolherEscalonador(&argsGer); // escolhe antes de tudo
+    escolherArgsGerenciador(&argsGer); // escolhe antes de tudo
 
     pthread_t tidControle;
     pthread_t tidGerenciador;
