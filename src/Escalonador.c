@@ -26,29 +26,24 @@ int escalonadorMLFQ(GerenciadorProcesso *gerenciador,int idCPU)
         if (quantumUsado >= quantumTotal)
         {
             // Esgotou o quantum: diminui prioridade (aumenta o índice)
-            if (procAtual->prioridade < NUM_PRIORIDADES - 1)
-            {
-                procAtual->prioridade++;
-                printf("[Gerenciador] Processo %d teve prioridade diminuida para %d (quantum estourado)\n",
-                       procAtual->pid, procAtual->prioridade);
-            }
-            // Atualiza o quantum do processo para o novo nível
-            procAtual->quantum = quantumPorPrioridade[procAtual->prioridade];
-            procAtual->quantum_usado_CPUatual = 0;
+            // if (procAtual->prioridade < NUM_PRIORIDADES - 1)
+            // {
+            //     procAtual->prioridade++;
+            //     printf("[Gerenciador] Processo %d teve prioridade diminuida para %d (quantum estourado)\n",
+            //            procAtual->pid, procAtual->prioridade);
+            // }
+            // // Atualiza o quantum do processo para o novo nível
+            // procAtual->quantum = quantumPorPrioridade[procAtual->prioridade];
+            // procAtual->quantum_usado_CPUatual = 0;
 
             // Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
 
             gerenciador->cpu[idCPU].processo_atual = NULL;
-            gerenciador->cpu[idCPU].registradorPC = 0;
+            //gerenciador->cpu[idCPU].registradorPC = 0; //acho que isso ta zerando o pcCouter e bugando o print
             gerenciador->cpu[idCPU].quantum_total = 0;
             gerenciador->cpu[idCPU].quantum_usado = 0;
 
-            // Reinsere na fila de prontos do novo nível de prioridade
-            TItem item;
-            item.Chave = procAtual->pid;
-            FilaEnfileira(&gerenciador->estadoPronto[procAtual->prioridade], &item);
-            printf("[Gerenciador] Processo %d reinserido na fila de prontos (Prioridade: %d)\n",
-                   procAtual->pid, procAtual->prioridade);
+            mlfqReinserirProcesso(gerenciador, procAtual);
         }
         else
         {
@@ -64,7 +59,7 @@ int escalonadorMLFQ(GerenciadorProcesso *gerenciador,int idCPU)
 
             // Reinicia o contexto da CPU(acho que isso fica com a troca de contexto
             gerenciador->cpu[idCPU].processo_atual = NULL;
-            gerenciador->cpu[idCPU].registradorPC = 0;
+            //gerenciador->cpu[idCPU].registradorPC = 0; //acho que isso ta zerando o pcCouter e bugando o print
             gerenciador->cpu[idCPU].quantum_total = 0;
             gerenciador->cpu[idCPU].quantum_usado = 0;
 
@@ -116,6 +111,25 @@ int escalonadorMLFQ(GerenciadorProcesso *gerenciador,int idCPU)
            proximoProcesso->pcCounter);
 
     return proximoProcesso->pid;
+}
+
+void mlfqReinserirProcesso(GerenciadorProcesso *gerenciador, processo *proc)
+{
+    if (gerenciador == NULL || proc == NULL){
+        return;
+    }
+    if (proc->prioridade < NUM_PRIORIDADES - 1){
+        proc->prioridade++;
+        printf("[MLFQ] Processo %d teve prioridade diminuida para %d (quantum estourado)\n", proc->pid, proc->prioridade);
+    }
+
+    proc->quantum = quantumPorPrioridade[proc->prioridade];
+    proc->quantum_usado_CPUatual = 0;
+
+    TItem item;
+    item.Chave = proc->pid;
+    FilaEnfileira(&gerenciador->estadoPronto[proc->prioridade], &item);
+    printf("[MLFQ] Processo %d reinserido na fila de prontos (Prioridade: %d)\n", proc->pid, proc->prioridade);
 }
 // retorna o pid do processo que vai entrar na cpu
 // FIFO nao utiliza de quantum, quantum usado e nem de prioridade

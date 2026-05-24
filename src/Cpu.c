@@ -142,7 +142,7 @@ void quantumEsgotado(cpu_s *cpu){
         p->variaveis[i] = cpu->variaveis[i]; 
     }
 
-    cpu->emUso = 0; //indica que a CPU está livre
+    esvaziaCpu(cpu);
 }
 
 
