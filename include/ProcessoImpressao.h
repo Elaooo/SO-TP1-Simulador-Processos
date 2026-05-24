@@ -20,12 +20,15 @@ typedef struct{
 
 void ColetaInformacoes(Informacoes * info, GerenciadorProcesso * gerenciadorProcesso, int escFlag);
 void Imprime(GerenciadorProcesso * gerenciadorProcesso, int opcao, int escFlag);
-void ImprimeTodosOsProcessos(Informacoes * info);
-void ImprimeProcessosEmExecucao(Informacoes * info);
-void ImprimeProcessosProntos(Informacoes * info);
-void ImprimeProcessosBloqueados(Informacoes * info);
-
-void ImprimeTodasAsCPUs(Informacoes * info);
-void ImprimeCPU(Informacoes * info, int cpu);
+void ImprimeProcessosEmExecucaoMLFQ(Informacoes * info);
+void ImprimeProcessosProntosMLFQ(Informacoes * info);
+void ImprimeProcessosBloqueadosMLFQ(Informacoes * info);
+void ImprimeTodasAsCPUsMLFQ(Informacoes * info);
+void ImprimeCPUMLFQ(Informacoes * info, int cpu);
+void ImprimeProcessosEmExecucaoFIFO(Informacoes * info);
+void ImprimeProcessosProntosFIFO(Informacoes * info);
+void ImprimeProcessosBloqueadosFIFO(Informacoes * info);
+void ImprimeTodasAsCPUsFIFO(Informacoes * info);
+void ImprimeCPUFIFO(Informacoes * info, int cpu);
 
 #endif
