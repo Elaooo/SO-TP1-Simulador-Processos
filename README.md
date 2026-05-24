@@ -104,6 +104,21 @@ make clean && make
 
 ### Execução
 
+### 🖥️ Detalhes de Execução e Portabilidade
+
+> [!IMPORTANT]
+> **Compatibilidade Exclusiva (Linux / WSL)**: Este simulador foi projetado e desenvolvido especificamente para sistemas operacionais baseados em **Unix/Linux** (ou ambientes de compatibilidade como o **WSL - Windows Subsystem for Linux**). O sistema depende diretamente de chamadas de sistema da API POSIX, tais como `fork()` para criação de processos clonados, `pipe()` para o estabelecimento de canais de comunicação interprocessos (IPC) e `wait()` para sincronização e encerramento. Devido a isso, ele não roda de forma nativa no ambiente Windows convencional.
+
+O fluxo do programa principal (`main`) utiliza os argumentos tradicionais da linha de comando para gerenciar sua inicialização:
+* **`argc` (Argument Count)**: Representa o número total de argumentos passados na chamada do executável.
+* **`argv` (Argument Vector)**: É um vetor de strings contendo cada um dos parâmetros informados.
+
+O sistema analisa esses parâmetros da seguinte forma para decidir o modo de funcionamento:
+1. **Modo Interativo (`argc == 1`)**: Iniciado executando apenas `./bin/simulator`. Sem argumentos adicionais, o **Processo Controle (Pai)** lerá interativamente os comandos (`U`, `I`, `M`) da entrada padrão (`stdin`) digitados pelo usuário.
+2. **Modo Batch (`argc > 1`)**: Iniciado fornecendo o caminho de um arquivo, como `./bin/simulator tests/test.txt`. O simulador capturará a string do caminho do arquivo em **`argv[1]`**, abrirá o arquivo para leitura automática dos comandos estruturados e executará a simulação sem intervenção humana manual.
+
+---
+
 Você pode rodar o simulador em dois modos principais:
 
 #### 1. Modo Interativo (Manual)
